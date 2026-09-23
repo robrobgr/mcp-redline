@@ -1,5 +1,7 @@
-import { describe, it } from "node:test";
+import { describe, it, before, after } from "node:test";
 import * as assert from "node:assert";
+import * as fs from "node:fs";
+import * as os from "node:os";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { RedlineEngine } from "../src/index.js";
@@ -7,71 +9,119 @@ import { RedlineEngine } from "../src/index.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const corpusDir = path.resolve(__dirname, "../../corpus");
 
-describe("mcp-redline Server & Engine Tests", () => {
+describe("mcp-redline — corpus loading, search, quote", () => {
   const engine = new RedlineEngine(corpusDir);
 
-  it("1. list_sources should return all corpus documents", () => {
+  it("list_sources returns all 7 documents with authority tiers", () => {
     const sources = engine.listSources();
-    assert.strictEqual(sources.length, 7, `Expected exactly 7 documents, got ${sources.length}`);
-    const files = sources.map((s) => s.file);
-    assert.ok(files.includes("01_Apex_VeloNova_MSA_2023.md"));
-    assert.ok(files.includes("02_Schedule_B_Service_Levels_and_Credits.md"));
-    assert.ok(files.includes("03_Invoice_INV-2024-1108.md"));
-    assert.ok(files.includes("05_Rachunek_Zyskow_i_Strat_2024_PLN.md"));
+    assert.strictEqual(sources.length, 7);
+    const tier = (f: string) => sources.find((s) => s.file === f)?.tier;
+    assert.strictEqual(tier("01_Apex_VeloNova_MSA_2023.md"), 1);
+    assert.strictEqual(tier("07_CRM_Export_Enterprise_Contracts_2024.md"), 2);
+    assert.strictEqual(tier("04_Email_Thread_Inflation_Dispute_Nov2024.md"), 3);
   });
 
-  it("2. search should return relevant quotes with location and score", () => {
-    const results = engine.search("SLA 99.8%", 5);
-    assert.ok(results.length > 0, "Search should return results for SLA 99.8%");
+  it("search returns sentence-level verbatim quotes", () => {
+    const results = engine.search("SLA 99.8% availability", 3);
+    assert.ok(results.length > 0);
     assert.strictEqual(results[0].file, "02_Schedule_B_Service_Levels_and_Credits.md");
     assert.ok(results[0].quote.includes("99.8%"));
+    assert.ok(results[0].quote.length < 300, "quote should be a sentence, not a whole section");
   });
 
-  it("3. quote should return verbatim text without alteration", () => {
-    const quote = engine.quote("03_Invoice_INV-2024-1108.md", 1);
-    assert.ok(quote, "Quote should find section");
-    assert.ok(quote.quote.includes("Apex Meridian Technologies Ltd"));
+  it("quote returns a section verbatim", () => {
+    const q = engine.quote("03_Invoice_INV-2024-1108.md", 1);
+    assert.ok(q && q.quote.includes("Apex Meridian Technologies Ltd"));
   });
 
-  it("4. verify should return GROUNDED for factual claims backed by corpus", () => {
-    // Factual claim 1: Annual subscription fee
-    const res1 = engine.verify("Customer shall pay Supplier an annual base platform fee of £48,000.00 GBP net");
-    assert.strictEqual(res1.status, "GROUNDED");
-    assert.strictEqual(res1.file, "01_Apex_VeloNova_MSA_2023.md");
-    assert.ok(res1.quote?.includes("£48,000.00 GBP"));
+  it("every quote returned by verify is a verbatim substring of its source file", () => {
+    const claims = [
+      "Roczna opłata abonamentowa wynosi £48,000.00 GBP netto.",
+      "Supplier may raise prices by 7.5% UK CPI from January 2025.",
+      "Aneks rozszerzający flotę do 300 pojazdów nigdy nie został podpisany.",
+      "Faktura INV-2024-1108 za czwarty kwartał 2024 r. opiewa na kwotę £12,000.00 GBP netto płatną na rachunek Barclays Bank.",
+    ];
+    for (const c of claims) {
+      const r = engine.verify(c);
+      assert.ok(r.quote && r.file, `expected a quote for: ${c}`);
+      const src = fs.readFileSync(path.join(corpusDir, r.file!), "utf-8");
+      for (const fragment of r.quote!.split(" […] ")) {
+        assert.ok(src.includes(fragment), `not verbatim: ${fragment}`);
+      }
+    }
+  });
+});
 
-    // Factual claim 2: Guaranteed SLA
-    const res2 = engine.verify("Gwarantowane SLA miesięcznej dostępności wynosi 99.8%");
-    assert.strictEqual(res2.status, "GROUNDED");
-    assert.strictEqual(res2.file, "02_Schedule_B_Service_Levels_and_Credits.md");
+describe("mcp-redline — verify on the demo corpus", () => {
+  const engine = new RedlineEngine(corpusDir);
+  const v = (c: string) => engine.verify(c);
 
-    // Factual claim 3: Financial statement net revenue
-    const res3 = engine.verify("Przychody netto ze sprzedaży VeloNova Logistics w 2024 wyniosły 48 520 000,00 PLN");
-    assert.strictEqual(res3.status, "GROUNDED");
-    assert.strictEqual(res3.file, "05_Rachunek_Zyskow_i_Strat_2024_PLN.md");
+  it("GROUNDED for facts, in PL and EN, including negative facts", () => {
+    assert.strictEqual(v("Customer shall pay Supplier an annual base platform fee of £48,000.00 GBP net").status, "GROUNDED");
+    assert.strictEqual(v("Gwarantowane SLA miesięcznej dostępności wynosi 99.8%").status, "GROUNDED");
+    assert.strictEqual(v("Przychody netto ze sprzedaży VeloNova Logistics w 2024 wyniosły 48 520 000,00 PLN").status, "GROUNDED");
+    assert.strictEqual(v("Dostawca nie ma prawa jednostronnie podnieść cen.").status, "GROUNDED");
+    assert.strictEqual(v("Zarząd jednogłośnie odrzucił propozycję kary umownej 50 000 EUR.").status, "GROUNDED");
   });
 
-  it("5. verify MUST return UNSUPPORTED for claims outside corpus or contradicted by corpus (CRITICAL TEST)", () => {
-    // TRAP-01: Claim of unilateral inflation indexation right
-    const trap1 = engine.verify("Apex Meridian ma prawo do jednostronnego podniesienia cen o wskaźnik inflacji 7.5% UK CPI");
-    assert.strictEqual(trap1.status, "UNSUPPORTED", "TRAP-01 must be UNSUPPORTED");
-    assert.ok(trap1.explanation.length > 0);
+  it("CONTRADICTED for the four traps — also when paraphrased in English", () => {
+    const expectContra = (c: string, file?: string) => {
+      const r = v(c);
+      assert.strictEqual(r.status, "CONTRADICTED", `${c} -> ${r.status}: ${r.explanation}`);
+      if (file) assert.strictEqual(r.file, file);
+    };
+    expectContra("Apex Meridian ma prawo do jednostronnego podniesienia cen o wskaźnik inflacji 7.5% UK CPI", "01_Apex_VeloNova_MSA_2023.md");
+    expectContra("Supplier may raise prices by 7.5% UK CPI from January 2025.", "01_Apex_VeloNova_MSA_2023.md");
+    expectContra("VeloNova nałożyła na dostawcę karę umowną w wysokości 50 000 EUR za awarię we Frankfurcie");
+    expectContra("Podpisano aneks rozszerzający flotę do 300 pojazdów o wartości 95 000 EUR");
+    expectContra("Telemetry data is hosted in Frankfurt, Germany.");
+  });
 
-    // TRAP-02: Claim of 50k EUR penalty imposed on supplier
-    const trap2 = engine.verify("VeloNova nałożyła na dostawcę karę umowną w wysokości 50 000 EUR za awarię we Frankfurcie");
-    assert.strictEqual(trap2.status, "UNSUPPORTED", "TRAP-02 must be UNSUPPORTED");
+  it("CONTRADICTED on wrong numbers, years and currencies", () => {
+    assert.strictEqual(v("The annual fee is £48,000.00 EUR.").status, "CONTRADICTED");
+    assert.strictEqual(v("Zysk netto VeloNova za 2024 wyniósł 4 310 000,00 PLN.").status, "CONTRADICTED");
+    assert.strictEqual(v("Umowa ramowa została podpisana 15 stycznia 2021 r.").status, "CONTRADICTED");
+    assert.strictEqual(v("Gwarantowana dostępność wynosi 99.9%.").status, "CONTRADICTED");
+  });
 
-    // TRAP-03: Claim of signed expansion annex for 300 vehicles / 95,000 EUR
-    const trap3 = engine.verify("Podpisano aneks rozszerzający flotę do 300 pojazdów o wartości 95 000 EUR");
-    assert.strictEqual(trap3.status, "UNSUPPORTED", "TRAP-03 must be UNSUPPORTED");
+  it("an e-mail (Tier 3) cannot ground a claim that the contract (Tier 1) contradicts", () => {
+    const r = v("Supplier may raise prices by 7.5% UK CPI from January 2025.");
+    assert.strictEqual(r.status, "CONTRADICTED");
+    assert.strictEqual(r.tier, 1);
+    assert.strictEqual(r.conflicting?.tier, 3);
+  });
 
-    // TRAP-04: Claim of exclusive German hosting
-    const trap4 = engine.verify("Wszystkie dane telemetryczne są przetwarzane wyłącznie na terenie Niemiec we Frankfurcie");
-    assert.strictEqual(trap4.status, "UNSUPPORTED", "TRAP-04 must be UNSUPPORTED");
+  it("a proposal is not a fact: the COO's penalty request does not ground 'penalty was imposed'", () => {
+    assert.notStrictEqual(v("VeloNova nałożyła na dostawcę karę umowną w wysokości 50 000 EUR.").status, "GROUNDED");
+  });
 
-    // Completely fictional hallucination test
-    const hallucination = engine.verify("VeloNova Logistics posiada flotę 50 statków morskich pływających pod banderą panamską");
-    assert.strictEqual(hallucination.status, "UNSUPPORTED", "Hallucinated claim must be UNSUPPORTED");
-    assert.ok(hallucination.explanation.includes("Brak"), "Explanation should indicate lack of support");
+  it("UNSUPPORTED for claims the corpus is silent about", () => {
+    const r = v("VeloNova Logistics posiada flotę 50 statków morskich pływających pod banderą panamską");
+    assert.strictEqual(r.status, "UNSUPPORTED");
+    assert.strictEqual(r.quote, undefined, "UNSUPPORTED must not present a quote as evidence");
+    assert.strictEqual(v("CISO Apex Meridian nazywa się Dr. Aris Thorne.").status, "UNSUPPORTED");
+  });
+});
+
+describe("mcp-redline — generality (no corpus-specific rules)", () => {
+  let dir: string;
+  let engine: RedlineEngine;
+  before(() => {
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), "redline-"));
+    fs.writeFileSync(path.join(dir, "01_Lease_Agreement.md"),
+      "# LEASE AGREEMENT\n\n### 1. RENT\n1.1 The monthly rent is fixed at 3,000 EUR.\n1.2 The landlord shall not increase the rent during the first 24 months.\n\n### 2. DEPOSIT\n2.1 The tenant paid a deposit of 6,000 EUR on 1 March 2024.\n");
+    fs.writeFileSync(path.join(dir, "02_Email_Landlord.md"),
+      "# EMAIL\n\nFrom the landlord: from June 2024 the monthly rent will be increased to 3,300 EUR.\n");
+    engine = new RedlineEngine(dir);
+  });
+  after(() => fs.rmSync(dir, { recursive: true, force: true }));
+
+  it("works on an unrelated corpus", () => {
+    assert.strictEqual(engine.verify("The monthly rent is 3,000 EUR.").status, "GROUNDED");
+    assert.strictEqual(engine.verify("The deposit was 6,000 EUR.").status, "GROUNDED");
+    assert.strictEqual(engine.verify("The monthly rent is 3,000 PLN.").status, "CONTRADICTED");
+    assert.strictEqual(engine.verify("The landlord may increase the rent.").status, "CONTRADICTED");
+    assert.strictEqual(engine.verify("The monthly rent is 3,300 EUR.").status, "CONTRADICTED", "contract beats e-mail");
+    assert.strictEqual(engine.verify("The apartment has a balcony with sea view.").status, "UNSUPPORTED");
   });
 });
