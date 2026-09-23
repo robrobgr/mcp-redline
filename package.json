@@ -1,6 +1,6 @@
 {
   "name": "mcp-redline",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Deterministic local document citation and claim verification MCP server with explicit refusal",
   "main": "dist/index.js",
   "type": "module",

@@ -44,6 +44,7 @@ export interface Unit {
   numbers: NumMention[];
   negCues: string[];
   hedged: boolean;
+  clauses: Array<{ tokens: Set<string>; cues: string[] }>; // negation scope
 }
 
 export interface SourceInfo { file: string; type: string; pages: number; title: string; tier: number }
@@ -115,9 +116,10 @@ const GROUPS: string[][] = [
   ["angli", "angiel", "england", "english"],
   ["wali", "wales"],
   ["polsk", "polish", "poland", "polsce"],
-  ["praw", "law", "laws", "right", "rights", "entitled", "uprawn", "governed"],
+  ["praw", "law", "laws", "right", "rights", "entitled", "uprawn"],
   ["=sąd", "=sądy", "sądu", "sądów", "court", "courts"],
   ["jurysdyk", "jurisdiction"],
+  ["podleg", "governed", "construed"],
   ["wyłączn", "exclusive", "exclusively", "sole", "solely", "only", "jedyn", "=tylko"],
   ["jednostron", "unilateral", "unilaterally"],
   ["aneks", "annex", "addendum", "amendment"],
@@ -161,6 +163,11 @@ const GROUPS: string[][] = [
   ["wrześ", "wrzes", "september"], ["paździer", "october"], ["listopad", "november"], ["grud", "december"],
 ];
 
+const WEEKDAYS_EN = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+// Geographic groups are decisive like proper nouns (PL writes "polskiemu", "niemieckich" lower-case):
+// a claim term from these groups must appear in the quoted unit itself.
+const DECISIVE_GROUPS = GROUPS.filter((g) => ["niemc", "irland", "londyn", "angli", "wali", "polsk", "warszaw"].includes(g[0]));
+
 const MONTHS_EN = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
 
 const STOPWORDS = new Set([
@@ -178,12 +185,17 @@ const STOPWORDS = new Set([
   "gbp", "eur", "pln", "zł", "euro", "każdy", "każda", "każde", "every", "podstawie", "basis",
 ]);
 
-// Party names are almost always present in this kind of corpus; they must not
-// carry the grounding on their own. Kept generic (roles, legal-form words).
+// Roles and legal-form words never carry grounding on their own. Party NAMES are not listed
+// here: they are read from the contract's definitions clause at load time (see parties).
 const GENERIC = new Set([
-  "velonova", "apex", "meridian", "technologies", "logistics", "ltd", "spółka", "spółki", "supplier", "customer",
-  "dostawca", "dostawcy", "dostawcę", "dostawcą", "klient", "klienta", "klientowi", "firma", "company",
+  "ltd", "limited", "plc", "inc", "gmbh", "spółka", "spółki", "supplier", "customer", "party", "parties",
+  "dostawca", "dostawcy", "dostawcę", "dostawcą", "klient", "klienta", "klientowi", "firma", "company", "strona", "strony",
 ]);
+const ROLE_GROUPS: string[][] = [
+  ["supplier", "dostawc", "vendor", "provider", "licensor"],
+  ["customer", "klient", "client", "licensee", "buyer"],
+];
+const LEGAL_FORM = new Set(["ltd", "limited", "plc", "inc", "gmbh", "sp", "o.o", "z", "s.a", "b.v", "sas", "llc"]);
 
 const NEG_EXACT = new Set([
   "not", "no", "never", "neither", "nor", "none", "cannot", "can't", "won't", "isn't", "doesn't", "don't", "wasn't",
@@ -195,11 +207,13 @@ const NEG_PREFIX = ["odrzuc", "wykreśl", "zakaz", "nieważn", "bezpodstawn", "b
 const UNPREFIX: Record<string, string> = { unpaid: "paid", unsigned: "signed" };
 // Reported speech / proposals: a unit that only reports that someone proposed or claimed
 // something cannot establish it as fact (unless the claim itself is about the proposal).
-const HEDGE_PREFIX = ["zawnioskow", "wnios", "propozyc", "proponu", "propos", "request", "claim", "twierdz", "rzekom", "purport", "draft", "domag", "żąda", "żądan"];
+const HEDGE_PREFIX = ["zawnioskow", "wnios", "propozyc", "proponu", "propos", "request", "claimed", "alleg", "twierdz", "rzekom", "purport", "draft", "domag", "żąda", "żądan"];
 function isHedge(t: string): boolean {
   return HEDGE_PREFIX.some((p) => t.startsWith(p));
 }
 
+// Credit for a claim term found only in a neighbouring sentence of the same section.
+const NEIGHBOUR_CREDIT = 0;
 const B = "(?<![\\p{L}\\p{N}])";
 const E = "(?![\\p{L}\\p{N}])";
 // Comparatives / caps are not negations ("not less than 99.8%", "shall not exceed").
@@ -254,7 +268,9 @@ function stemMatch(a: string, b: string): boolean {
 }
 
 function memberMatch(member: string, word: string): boolean {
-  return member.startsWith("=") ? member.slice(1) === word : stemMatch(member, word) || word.startsWith(member);
+  if (member.startsWith("=")) return member.slice(1) === word;
+  if (member.startsWith("~")) return stemMatch(member.slice(1), word); // a claim word: stem match only
+  return stemMatch(member, word) || word.startsWith(member);
 }
 
 // ───────────────────────────── Numbers ─────────────────────────────
@@ -364,10 +380,13 @@ interface ClaimFeatures {
   numbers: NumMention[];
   negative: boolean;
   hedged: boolean;
+  parties: Set<string>;
+  proper: string[]; // capitalised names/places in the claim — decisive, must be in the quoted unit
 }
 
 interface UnitScore {
   unit: Unit;
+  unitNegative: boolean; // polarity of the clauses that match the claim
   coverage: number; // unit + section context (half credit for neighbouring sentences)
   unitCoverage: number; // quoted unit only
   contraCoverage: number; // unit + titles (no neighbouring sentences) — used for contradictions
@@ -415,6 +434,8 @@ export class RedlineEngine {
   public units: Unit[] = [];
   private sectionUnits = new Map<string, Unit[]>();
   private vocabulary = new Set<string>();
+  /** Contract parties read from definitions clauses: name + defined aliases + role words. */
+  public parties: Array<{ name: string; tokens: string[]; names: string[] }> = [];
 
   constructor(corpusDir?: string) {
     if (corpusDir) {
@@ -435,12 +456,14 @@ export class RedlineEngine {
     this.units = [];
     this.sectionUnits.clear();
     this.vocabulary.clear();
+    this.parties = [];
     if (!fs.existsSync(this.corpusDir)) return;
 
     const files = fs.readdirSync(this.corpusDir).filter((f) => f.endsWith(".md")).sort();
     for (const file of files) {
       const raw = fs.readFileSync(path.join(this.corpusDir, file), "utf-8");
       const tier = tierOf(file);
+      this.readParties(raw);
       const lines = raw.split("\n");
       const isSinglePage = /invoice|faktura/i.test(file);
       const headerLines = lines.filter((l) => l.trim() && l.trim() !== "---").slice(0, 2);
@@ -485,6 +508,10 @@ export class RedlineEngine {
       units.push({
         file: sec.file, page: sec.page, tier: sec.tier, text, tokens, context, numbers: [...numbers, ...extraNumbers],
         negCues: negationCues(text), hedged: rawTokens(text).some(isHedge),
+        // Table rows keep one scope (a status cell negates the whole record); prose is split
+        // into clauses so that "under English law (which governs the contract) the letter has
+        // NO effect" does not negate "the contract is governed by English law".
+        clauses: (text.startsWith("|") ? [text] : text.split(/[,;:()—–]|\s-\s/)).map((c) => ({ tokens: new Set(rawTokens(c)), cues: negationCues(c) })),
       });
     };
 
@@ -519,6 +546,49 @@ export class RedlineEngine {
     this.units.push(...units);
   }
 
+  /**
+   * Definitions clause convention: **Full Name Ltd**, … ("Supplier" or "Short Name").
+   * Each party gets its distinctive name tokens plus the role words it is defined as.
+   */
+  private readParties(raw: string): void {
+    const re = /\*\*([^*\n]+)\*\*,[^\n]*?\(\s*"([^"]+)"(?:\s+or\s+"([^"]+)")?\s*\)/g;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(raw))) {
+      const name = m[1].trim();
+      if (this.parties.some((p) => p.name === name)) continue;
+      const toks = new Set<string>();
+      for (const part of [m[1], m[2], m[3] || ""]) for (const t of rawTokens(part)) if (!LEGAL_FORM.has(t)) toks.add(t);
+      const names = [...toks].filter((t) => !ROLE_GROUPS.some((g) => g.some((r) => t.startsWith(r))));
+      for (const t of [...toks]) for (const g of ROLE_GROUPS) if (g.some((r) => t.startsWith(r))) g.forEach((r) => toks.add(r));
+      this.parties.push({ name, tokens: [...toks], names });
+    }
+    // tokens shared by several parties are not distinctive
+    for (const p of this.parties) {
+      p.tokens = p.tokens.filter((t) => this.parties.filter((q) => q.tokens.includes(t)).length === 1);
+      p.names = p.names.filter((t) => p.tokens.includes(t));
+    }
+  }
+
+  private partiesIn(tokens: Iterable<string>, namesOnly = false): Set<string> {
+    const found = new Set<string>();
+    for (const t of tokens) for (const p of this.parties) {
+      if ((namesOnly ? p.names : p.tokens).some((pt) => t === pt || t.startsWith(pt))) found.add(p.name);
+    }
+    return found;
+  }
+
+  /**
+   * A unit that NAMES another party (by name, not by role word — roles appear in every contract
+   * sentence as actors) and never refers to the claim's party cannot support the claim.
+   */
+  private partyMismatch(claimParties: Set<string>, u: Unit): boolean {
+    if (claimParties.size === 0) return false;
+    const named = this.partiesIn(u.tokens, true);
+    if (named.size === 0) return false;
+    const referred = this.partiesIn(u.tokens);
+    return ![...claimParties].some((p) => referred.has(p));
+  }
+
   public listSources(): SourceInfo[] {
     return this.sources;
   }
@@ -542,11 +612,12 @@ export class RedlineEngine {
     for (const t of toks) {
       if (UNPREFIX[t]) content.add(UNPREFIX[t]);
       if (isNegCue(t) || STOPWORDS.has(t) || GENERIC.has(t) || currencyOf(t)) continue;
+      if (this.parties.some((p) => p.tokens.includes(t))) continue; // who, not what: checked via partyMismatch
       content.add(t);
     }
     const alts = new Map<string, Set<string>>();
     for (const t of content) {
-      const members = [t];
+      const members = [`~${t}`];
       for (const g of GROUPS) if (g.some((mem) => memberMatch(mem, t))) members.push(...g);
       const hits = new Set<string>();
       for (const v of this.vocabulary) if (members.some((mem) => memberMatch(mem, v))) hits.add(v);
@@ -560,7 +631,10 @@ export class RedlineEngine {
     }
     const claimCur = currenciesIn(claim);
     const { numbers } = extractNumbers(claim, claimCur.size === 1 ? [...claimCur][0] : undefined);
-    return { content: [...content], alts, weight, numbers, negative, hedged: toks.some(isHedge) };
+    const cased = claim.match(TOKEN_RE) || [];
+    const proper = [...new Set(cased.slice(1).filter((w) => /^\p{Lu}/u.test(w)).map((w) => w.toLowerCase()))].filter((t) => content.has(t) && !MONTHS_EN.includes(t) && !WEEKDAYS_EN.includes(t));
+    for (const t of content) if (DECISIVE_GROUPS.some((g) => g.some((m) => memberMatch(m, t))) && !proper.includes(t)) proper.push(t);
+    return { content: [...content], alts, weight, numbers, negative, hedged: toks.some(isHedge), parties: this.partiesIn(toks), proper };
   }
 
   private scoreUnit(f: ClaimFeatures, u: Unit): UnitScore {
@@ -579,7 +653,7 @@ export class RedlineEngine {
         cov += 0.5 * w; ctx += 0.5 * w; matched.push(`${t}^`); continue;
       }
       const inSection = sectionUnits.some((s) => [...s.tokens].some((x) => hits.has(x)));
-      if (inSection) { cov += 0.5 * w; matched.push(`${t}~`); } else missing.push(t);
+      if (inSection) { cov += NEIGHBOUR_CREDIT * w; matched.push(`${t}~`); } else missing.push(t);
     }
     const fullW = f.content.filter((t) => matched.includes(t) || matched.includes(`${t}^`) && /\d/.test(t)).reduce((a, t) => a + f.weight.get(t)!, 0);
     const n = W || 1;
@@ -612,7 +686,12 @@ export class RedlineEngine {
       if (rivals.length > 0) conflicts.push(`wartość: twierdzenie ${fmt(n)}, źródło ${rivals.map(fmt).join(" / ")}`);
     }
 
-    const polarityFlip = f.negative !== u.negCues.length > 0;
+    // Negation scope = the clause(s) carrying most of the claim's terms.
+    const hitsIn = (c: { tokens: Set<string> }) => f.content.filter((t) => [...c.tokens].some((x) => f.alts.get(t)!.has(x))).length;
+    const best = Math.max(0, ...u.clauses.map(hitsIn));
+    const relevant = best > 0 ? u.clauses.filter((c) => hitsIn(c) === best) : [];
+    const unitNegative = relevant.length ? relevant.some((c) => c.cues.length > 0) : u.negCues.length > 0;
+    const polarityFlip = f.negative !== unitNegative;
     // Confirmed numbers are content too: fold them into the support coverage.
     const numFound = f.numbers.length - (numbersOk ? 0 : f.numbers.filter((x) => !u.numbers.some((y) => sameValue(x.value, y.value))).length);
     const NW = Math.log(1 + (this.units.length || 1) / 2); // numbers weigh like a rare term
@@ -620,7 +699,7 @@ export class RedlineEngine {
     const supportCoverage = (cov + Math.max(0, numFound) * NW) / denom;
     const supportUnitCoverage = (fullW + Math.max(0, numFound) * NW) / denom;
     const score = coverage + (3 - u.tier) * 0.02 + (numbersOk && f.numbers.length ? 0.1 : 0);
-    return { unit: u, coverage, unitCoverage, contraCoverage, supportCoverage, supportUnitCoverage, valueConflict: conflicts.length > 0, full, matched, missing, numbersOk, conflicts, polarityFlip, score };
+    return { unit: u, unitNegative, coverage, unitCoverage, contraCoverage, supportCoverage, supportUnitCoverage, valueConflict: conflicts.length > 0, full, matched, missing, numbersOk, conflicts, polarityFlip, score };
   }
 
   /** Two words denote the same concept (stem match or same lexicon group). */
@@ -640,7 +719,7 @@ export class RedlineEngine {
   private combine(f: ClaimFeatures, seed: UnitScore): { units: Unit[]; coverage: number; matched: string[]; missing: string[] } | null {
     const isField = (u: Unit) => u.text.startsWith("|") || (u.text.length <= 160 && /^[\s*>-]*\*{0,2}[\p{L}][\p{L}\s/()&-]{1,40}:\*{0,2}\s/u.test(u.text));
     const pool = (this.sectionUnits.get(`${seed.unit.file}#${seed.unit.page}`) || []).filter((u) =>
-      isField(u) && (u.negCues.length > 0) === f.negative && !(u.hedged && u.negCues.length === 0 && !f.hedged));
+      isField(u) && !this.partyMismatch(f.parties, u) && (u.negCues.length > 0) === f.negative && !(u.hedged && u.negCues.length === 0 && !f.hedged));
     const hasTok = (u: Unit, t: string) => {
       const hits = f.alts.get(t)!;
       return [...u.tokens].some((x) => hits.has(x)) || (/\d/.test(t) && [...u.context].some((x) => hits.has(x)));
@@ -660,6 +739,7 @@ export class RedlineEngine {
       chosen.push(best);
     }
     if (chosen.length < 2 || !f.numbers.every(gotNum)) return null;
+    if (!f.proper.every(covered)) return null;
     // no chosen unit may carry a different value in the same currency for a claimed amount
     for (const n of f.numbers.filter((x) => x.kind === "money")) {
       if (chosen.some((u) => u.numbers.some((x) => x.kind === "money" && x.currency === n.currency && !sameValue(x.value, n.value)) && !hasNum(u, n))) return null;
@@ -700,10 +780,16 @@ export class RedlineEngine {
 
     const supports = scored.filter((s) =>
       s.supportCoverage >= THRESHOLDS.support && s.supportUnitCoverage >= THRESHOLDS.supportUnit && s.full >= minFull &&
-      s.numbersOk && s.conflicts.length === 0 && !s.polarityFlip &&
+      s.numbersOk && s.conflicts.length === 0 && !s.polarityFlip && !this.partyMismatch(f.parties, s.unit) &&
+      f.proper.every((t) => s.matched.includes(t) || s.matched.includes(`${t}^`)) &&
       !(s.unit.hedged && s.unit.negCues.length === 0 && !f.hedged));
+    // Positive claim vs. negating source: a denial is enough.
+    // Negative claim ("X was not signed") vs. affirmative source: only a source that would itself
+    // ground "X was signed" (same figures, high coverage, not a mere proposal) contradicts it.
+    const polarityContra = (s: UnitScore) =>
+      s.polarityFlip && (!f.negative || (!s.unit.hedged && s.numbersOk && s.contraCoverage >= THRESHOLDS.support));
     const contras = scored.filter((s) =>
-      s.contraCoverage >= THRESHOLDS.contradict && s.full >= minFull && (s.valueConflict || s.polarityFlip));
+      s.contraCoverage >= THRESHOLDS.contradict && s.full >= minFull && (s.valueConflict || polarityContra(s)));
 
     const pick = (arr: UnitScore[]) => arr.slice().sort((a, b) => a.unit.tier - b.unit.tier || b.score - a.score)[0];
     const bestS = pick(supports);
@@ -714,12 +800,12 @@ export class RedlineEngine {
     const overrides = (c: UnitScore) =>
       !bestS ||
       (c.unit.tier < bestS.unit.tier && c.contraCoverage >= THRESHOLDS.override * bestS.contraCoverage) ||
-      (c.unit.tier === bestS.unit.tier && c.polarityFlip && c.numbersOk &&
+      (c.unit.tier === bestS.unit.tier && polarityContra(c) && c.numbersOk &&
         c.contraCoverage >= bestS.contraCoverage - THRESHOLDS.tieMargin);
     const bestC = pick(contras.filter(overrides));
 
     const contraReasons = (c: UnitScore) => [
-      ...(c.polarityFlip ? [`polaryzacja: ${f.negative ? "twierdzenie zaprzecza, źródło twierdzi" : `źródło zaprzecza/odrzuca (${c.unit.negCues.slice(0, 3).join(", ")})`}`] : []),
+      ...(polarityContra(c) ? [`polaryzacja: ${f.negative ? "twierdzenie zaprzecza, źródło twierdzi" : `źródło zaprzecza/odrzuca (${(c.unit.clauses.flatMap((k) => k.cues).slice(0, 3).join(", ")) || c.unit.negCues.slice(0, 3).join(", ")})`}`] : []),
       ...c.conflicts,
     ];
 

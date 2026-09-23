@@ -104,7 +104,7 @@ ${conf(overall)}
 ${results.map(row).join("\n")}
 
 Surowe odpowiedzi (z cytatami i uzasadnieniami): [\`results_raw.json\`](results_raw.json).
-`;
+${fs.existsSync(path.join(outDir, "HOLDOUT_LOG.md")) ? "\n" + fs.readFileSync(path.join(outDir, "HOLDOUT_LOG.md"), "utf-8") : ""}`;
   fs.writeFileSync(path.join(outDir, "EVALUATION_REPORT.md"), md);
   console.log(`\nZapisano prompts_eval/results_raw.json i prompts_eval/EVALUATION_REPORT.md`);
 }

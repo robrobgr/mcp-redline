@@ -11,7 +11,7 @@ Plik pamięci trwałej projektu, zawierający kluczowe ustalenia architektoniczn
 * **Zasada determinizmu:** Narzędzie `verify` **nie może używać modelu LLM**. Mechanizm sprawdzający halucynacje sam nie może podlegać ryzyku halucynacji. Weryfikacja musi być w 100% powtarzalna i audytowalna.
 * **Architektura transportu:** Wyłącznie **stdio**. Brak HTTP/SSE czy hostingu w chmurze – dokumenty nigdy nie opuszczają stacji roboczej użytkownika (kluczowe dla CISO, compliance i tajemnicy przedsiębiorstwa).
 * **Zero sieci i zero telemetrii:** Kod serwera nie może wykonywać żadnych połączeń wychodzących (musi bezbłędnie działać na sali szkoleniowej z fizycznie odciętym Wi-Fi).
-* **Format i wielkość kodu:** Serwer docelowo w jednym pliku, rzędu ~150 linii kodu (TypeScript / Node.js lub Python – transparentny i możliwy do audytu w kilka minut).
+* **Format i wielkość kodu:** Serwer w jednym pliku (TypeScript / Node.js). Pierwotny cel ~150 linii porzucony 2026-09-24 — ogólny weryfikator bez reguł pod korpus wymaga ~930 linii; nadal jeden plik, audytowalny.
 
 ---
 
@@ -37,25 +37,24 @@ Plik pamięci trwałej projektu, zawierający kluczowe ustalenia architektoniczn
 
 ---
 
-## 3. Silnik weryfikacji mcp-redline (Wdrożony Etap 2)
+## 3. Silnik weryfikacji mcp-redline (Etap 2, przepisany 2026-09-24)
 
-* **Architektura:** Node.js + TypeScript, `@modelcontextprotocol/sdk` (McpServer + StdioServerTransport).
-* **Zasady weryfikacji w `verify`:**
-  * **Hierarchia dowodów (Authority Tiers):** Tier 1 (Umowa MSA, Załączniki, Faktury, P&L, Protokoły Zarządu) przeważają nad Tier 2 (CRM) i Tier 3 (Korespondencja mailowa).
-  * **Wykrywanie sporów:** Jeżeli roszczenie z maila stoi w sprzeczności z podpisaną umową (np. wykreślona klauzula CPI), silnik zwraca `UNSUPPORTED` z podaniem klauzuli kontraktowej.
-  * **Dyskretne dopasowanie liczb:** Izolacja liczb całkowitych i ułamkowych uniemożliwia błędy fałszywego dopasowania podciągów (np. liczba `50` nie dopasuje się do `15 250 000`).
-  * **Substantive Coverage:** Wymóg obecności co najmniej 55-60% kluczowych tokenów merytorycznych twierdzenia (poza nazwami spółek) w cytowanym fragmencie, co odcina halucynacje o nieistniejących obiektach.
-  * **Zero sieci i telemetrii:** Testy uruchamiane przez natywny moduł `node:test` bez zewnętrznych bibliotek testowych.
-
+* **Architektura:** Node.js + TypeScript, `@modelcontextprotocol/sdk` (McpServer + StdioServerTransport), jeden plik `src/index.ts` (~930 linii — odejście od pierwotnego celu ~150 linii na rzecz ogólności).
+* **Decyzja 2026-09-24:** usunięto 4 gałęzie `TRAP-01…04` wpisane na sztywno pod korpus. `verify` jest ogólny — test na syntetycznym korpusie (umowa najmu) w `tests/server.test.ts` pilnuje, żeby tak zostało. Nazwy stron nie są wpisane w kod — czytane z klauzuli definicji umowy.
+* **Trzy statusy:** `GROUNDED` (dosłowny cytat) / `CONTRADICTED` (dosłowny cytat przeczący z równej lub wyższej rangi) / `UNSUPPORTED`. Zasada: w razie wątpliwości nie potwierdzać.
+* **Mechanizmy:** jednostki dosłowne (zdania, pola, wiersze tabel); pokrycie pojęć ważone IDF + słownik PL/EN (`GROUPS`); liczby z rodzajem i walutą; polaryzacja per człon zdania; asymetria przeczeń; mowa zależna (wnioski, żądania) nie jest faktem; wiązanie stron; nazwy własne i geograficzne muszą być w cytowanym fragmencie; ranga źródeł (Tier 1 > 2 > 3); twierdzenia złożone tylko z pól jednego rekordu (nigdy sklejanie zdań prozy).
+* **Progi** jawne w `THRESHOLDS` (support 0.6, supportUnit 0.5, contradict 0.45, override 0.75, tieMargin 0.15).
+* **Pułapki techniczne (nauczone):** sąsiednie zdania nie mogą uzupełniać brakujących pojęć; „claim” to też „roszczenie” (nie mowa zależna); „not less than” / „shall not exceed” to nie przeczenia; „No:” w numerach rejestrowych to nie przeczenie; w PL przymiotniki od nazw krajów są pisane małą literą.
 
 ---
 
-## 4. Ewaluacja 10 promptów (Wdrożony Etap 3)
+## 4. Ewaluacja (przebudowana 2026-09-24)
 
-* **Skrypt ewaluacji:** `npm run eval` uruchamia testy weryfikacji 10 twierdzeń.
-* **Wyniki:** 100% trafności (4x GROUNDED, 4x UNSUPPORTED, 2x graniczne UNSUPPORTED).
-* **Średni czas weryfikacji:** < 3 ms na twierdzenie, bez wywołań sieciowych i bez modeli zewnętrznych.
-* **Lokalizacja raportu:** [`prompts_eval/EVALUATION_REPORT.md`](file:///Users/robert/Code/1_Projects/mcp-redline/prompts_eval/EVALUATION_REPORT.md) oraz [`prompts_eval/results_raw.json`](file:///Users/robert/Code/1_Projects/mcp-redline/prompts_eval/results_raw.json).
+* **Zestaw:** `prompts_eval/claims.json` — 64 twierdzenia (legacy 10 / dev 31 / holdout 23), spisane **przed** przepisaniem silnika (commit `a7bc460`).
+* **`npm run eval`:** porównuje wynik z oczekiwanym, generuje `results_raw.json` i `EVALUATION_REPORT.md`, kończy się błędem przy każdym fałszywym GROUNDED (`--strict`: przy każdej rozbieżności).
+* **Wyniki:** pierwsze czyste uruchomienie holdoutu (silnik zamrożony w `3ad22a7`): 78%, 1 fałszywe GROUNDED (H19). Stan obecny: 91% na 64, 0 fałszywych GROUNDED, 32/32 faktów. Holdout częściowo „skażony” — historia w `prompts_eval/HOLDOUT_LOG.md`.
+* **Następny krok miary:** nowy zestaw twierdzeń od osoby, która nie widziała kodu.
+* Średni czas `verify`: ~4 ms na twierdzenie (Node 22, lokalnie).
 
 ---
 

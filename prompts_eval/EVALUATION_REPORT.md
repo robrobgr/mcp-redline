@@ -1,73 +1,114 @@
-# Raport Ewaluacji 10 Promptów — mcp-redline
+# Raport ewaluacji — mcp-redline
 
-Data i czas uruchomienia: **2026-09-23T21:39:35Z**  
-Środowisko: **Lokalny serwer MCP `mcp-redline` (transport stdio, Node.js v26.0.0, zero wywołań sieciowych)**  
-Plik z surowymi danymi maszynowymi: [`prompts_eval/results_raw.json`](file:///Users/robert/Code/1_Projects/mcp-redline/prompts_eval/results_raw.json)
+> Plik generowany automatycznie przez `npm run eval` — nie edytować ręcznie.
 
----
+- Uruchomienie: **2026-09-23T22:58:33.031Z**, Node v22.23.2
+- Zestaw: [`claims.json`](claims.json) — 64 twierdzeń, spisanych przed przepisaniem silnika (historia git).
+- Podziały: `legacy` = 10 promptów z Etapu 3 (stary silnik był pod nie strojony), `dev` = zestaw, na którym strojono nowy silnik, `holdout` = zestaw, na którym silnika **nie** strojono (uczciwa miara uogólnienia).
+- Krytyczna metryka: **fałszywe GROUNDED** — twierdzenie bez oparcia oznaczone jako potwierdzone. Każde takie zdarzenie kończy `npm run eval` kodem błędu.
 
-## Tabela Zbiorcza Wyników
+## Wyniki zbiorcze
 
-| ID | Kategoria | Prompt (Twierdzenie do weryfikacji) | Wynik serwera | Lokalizacja źródłowa | Komentarz i analiza mechanizmu |
+| Podział | n | Trafność (3 klasy) | Fałszywe GROUNDED | Fakty potwierdzone | Nie-fakty odrzucone |
 |---|---|---|---|---|---|
-| **P01** | `GROUNDED` | *Umowa ramowa między Apex Meridian Technologies Ltd a VeloNova Logistics Sp. z o.o. została podpisana dnia 15 stycznia 2023 r.* | **`GROUNDED`** | `01_Apex_VeloNova_MSA_2023.md`, s. 1 | **Proste dopasowanie:** Serwer bezbłędnie zidentyfikował komparycję umowy (Effective Date: 15 January 2023) oraz poprawne nazwy obu podmiotów gospodarczych. |
-| **P02** | `GROUNDED` | *Zysk netto VeloNova Logistics Sp. z o.o. za rok obrotowy 2024 wyniósł 4 210 000,00 PLN.* | **`GROUNDED`** | `05_Rachunek_Zyskow_i_Strat_2024_PLN.md`, s. 1 | **Liczba z tabeli finansowej:** Weryfikator powiązał Pozycję L (ZYSK NETTO) z oficjalnego sprawozdania z podaną kwotą, zachowując integralność separatorów dziesiętnych. |
-| **P03** | `GROUNDED` | *Całkowity limit odpowiedzialności dostawcy jest ograniczony do 100% opłat uiszczonych w ostatnich 12 miesiącach.* | **`GROUNDED`** | `01_Apex_VeloNova_MSA_2023.md`, s. 6 | **Fragment umowy:** Bezbłędne dopasowanie klauzuli prawnej Aggregate Liability Cap (Section 11.2) z ograniczeniem do 100% opłat z ostatnich 12 miesięcy. |
-| **P04** | `GROUNDED` | *Faktura INV-2024-1108 za czwarty kwartał 2024 r. opiewa na kwotę £12,000.00 GBP netto płatną na rachunek Barclays Bank.* | **`GROUNDED`** | `03_Invoice_INV-2024-1108.md`, s. 1 | **Dane syntetyczne z wielu pól:** Potwierdzenie numeru faktury, okresu subskrypcji (Q4 2024), kwoty netto (£12,000.00 GBP) oraz banku odbiorcy (Barclays Bank UK PLC). |
-| **P05** | `UNSUPPORTED` | *Apex Meridian ma prawo do jednostronnego podniesienia cen o wskaźnik inflacji 7.5% UK CPI od stycznia 2025 r.* | **`UNSUPPORTED`** | `01_Apex_VeloNova_MSA_2023.md`, s. 5 | **PUŁAPKA WIARYGODNA (TRAP-01):** Twierdzenie brzmi formalnie i opiera się na mailu wiceprezesa dostawcy. Serwer wykrył sprzeczność z Section 8.2 podpisanej umowy (skreślenie klauzuli CPI i sankcja nieważności *null and void ab initio*). |
-| **P06** | `UNSUPPORTED` | *VeloNova Logistics nałożyła na dostawcę karę umowną w wysokości 50 000 EUR za awarię telematyki we Frankfurcie.* | **`UNSUPPORTED`** | `06_Protokol_Zarzadu_VeloNova_11_2024.md`, s. 4 | **Pułapka operacyjna (TRAP-02):** W dyskusji padł wniosek o 50k EUR, lecz Zarząd go jednogłośnie odrzucił wobec Section 11.3 MSA (kary wykluczone). Przysługuje jedynie Service Credit £600 GBP. |
-| **P07** | `UNSUPPORTED` | *W 2024 r. podpisano aneks rozszerzający licencję telematyczną na 300 pojazdów o wartości 95 000 EUR.* | **`UNSUPPORTED`** | `07_CRM_Export_Enterprise_Contracts_2024.md`, s. 3 | **Pułapka rozszerzenia (TRAP-03):** W CRM szansa figurowała jako robocza (OPP-2024-089), lecz status oznaczono jako STALLED / REJECTED. Aneks nigdy nie wszedł w życie. |
-| **P08** | `UNSUPPORTED` | *Wszystkie dane telemetryczne i lokalizacyjne floty są przetwarzane wyłącznie na terenie Niemiec we Frankfurcie.* | **`UNSUPPORTED`** | `02_Schedule_B_Service_Levels_and_Credits.md`, s. 4 | **Pułapka Data Residency (TRAP-04):** Sprzeczność z architekturą kontraktową w Schedule B (Section 3.2): dane przetwarzane są w AWS Dublin (Irlandia) i AWS Londyn (UK). Dostawca nie ma klastrów w Niemczech. |
-| **P09** | `UNSUPPORTED` | *Roczny koszt usług telematycznych floty dla VeloNova wynosi 48 000,00 EUR.* | **`UNSUPPORTED`** | `05_Rachunek_Zyskow_i_Strat_2024_PLN.md`, s. 1 | **Przypadek graniczny 1 (Mylące waluty):** Liczba 48 000 jest poprawna, ale kontrakt opiewa na **GBP** (£48,000.00 GBP w MSA), a w P&L na PLN (246 840 PLN). Podstawienie EUR skutkuje twardą odmową. |
-| **P10** | `UNSUPPORTED` | *Z tytułu awarii bramki we Frankfurcie dostawca przyznał VeloNova rabat Service Credit w wysokości 50 000,00 EUR.* | **`UNSUPPORTED`** | `06_Protokol_Zarzadu_VeloNova_11_2024.md`, s. 4 | **Przypadek graniczny 2 (Dwuznaczność kwot):** Zmyłka pojęciowa łącząca Service Credit z odrzuconym roszczeniem odszkodowawczym (50 000 EUR). Prawdziwy Service Credit to 5% kwartału, czyli dokładnie £600 GBP. |
+| legacy | 10 | 90% | 0 | 4/4 | 6/6 |
+| dev | 31 | 94% | 0 | 18/18 | 13/13 |
+| holdout | 23 | 87% | 0 | 10/10 | 13/13 |
+| **RAZEM** | 64 | 91% | 0 | 32/32 | 32/32 |
 
----
+### Macierz pomyłek (holdout)
 
-## Szczegółowy Zapis Odpowiedzi Serwera (Surowe Wyjście)
+| oczekiwane \ wynik | GROUNDED | CONTRADICTED | UNSUPPORTED |
+|---|---|---|---|
+| GROUNDED | 10 | 0 | 0 |
+| CONTRADICTED | 0 | 6 | 2 |
+| UNSUPPORTED | 0 | 1 | 4 |
 
-### P01 — Proste dopasowanie (GROUNDED)
-```json
-{
-  "status": "GROUNDED",
-  "claim": "Umowa ramowa między Apex Meridian Technologies Ltd a VeloNova Logistics Sp. z o.o. została podpisana dnia 15 stycznia 2023 r.",
-  "file": "01_Apex_VeloNova_MSA_2023.md",
-  "page": 1,
-  "quote": "# MASTER SERVICES AGREEMENT (MSA)\n**Reference: AMT-MSA-2023-0115**\n\nThis Master Services Agreement (\"Agreement\") is entered into on the **15th day of January, 2023** (the \"Effective Date\"), by and between:\n\n1. **Apex Meridian Technologies Ltd**, a private limited company incorporated under the laws of England and Wales with company number 09841234, having its registered office at 25 Bank Street, Canary Wharf, London, E14 5JP, United Kingdom (\"Supplier\" or \"Apex Meridian\"); and\n2. **VeloNova Logistics Sp. z o.o.**, a company incorporated under the laws of the Republic of Poland, registered in the National Court Register (KRS) under number 0000845123, Tax Identification Number (NIP): 5252819432, having its registered office at ul. Prosta 68, 00-838 Warsaw, Poland (\"Customer\" or \"VeloNova\").\n\n---",
-  "explanation": "Twierdzenie w pełni potwierdzone w źródle: 01_Apex_VeloNova_MSA_2023.md (sekcja/strona 1)."
-}
-```
+### Macierz pomyłek (wszystkie)
 
-### P05 — Główna pułapka prawdopodobna (UNSUPPORTED)
-```json
-{
-  "status": "UNSUPPORTED",
-  "claim": "Apex Meridian ma prawo do jednostronnego podniesienia cen o wskaźnik inflacji 7.5% UK CPI od stycznia 2025 r.",
-  "file": "01_Apex_VeloNova_MSA_2023.md",
-  "page": 5,
-  "quote": "### 8. PRICE ADJUSTMENTS AND INFLATION\n8.1 All fees set forth in Section 3 are fixed for the entire duration of the Initial Term.\n8.2 **Price Renegotiation Clause:**\n> *[NEGOTIATION RECORD NOTE: Initial draft clause permitting unilateral price indexing linked to UK CPI or Polish GUS inflation was deleted and rejected by Customer during contract execution.]*\n> \n> Neither Party shall have the right to unilaterally adjust subscription fees, rates, or surcharges. Any adjustment to the Annual Subscription Fee or payment terms requires an express written addendum signed by authorized statutory representatives of both Parties. Any notice purporting to unilaterally index or increase pricing without a countersigned addendum is null and void *ab initio*.\n\n---",
-  "explanation": "Sprzeczność z umową ramową: Section 8.2 Master Services Agreement wprost zakazuje jednostronnej waloryzacji cen. Zapis o automatycznej indeksacji CPI został wykreślony, a wszelkie jednostronne pisma są z mocy prawa nieważne (null and void ab initio)."
-}
-```
+| oczekiwane \ wynik | GROUNDED | CONTRADICTED | UNSUPPORTED |
+|---|---|---|---|
+| GROUNDED | 32 | 0 | 0 |
+| CONTRADICTED | 0 | 18 | 5 |
+| UNSUPPORTED | 0 | 1 | 8 |
 
-### P06 — Pułapka operacyjna (UNSUPPORTED)
-```json
-{
-  "status": "UNSUPPORTED",
-  "claim": "VeloNova Logistics nałożyła na dostawcę karę umowną w wysokości 50 000 EUR za awarię telematyki we Frankfurcie.",
-  "file": "06_Protokol_Zarzadu_VeloNova_11_2024.md",
-  "page": 4,
-  "quote": "### PRZEBIEG DYSKUSJI I USTALENIA DO PUNKTU 3:\n\n* **Relacja COO (Marek Czarnecki):**  \n  W dniu 14 listopada 2024 r. w godzinach 08:30–12:30 wystąpiła niedostępność bramki telemetrycznej Apex Meridian, co zablokowało dyspozycję 32 naczep chłodniczych z ładunkiem farmaceutycznym na trasie Frankfurt–Rotterdam. Spowodowało to konieczność ręcznej weryfikacji rejestratorów temperatury i opóźnienia w oknach dostaw.  \n  *Wniosek COO:* Dyrektor Operacyjny zawnioskował o wystawienie dostawcy noty obciążeniowej na **karę umowną w wysokości 50 000,00 EUR** tytułem zryczałtowanego odszkodowania za straty wizerunkowe i operacyjne.\n\n* **Opinia prawna (mec. Robert Dąbrowski):**  \n  Radca prawny przypomniał treść podpisanego Master Services Agreement (ref: AMT-MSA-2023-0115) oraz Schedule B. Zgodnie z Section 11.3 umowy, strony wprost wyłączyły możliwość nakładania kar umownych (liquidated damages / penalties). Jedynym dopuszczalnym kontraktowo środkiem rekompensaty są **Service Credits** potrącane z kolejnej faktury abonamentowej:\n  * Miesięczna dostępność w listopadzie mimo 4-godzinnej awarii wyniosła 99.44% (mieści się w przedziale 99.0%–99.79%).\n  * Zgodnie z Schedule B Section 2.1 uprawnia to VeloNova wyłącznie do kredytu w wysokości **5% opłaty kwartalnej**, co daje dokładnie kwotę **£600.00 GBP** rabatu na fakturze za Q1 2025.\n  * Wszelkie roszczenia o karę 50 000 EUR zostałyby natychmiast oddalone przez sąd angielski (Courts of England and Wales), a Spółka naraziłaby się na koszty postępowania.\n\n* **Decyzja Zarządu:**  \n  Zarząd **jednogłośnie odrzucił propozycję nałożenia kary umownej 50 000 EUR**. Zobowiązano Dział Prawny do formalnego wystąpienia do Apex Meridian o przyznanie Service Credit w wysokości **£600.00 GBP** przy rozliczeniu faktury za I kwartał 2025 r.\n\n---",
-  "explanation": "Brak oparcia w faktach: Kwota 50 000 EUR dotyczyła odrzuconej przez Zarząd propozycji kary umownej. Zgodnie z umową MSA i protokołem z posiedzenia Zarządu, faktyczny rabat Service Credit wyniósł wyłącznie £600.00 GBP (5% opłaty kwartalnej), a nie 50 000 EUR."
-}
-```
+## Wyniki szczegółowe
 
-### P09 — Przypadek graniczny walut (UNSUPPORTED)
-```json
-{
-  "status": "UNSUPPORTED",
-  "claim": "Roczny koszt usług telematycznych floty dla VeloNova wynosi 48 000,00 EUR.",
-  "file": "05_Rachunek_Zyskow_i_Strat_2024_PLN.md",
-  "page": 1,
-  "explanation": "Brak wystarczającego potwierdzenia: odnaleziono powiązany fragment w 05_Rachunek_Zyskow_i_Strat_2024_PLN.md, lecz nie zawiera on jednoznacznego dowodu dla podanego twierdzenia."
-}
-```
+| ID | Podział | Twierdzenie | Oczekiwane | Wynik | Ocena | Źródło |
+|---|---|---|---|---|---|---|
+| P01 | legacy | Umowa ramowa między Apex Meridian Technologies Ltd a VeloNova Logistics Sp. z o.o. została podpisana dnia 15 stycznia 2023 r. | GROUNDED | **GROUNDED** | ✅ | 01_Apex_VeloNova_MSA_2023.md §1 (T1) |
+| P02 | legacy | Zysk netto VeloNova Logistics Sp. z o.o. za rok obrotowy 2024 wyniósł 4 210 000,00 PLN. | GROUNDED | **GROUNDED** | ✅ | 05_Rachunek_Zyskow_i_Strat_2024_PLN.md §1 (T1) |
+| P03 | legacy | Całkowity limit odpowiedzialności dostawcy jest ograniczony do 100% opłat uiszczonych w ostatnich 12 miesiącach. | GROUNDED | **GROUNDED** | ✅ | 01_Apex_VeloNova_MSA_2023.md §7 (T1) |
+| P04 | legacy | Faktura INV-2024-1108 za czwarty kwartał 2024 r. opiewa na kwotę £12,000.00 GBP netto płatną na rachunek Barclays Bank. | GROUNDED | **GROUNDED** | ✅ | 03_Invoice_INV-2024-1108.md §1 (T1) |
+| P05 | legacy | Apex Meridian ma prawo do jednostronnego podniesienia cen o wskaźnik inflacji 7.5% UK CPI od stycznia 2025 r. | CONTRADICTED | **CONTRADICTED** | ✅ | 01_Apex_VeloNova_MSA_2023.md §6 (T1) |
+| P06 | legacy | VeloNova Logistics nałożyła na dostawcę karę umowną w wysokości 50 000 EUR za awarię telematyki we Frankfurcie. | CONTRADICTED | **CONTRADICTED** | ✅ | 06_Protokol_Zarzadu_VeloNova_11_2024.md §4 (T1) |
+| P07 | legacy | W 2024 r. podpisano aneks rozszerzający licencję telematyczną na 300 pojazdów o wartości 95 000 EUR. | CONTRADICTED | **CONTRADICTED** | ✅ | 03_Invoice_INV-2024-1108.md §1 (T1) |
+| P08 | legacy | Wszystkie dane telemetryczne i lokalizacyjne floty są przetwarzane wyłącznie na terenie Niemiec we Frankfurcie. | CONTRADICTED | **UNSUPPORTED** | 🟠 | — |
+| P09 | legacy | Roczny koszt usług telematycznych floty dla VeloNova wynosi 48 000,00 EUR. | CONTRADICTED | **CONTRADICTED** | ✅ | 03_Invoice_INV-2024-1108.md §1 (T1) |
+| P10 | legacy | Z tytułu awarii bramki we Frankfurcie dostawca przyznał VeloNova rabat Service Credit w wysokości 50 000,00 EUR. | CONTRADICTED | **CONTRADICTED** | ✅ | 06_Protokol_Zarzadu_VeloNova_11_2024.md §4 (T1) |
+| D01 | dev | The Master Services Agreement was entered into on 15 January 2023. | GROUNDED | **GROUNDED** | ✅ | 01_Apex_VeloNova_MSA_2023.md §1 (T1) |
+| D02 | dev | Roczna opłata abonamentowa wynosi £48,000.00 GBP netto. | GROUNDED | **GROUNDED** | ✅ | 01_Apex_VeloNova_MSA_2023.md §5 (T1) |
+| D03 | dev | Opłata jest fakturowana kwartalnie w czterech ratach po £12,000.00 GBP. | GROUNDED | **GROUNDED** | ✅ | 01_Apex_VeloNova_MSA_2023.md §5 (T1) |
+| D04 | dev | Umowa obowiązuje przez 36 miesięcy i kończy się 14 stycznia 2026 r. | GROUNDED | **GROUNDED** | ✅ | 01_Apex_VeloNova_MSA_2023.md §4 (T1) |
+| D05 | dev | Automatic rollover renewal is excluded. | GROUNDED | **GROUNDED** | ✅ | 01_Apex_VeloNova_MSA_2023.md §4 (T1) |
+| D06 | dev | Umowa podlega prawu Anglii i Walii. | GROUNDED | **GROUNDED** | ✅ | 01_Apex_VeloNova_MSA_2023.md §8 (T1) |
+| D07 | dev | Gwarantowana miesięczna dostępność usługi wynosi 99.8%. | GROUNDED | **GROUNDED** | ✅ | 02_Schedule_B_Service_Levels_and_Credits.md §2 (T1) |
+| D08 | dev | Apex nie utrzymuje klastrów obliczeniowych w Niemczech. | GROUNDED | **GROUNDED** | ✅ | 02_Schedule_B_Service_Levels_and_Credits.md §4 (T1) |
+| D09 | dev | Neither party may unilaterally adjust subscription fees. | GROUNDED | **GROUNDED** | ✅ | 01_Apex_VeloNova_MSA_2023.md §6 (T1) |
+| D10 | dev | Dostawca nie ma prawa jednostronnie podnieść cen. | GROUNDED | **GROUNDED** | ✅ | 01_Apex_VeloNova_MSA_2023.md §6 (T1) |
+| D11 | dev | Zarząd jednogłośnie odrzucił propozycję kary umownej 50 000 EUR. | GROUNDED | **GROUNDED** | ✅ | 06_Protokol_Zarzadu_VeloNova_11_2024.md §4 (T1) |
+| D12 | dev | Service Credit za awarię z listopada 2024 wyniósł £600.00 GBP. | GROUNDED | **GROUNDED** | ✅ | 06_Protokol_Zarzadu_VeloNova_11_2024.md §4 (T1) |
+| D13 | dev | Aneks rozszerzający flotę do 300 pojazdów nigdy nie został podpisany. | GROUNDED | **GROUNDED** | ✅ | 07_CRM_Export_Enterprise_Contracts_2024.md §3 (T2) |
+| D14 | dev | Przychody netto ze sprzedaży w 2024 wyniosły 48 520 000 PLN. | GROUNDED | **GROUNDED** | ✅ | 05_Rachunek_Zyskow_i_Strat_2024_PLN.md §1 (T1) |
+| D15 | dev | Faktura INV-2024-1108 ma termin płatności 01 listopada 2024. | GROUNDED | **GROUNDED** | ✅ | 03_Invoice_INV-2024-1108.md §1 (T1) |
+| D16 | dev | Maksymalny Service Credit w kwartale to £1,800.00 GBP. | GROUNDED | **GROUNDED** | ✅ | 02_Schedule_B_Service_Levels_and_Credits.md §3 (T1) |
+| D17 | dev | Licencja obejmuje do 180 pojazdów. | GROUNDED | **GROUNDED** | ✅ | 01_Apex_VeloNova_MSA_2023.md §3 (T1) |
+| D18 | dev | Niedostępność bramki telemetrycznej zablokowała 32 naczepy chłodnicze. | GROUNDED | **GROUNDED** | ✅ | 06_Protokol_Zarzadu_VeloNova_11_2024.md §4 (T1) |
+| D19 | dev | Supplier may raise prices by 7.5% UK CPI from January 2025. | CONTRADICTED | **CONTRADICTED** | ✅ | 01_Apex_VeloNova_MSA_2023.md §6 (T1) |
+| D20 | dev | The annual fee is £48,000.00 EUR. | CONTRADICTED | **CONTRADICTED** | ✅ | 01_Apex_VeloNova_MSA_2023.md §5 (T1) |
+| D21 | dev | Gwarantowana dostępność wynosi 99.9%. | CONTRADICTED | **CONTRADICTED** | ✅ | 02_Schedule_B_Service_Levels_and_Credits.md §2 (T1) |
+| D22 | dev | Umowa ramowa została podpisana 15 stycznia 2021 r. | CONTRADICTED | **CONTRADICTED** | ✅ | 01_Apex_VeloNova_MSA_2023.md §1 (T1) |
+| D23 | dev | Umowa podlega prawu polskiemu. | CONTRADICTED | **UNSUPPORTED** | 🟠 | — |
+| D24 | dev | Telemetry data is hosted in Frankfurt, Germany. | CONTRADICTED | **CONTRADICTED** | ✅ | 02_Schedule_B_Service_Levels_and_Credits.md §4 (T1) |
+| D25 | dev | Zysk netto VeloNova za 2024 wyniósł 4 310 000,00 PLN. | CONTRADICTED | **CONTRADICTED** | ✅ | 05_Rachunek_Zyskow_i_Strat_2024_PLN.md §1 (T1) |
+| D26 | dev | Kary umowne za awarie są dopuszczalne na podstawie umowy MSA. | CONTRADICTED | **CONTRADICTED** | ✅ | 01_Apex_VeloNova_MSA_2023.md §6 (T1) |
+| D27 | dev | Umowa MSA przewiduje karę umowną za każdy dzień opóźnienia. | CONTRADICTED | **UNSUPPORTED** | 🟠 | — |
+| D28 | dev | VeloNova posiada flotę 50 statków morskich. | UNSUPPORTED | **UNSUPPORTED** | ✅ | — |
+| D29 | dev | VeloNova planuje wejście na giełdę w 2025 r. | UNSUPPORTED | **UNSUPPORTED** | ✅ | — |
+| D30 | dev | CISO Apex Meridian nazywa się Dr. Aris Thorne. | UNSUPPORTED | **UNSUPPORTED** | ✅ | — |
+| D31 | dev | Dostawca zapewnia wsparcie 24/7 w języku polskim. | UNSUPPORTED | **UNSUPPORTED** | ✅ | — |
+| H01 | holdout | The initial term of the agreement is thirty-six months. | GROUNDED | **GROUNDED** | ✅ | 01_Apex_VeloNova_MSA_2023.md §4 (T1) |
+| H02 | holdout | Sądy Anglii i Walii mają wyłączną jurysdykcję w sporach z umowy. | GROUNDED | **GROUNDED** | ✅ | 01_Apex_VeloNova_MSA_2023.md §8 (T1) |
+| H03 | holdout | The disaster recovery archive is hosted in AWS London. | GROUNDED | **GROUNDED** | ✅ | 02_Schedule_B_Service_Levels_and_Credits.md §4 (T1) |
+| H04 | holdout | Invoice INV-2024-1108 was paid in full on 28 October 2024. | GROUNDED | **GROUNDED** | ✅ | 03_Invoice_INV-2024-1108.md §1 (T1) |
+| H05 | holdout | Stawka VAT na fakturze INV-2024-1108 wynosi 0%. | GROUNDED | **GROUNDED** | ✅ | 03_Invoice_INV-2024-1108.md §1 (T1) |
+| H06 | holdout | Service Credits cannot be refunded as cash. | GROUNDED | **GROUNDED** | ✅ | 02_Schedule_B_Service_Levels_and_Credits.md §3 (T1) |
+| H07 | holdout | Koszt subskrypcji Apex w 2024 r. wyniósł 246 840,00 PLN. | GROUNDED | **GROUNDED** | ✅ | 05_Rachunek_Zyskow_i_Strat_2024_PLN.md §2 (T1) |
+| H08 | holdout | Umowa z ThermoKing Telematics ma wartość 32 400 EUR rocznie. | GROUNDED | **GROUNDED** | ✅ | 07_CRM_Export_Enterprise_Contracts_2024.md §2 (T2) |
+| H09 | holdout | Primary telemetry processing is hosted in AWS Dublin, Ireland. | GROUNDED | **GROUNDED** | ✅ | 02_Schedule_B_Service_Levels_and_Credits.md §4 (T1) |
+| H10 | holdout | Supplier's aggregate liability is capped at 100% of fees paid in the preceding 12 months. | GROUNDED | **GROUNDED** | ✅ | 01_Apex_VeloNova_MSA_2023.md §7 (T1) |
+| H11 | holdout | Od 2025 r. opłata kwartalna wynosi £12,900.00 GBP. | CONTRADICTED | **CONTRADICTED** | ✅ | 01_Apex_VeloNova_MSA_2023.md §5 (T1) |
+| H12 | holdout | Automatic renewal of the agreement is allowed. | CONTRADICTED | **CONTRADICTED** | ✅ | 01_Apex_VeloNova_MSA_2023.md §4 (T1) |
+| H13 | holdout | Service Credits can be refunded as cash payments. | CONTRADICTED | **CONTRADICTED** | ✅ | 02_Schedule_B_Service_Levels_and_Credits.md §3 (T1) |
+| H14 | holdout | Licencja obejmuje 300 pojazdów. | CONTRADICTED | **CONTRADICTED** | ✅ | 03_Invoice_INV-2024-1108.md §1 (T1) |
+| H15 | holdout | The initial term of the agreement is 24 months. | CONTRADICTED | **CONTRADICTED** | ✅ | 01_Apex_VeloNova_MSA_2023.md §4 (T1) |
+| H16 | holdout | Faktura INV-2024-1108 opiewa na £12,900.00 GBP. | CONTRADICTED | **UNSUPPORTED** | 🟠 | — |
+| H17 | holdout | Invoice INV-2024-1108 remains unpaid. | CONTRADICTED | **CONTRADICTED** | ✅ | 03_Invoice_INV-2024-1108.md §1 (T1) |
+| H18 | holdout | The supplier granted a Service Credit of 50,000 EUR for the Frankfurt outage. | CONTRADICTED | **UNSUPPORTED** | 🟠 | — |
+| H19 | holdout | Apex Meridian has an office in Warsaw. | UNSUPPORTED | **UNSUPPORTED** | ✅ | — |
+| H20 | holdout | The MSA includes a non-compete clause. | UNSUPPORTED | **UNSUPPORTED** | ✅ | — |
+| H21 | holdout | Apex Meridian is certified to ISO 27001. | UNSUPPORTED | **UNSUPPORTED** | ✅ | — |
+| H22 | holdout | Either party may terminate the contract with 30 days notice. | UNSUPPORTED | **CONTRADICTED** | 🟠 | 01_Apex_VeloNova_MSA_2023.md §4 (T1) |
+| H23 | holdout | Przychody VeloNova w 2025 r. wyniosły 55 mln PLN. | UNSUPPORTED | **UNSUPPORTED** | ✅ | — |
+
+Surowe odpowiedzi (z cytatami i uzasadnieniami): [`results_raw.json`](results_raw.json).
+
+## Historia zbioru holdout
+
+| Etap | Commit silnika | Holdout | Fałszywe GROUNDED | Co się zmieniło |
+|---|---|---|---|---|
+| 1. pierwsze, czyste uruchomienie | `3ad22a7` (zamrożony przed uruchomieniem) | 18/23 (78%) | **1** — H19 „Apex Meridian has an office in Warsaw.” | — |
+| 2. poprawka bezpieczeństwa H19 | następny commit | 19/23 (83%) | 0 | Wiązanie stron: strony umowy odczytywane z klauzuli definicji (`("Supplier" or "Apex Meridian")`); fragment nazywający z nazwy inną stronę nie potwierdza twierdzenia. |
+| 3. poprawki z testów spoza zestawu | ten sam commit | 20/23 (87%) | 0 | Własne testy (umowa najmu, 15 twierdzeń z audytu) wykazały: (a) brakujące nazwy własne / geograficzne uzupełniane z sąsiednich zdań → wymóg obecności w cytowanym fragmencie, bez punktów za sąsiednie zdania; (b) zasięg przeczenia liczony per zdanie → per człon zdania; (c) twierdzenie przeczące obalane samą wzmianką → wymagany fragment, który sam potwierdziłby wersję twierdzącą; (d) „claim” (roszczenie) traktowane jak mowa zależna. |
+
+**Konsekwencja:** po etapach 2–3 holdout nie jest już w pełni „czysty” — H19 był widziany, a reguły z etapu 3 mogły pośrednio pomóc innym twierdzeniom holdoutu. Rzetelna miara uogólnienia wymaga **nowego** zestawu twierdzeń, najlepiej spisanego przez osobę, która nie widziała kodu silnika. Najbardziej wiarygodna liczba z tego zestawu to etap 1: **78%, 1 fałszywe GROUNDED na 23**.

@@ -77,4 +77,24 @@
   - Scenariusz: korpus → poprawne zapytanie → wiarygodne zapytanie z wynikiem `UNSUPPORTED` → dowód pracy offline (wyłączone Wi-Fi).
   - Wersja wizualizująca w NotebookLM jako plan awaryjny na szkolenia stacjonarne.
 
+---
+
+## Audyt 2026-09-24 — naprawa rdzenia (P0)
+
+- [x] **P0-1** Usunięcie pułapek wpisanych na sztywno z `verify`; ogólny silnik (pokrycie IDF, liczby z walutą, polaryzacja, ranga źródeł, wiązanie stron). (2026-09-24)
+- [x] **P0-2** Trzy statusy: `GROUNDED` / `CONTRADICTED` / `UNSUPPORTED`. (2026-09-24)
+- [x] **P0-3** Cytaty zdaniowe zamiast całych sekcji, dosłowność sprawdzana testem. (2026-09-24)
+- [x] **P0-4** `eval.js` z asercjami i kodem wyjścia. (2026-09-24)
+- [x] **P0-5** Zestaw 64 twierdzeń z podziałem dev/holdout; raport generowany automatycznie. (2026-09-24)
+- [ ] **P0-5b** Nowy, czysty holdout (min. 30 twierdzeń) spisany przez osobę, która nie widziała kodu silnika.
+- [ ] **P0-6** Web demo offline: Tailwind i fonty lokalnie zamiast CDN; własny serwer statyczny zamiast `npx serve`.
+- [ ] **P0-7** Web demo: oznaczyć odpowiedzi „Standard LLM” jako symulowane albo zastąpić prawdziwymi, zapisanymi odpowiedziami modelu (model + data).
+
+## P1 — jakość i utrzymanie
+
+- [ ] `package.json`: `main`/`bin` wskazują nieistniejący `dist/index.js` (jest `dist/src/index.js`); dodać `files`.
+- [ ] Web demo: zbudować silnik z `src/` (np. esbuild) zamiast ręcznej kopii w `web/index.html` — dziś demo działa na starym silniku.
+- [ ] Ranga źródła z nagłówka dokumentu (`tier: 1`) zamiast z nazwy pliku.
+- [ ] Wiązanie wartości z kolumną tabeli (rok 2024 vs 2023 w RZiS).
+- [ ] Rozdzielić build i testy w `tsconfig`.
 

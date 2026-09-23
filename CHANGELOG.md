@@ -6,6 +6,26 @@ Format oparty na [Keep a Changelog](https://keepachangelog.com/pl/1.0.0/).
 
 ---
 
+## [1.1.0] — 2026-09-24
+
+### Zmieniono
+- **`verify` przepisany od zera — bez reguł pod konkretny korpus.** Usunięto 4 gałęzie `TRAP-01…04`, które rozpoznawały przygotowane pułapki po słowach kluczowych i zwracały wpisane na sztywno odpowiedzi. Stary silnik na 15 nowych twierdzeniach dawał 6/15 poprawnych, w tym 4 fałszywe GROUNDED (np. angielska parafraza pułapki CPI była potwierdzana cytatem z maila).
+- Trzy statusy: `GROUNDED` / `CONTRADICTED` / `UNSUPPORTED` (wcześniej dwa — nie dało się potwierdzić prawdziwego „nie”).
+- Cytaty na poziomie zdania / pola / wiersza tabeli zamiast całych sekcji; każdy cytat jest dosłownym podciągiem pliku (test).
+- `search` zwraca fragmenty zdaniowe; `list_sources` zwraca rangę źródła (Tier).
+- Odpowiedź `verify` zawiera `evidence` (pokrycie, dopasowane / brakujące pojęcia, powody) i `conflicting` (np. mail sprzeczny z umową).
+
+### Dodano
+- `prompts_eval/claims.json`: 64 twierdzenia (legacy / dev / holdout), spisane przed zmianą silnika.
+- `scripts/eval.js`: porównanie z oczekiwanym wynikiem, metryki per podział, macierz pomyłek, generowany raport; kod wyjścia 1 przy fałszywym GROUNDED (wcześniej zawsze wypisywał „10/10” bez sprawdzania).
+- `prompts_eval/HOLDOUT_LOG.md`: historia uruchomień holdoutu, w tym pierwszy wynik (78%, 1 fałszywe GROUNDED).
+- Testy: dosłowność cytatów, parafrazy pułapek po angielsku, ranga źródeł, mowa zależna, wiązanie stron, zasięg przeczenia, korpus syntetyczny (umowa najmu).
+
+### Znane braki
+- Demo `web/` nadal używa starej kopii silnika z pułapkami na sztywno (BACKLOG).
+
+---
+
 ## [Unreleased]
 
 ### 2026-09-23

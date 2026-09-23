@@ -95,6 +95,24 @@ describe("mcp-redline — verify on the demo corpus", () => {
     assert.notStrictEqual(v("VeloNova nałożyła na dostawcę karę umowną w wysokości 50 000 EUR.").status, "GROUNDED");
   });
 
+  it("party binding: a fact about one party does not ground a claim about the other", () => {
+    // Warsaw is VeloNova's seat, not Apex's (regression for holdout H19)
+    assert.notStrictEqual(v("Apex Meridian has an office in Warsaw.").status, "GROUNDED");
+    assert.notStrictEqual(v("VeloNova Logistics has its registered office in London.").status, "GROUNDED");
+    assert.strictEqual(v("Apex Meridian has its registered office in London.").status, "GROUNDED");
+  });
+
+  it("negation scope is the clause, not the sentence", () => {
+    // e-mail: "under English law (which governs the contract) their letter has NO effect"
+    assert.strictEqual(v("Umowa podlega prawu angielskiemu").status, "GROUNDED");
+    assert.notStrictEqual(v("Umowa podlega prawu polskiemu.").status, "GROUNDED");
+  });
+
+  it("an affirmative mention does not contradict a true negative claim", () => {
+    assert.strictEqual(v("Aneks na 300 aut nie został podpisany").status, "GROUNDED");
+    assert.strictEqual(v("Apex Meridian nie ma prawa do jednostronnej indeksacji cen o UK CPI").status, "GROUNDED");
+  });
+
   it("UNSUPPORTED for claims the corpus is silent about", () => {
     const r = v("VeloNova Logistics posiada flotę 50 statków morskich pływających pod banderą panamską");
     assert.strictEqual(r.status, "UNSUPPORTED");
