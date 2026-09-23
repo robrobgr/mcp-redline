@@ -1,0 +1,37 @@
+{
+  "name": "mcp-redline",
+  "version": "1.0.0",
+  "description": "Deterministic local document citation and claim verification MCP server with explicit refusal",
+  "main": "dist/index.js",
+  "type": "module",
+  "bin": {
+    "mcp-redline": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/src/index.js",
+    "test": "tsc && node --test dist/tests/*.test.js",
+    "eval": "tsc && node scripts/eval.js",
+    "bundle:web": "node scripts/build-web-data.js",
+    "demo": "npx --yes serve web"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "verification",
+    "grounding",
+    "citation",
+    "audit",
+    "anti-hallucination"
+  ],
+  "author": "Robert Grabowski",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.6.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "typescript": "^5.7.3"
+  }
+}

@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html class="dark" lang="pl">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>mcp-redline // Deterministyczny Serwer MCP Weryfikacji Dokumentów i Cytowania</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <!-- Material Symbols Outlined -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              red: "#ef4444",
+              crimson: "#dc2626",
+              darkRed: "#991b1b",
+              emerald: "#10b981",
+              darkEmerald: "#059669",
+              cyan: "#06b6d4",
+              darkCanvas: "#09090b",
+              surface: "#121215",
+              card: "#18181b",
+              cardElevated: "#222226",
+              border: "#27272a",
+              borderHighlight: "#3f3f46",
+              mutedText: "#a1a1aa",
+              subtleText: "#71717a"
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      font-size: 18px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      vertical-align: middle;
+    }
+    
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #09090b;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #27272a;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #3f3f46;
+    }
+
+    .bg-grid-subtle {
+      background-size: 28px 28px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    }
+
+    .glow-red {
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.25);
+    }
+    .glow-green {
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.25);
+    }
+  </style>
+</head>
+<body class="bg-brand-darkCanvas text-zinc-100 font-sans antialiased overflow-hidden h-screen flex flex-col selection:bg-brand-red selection:text-white">
+
+  <!-- ========================================================================= -->
+  <!-- 1. TOP APP BAR                                                            -->
+  <!-- ========================================================================= -->
+  <header class="flex justify-between items-center w-full px-4 h-14 border-b border-brand-border bg-brand-darkCanvas/95 backdrop-blur select-none z-30 shrink-0">
+    <!-- Brand Anchor & Product Identity -->
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded bg-brand-surface border border-brand-red/40 flex items-center justify-center relative overflow-hidden group shadow-inner">
+          <span class="material-symbols-outlined text-brand-red font-bold">verified_user</span>
+          <div class="absolute bottom-0 right-0 w-2 h-2 bg-brand-red"></div>
+        </div>
+        <div class="flex flex-col">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-sm tracking-wider text-white">mcp-redline</span>
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-950/40 border border-brand-emerald/40 text-brand-emerald font-semibold">
+              <span class="w-1.5 h-1.5 rounded-full bg-brand-emerald animate-pulse"></span>
+              Air-Gapped stdio (0 Network)
+            </span>
+          </div>
+          <span class="text-[11px] font-mono text-zinc-400">Deterministyczny Silnik Weryfikacji i Odmów</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center Thesis Statement -->
+    <div class="hidden lg:flex items-center gap-2 px-3 py-1 rounded bg-brand-surface border border-brand-border text-xs text-zinc-300">
+      <span class="text-brand-red font-semibold">Teza:</span>
+      <span class="italic text-zinc-300">„Model, który pewnym tonem podaje nieprawdę, jest groźniejszy niż model, który odmawia.”</span>
+    </div>
+
+    <!-- Action Triggers -->
+    <div class="flex items-center gap-2">
+      <!-- Infographic Trigger -->
+      <button id="btn-open-infographic" class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-brand-card hover:bg-brand-cardElevated border border-brand-border hover:border-brand-cyan text-xs font-medium text-zinc-200 transition-colors">
+        <span class="material-symbols-outlined text-brand-cyan text-sm">image</span>
+        <span>Infografika</span>
+      </button>
+
+      <!-- Architecture Trigger -->
+      <button id="btn-open-architecture" class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-brand-card hover:bg-brand-cardElevated border border-brand-border hover:border-brand-emerald text-xs font-medium text-zinc-200 transition-colors">
+        <span class="material-symbols-outlined text-brand-emerald text-sm">account_tree</span>
+        <span>Architektura CISO</span>
+      </button>
+
+      <!-- Quickstart Trigger -->
+      <button id="btn-open-quickstart" class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-brand-red hover:bg-brand-crimson text-white text-xs font-semibold shadow-sm transition-colors">
+        <span class="material-symbols-outlined text-sm">terminal</span>
+        <span>Uruchom Serwer</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- 2. MAIN WORKSPACE: THREE-ZONE INSTRUMENT BENCH                            -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 flex overflow-hidden bg-grid-subtle">
+    
+    <!-- --------------------------------------------------------------------- -->
+    <!-- ZONE A: CORPUS PROTOCOL HIERARCHY (Sidebar)                           -->
+    <!-- --------------------------------------------------------------------- -->
+    <aside class="flex flex-col justify-between w-72 lg:w-80 h-[calc(100vh-3.5rem)] border-r border-brand-border bg-brand-surface/90 shrink-0 select-none">
+      <!-- Header -->
+      <div class="p-3 border-b border-brand-border bg-brand-darkCanvas/60">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[11px] font-mono font-semibold text-zinc-400 uppercase tracking-wider">KORPUS DOKUMENTÓW</span>
+          <span class="px-1.5 py-0.5 rounded text-[9px] font-mono bg-brand-card border border-brand-border text-brand-cyan">7 PLIKÓW</span>
+        </div>
+        <p class="text-xs text-zinc-400 mb-2">Lokalne źródła dowodowe z hierarchią prawną</p>
+        
+        <!-- Search filter -->
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-2.5 top-2 text-zinc-500 text-sm">search</span>
+          <input id="corpus-search" type="text" placeholder="Filtruj dokumenty, klauzule..." class="w-full bg-brand-card border border-brand-border rounded pl-8 pr-3 py-1.5 font-mono text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-brand-cyan"/>
+        </div>
+      </div>
+
+      <!-- Document List -->
+      <div id="corpus-list" class="flex-1 overflow-y-auto p-2 space-y-1.5">
+        <!-- Injected via JavaScript from CORPUS_DOCS -->
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div class="p-3 border-t border-brand-border bg-brand-darkCanvas/80 text-xs font-mono space-y-1.5">
+        <div class="flex items-center justify-between text-zinc-400">
+          <span>HIERARCHIA DOWODOWA:</span>
+          <span class="text-zinc-200 font-semibold">Tier 1 &gt; Tier 2 &gt; Tier 3</span>
+        </div>
+        <div class="flex items-center justify-between text-[11px] text-zinc-500">
+          <span class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-brand-emerald"></span>
+            Stdio IPC Protocol
+          </span>
+          <span class="text-zinc-400">JSON-RPC 2.0</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- --------------------------------------------------------------------- -->
+    <!-- ZONE B: LIVE INTERACTIVE A/B CLAIM VERIFIER (Center Arena)            -->
+    <!-- --------------------------------------------------------------------- -->
+    <section class="flex-1 flex flex-col h-[calc(100vh-3.5rem)] overflow-y-auto bg-brand-darkCanvas/80">
+      
+      <!-- Scenario Selector Toolbar -->
+      <div class="p-3 border-b border-brand-border bg-brand-surface/80 flex flex-wrap items-center justify-between gap-3 shrink-0">
+        <div class="flex items-center gap-2 flex-1 min-w-[320px]">
+          <span class="material-symbols-outlined text-brand-cyan text-sm">checklist</span>
+          <label for="scenario-dropdown" class="text-xs font-mono text-zinc-400 uppercase tracking-wider">Scenariusz Testowy:</label>
+          <div class="relative flex-1">
+            <select id="scenario-dropdown" class="w-full appearance-none bg-brand-card border border-brand-border rounded px-3 py-1.5 font-mono text-xs text-zinc-200 focus:outline-none focus:border-brand-emerald pr-8 cursor-pointer">
+              <!-- Injected via JavaScript from SCENARIOS -->
+            </select>
+            <span class="material-symbols-outlined absolute right-2 top-2 text-zinc-500 pointer-events-none text-sm">expand_more</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-mono text-zinc-400">Szybki wybór:</span>
+          <div id="quick-scenario-pills" class="flex items-center gap-1 overflow-x-auto">
+            <!-- Buttons P01-P10 injected by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Workspace Arena -->
+      <div class="p-4 space-y-4 flex-1">
+        
+        <!-- Proposition Input Box -->
+        <div class="bg-brand-surface border border-brand-border rounded-lg p-3 relative shadow-md">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span id="claim-category-badge" class="px-2 py-0.5 rounded text-[10px] font-mono bg-brand-card text-brand-cyan border border-brand-border font-semibold">
+                AUDYTOWANE TWIERDZENIE
+              </span>
+              <span id="claim-id-badge" class="text-xs font-mono text-zinc-400">ID: P01</span>
+            </div>
+            <span class="text-xs font-mono text-zinc-400 flex items-center gap-1">
+              <span class="material-symbols-outlined text-xs text-brand-emerald">fingerprint</span>
+              <span>Deterministyczny silnik AST (bez halucynacji)</span>
+            </span>
+          </div>
+
+          <div class="flex items-stretch gap-2">
+            <div class="flex-1 relative">
+              <textarea id="claim-input" rows="2" class="w-full bg-brand-card border border-brand-border/80 rounded p-2.5 font-mono text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-brand-emerald leading-relaxed resize-none"></textarea>
+            </div>
+            <button id="btn-verify" class="px-4 bg-brand-emerald hover:bg-brand-darkEmerald text-zinc-950 font-bold text-xs rounded transition-colors flex flex-col items-center justify-center gap-1 shadow-md">
+              <span class="material-symbols-outlined font-bold text-lg">play_arrow</span>
+              <span>WERYFIKUJ</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- A/B Comparison Cards (2-Columns) -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          
+          <!-- Card 1: Standard LLM (Uncontrolled Generation) -->
+          <div class="flex flex-col bg-brand-surface border border-red-900/60 rounded-lg overflow-hidden shadow-lg">
+            <!-- Banner -->
+            <div id="llm-banner" class="bg-red-950/50 border-b border-red-800/40 px-3 py-2 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-brand-red text-base">warning</span>
+                <span id="llm-banner-text" class="text-xs font-mono font-bold text-brand-red tracking-wide">
+                  HALUCYNACJA LUB BRAK ŚCISŁEGO CYTATU
+                </span>
+              </div>
+              <span id="llm-risk-badge" class="px-2 py-0.5 rounded text-[10px] font-mono bg-red-900/40 text-red-200 border border-red-700/50 font-semibold">
+                RYZYKO: WYSOKIE
+              </span>
+            </div>
+
+            <div class="px-3 py-2 bg-brand-card/70 border-b border-brand-border flex items-center justify-between text-xs text-zinc-400">
+              <span class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-xs text-zinc-400">psychology</span>
+                Standardowy LLM (Syntetyzujący na siłę)
+              </span>
+              <span class="font-mono text-zinc-500 text-[11px]">Brak twardej bramki odmowy</span>
+            </div>
+
+            <!-- Content -->
+            <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+              <div class="space-y-3">
+                <p id="llm-response-text" class="text-sm text-zinc-200 leading-relaxed font-sans bg-brand-darkCanvas/40 p-3 rounded border border-brand-border/40 italic">
+                  <!-- Text injected by JS -->
+                </p>
+
+                <!-- Identified Defects -->
+                <div class="bg-brand-darkCanvas/70 rounded border-l-2 border-brand-red border-t border-r border-b border-brand-border p-3 space-y-1.5">
+                  <div class="flex items-center gap-1.5 text-xs font-mono text-brand-red font-semibold">
+                    <span class="material-symbols-outlined text-xs">gpp_bad</span>
+                    IDENTYFIKACJA WAD SYNTEZY / HALUCYNACJI:
+                  </div>
+                  <ul id="llm-defects-list" class="text-xs text-zinc-300 space-y-1 list-disc pl-4 font-sans">
+                    <!-- Defects injected by JS -->
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Exposure Warning -->
+              <div id="llm-exposure-box" class="p-2.5 rounded bg-red-950/30 border border-red-900/40 text-xs font-mono text-red-300 flex items-start gap-2">
+                <span class="material-symbols-outlined text-brand-red text-sm shrink-0 mt-0.5">error_outline</span>
+                <span id="llm-exposure-text"><!-- Text injected by JS --></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: mcp-redline (Deterministic Grounding) -->
+          <div class="flex flex-col bg-brand-surface border border-emerald-900/60 rounded-lg overflow-hidden shadow-lg">
+            <!-- Banner -->
+            <div id="redline-banner" class="bg-emerald-950/50 border-b border-emerald-800/40 px-3 py-2 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span id="redline-banner-icon" class="material-symbols-outlined text-brand-emerald text-base font-bold">verified</span>
+                <span id="redline-banner-text" class="text-xs font-mono font-bold text-brand-emerald tracking-wide">
+                  DETERMINISTYCZNY DOWÓD // GROUNDED
+                </span>
+              </div>
+              <span id="redline-status-badge" class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-900/40 text-emerald-200 border border-emerald-700/50 font-semibold">
+                ZERO HALUCYNACJI
+              </span>
+            </div>
+
+            <div class="px-3 py-2 bg-brand-card/70 border-b border-brand-border flex items-center justify-between text-xs text-zinc-400">
+              <span class="flex items-center gap-1.5 text-brand-emerald font-semibold">
+                <span class="material-symbols-outlined text-xs">security</span>
+                mcp-redline Engine (Deterministyczny kod weryfikacyjny)
+              </span>
+              <span id="redline-verdict-tag" class="font-mono text-xs px-2 py-0.5 rounded bg-brand-darkCanvas border border-brand-emerald/40 text-brand-emerald">
+                STATUS: GROUNDED
+              </span>
+            </div>
+
+            <!-- Content -->
+            <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+              <div class="space-y-3">
+                <div class="flex items-center justify-between text-xs font-mono text-zinc-400">
+                  <span id="redline-source-title">ŹRÓDŁO DOKUMENTOWE:</span>
+                  <span id="redline-tier-badge" class="text-brand-emerald font-semibold">Tier 1: Governing Contract</span>
+                </div>
+
+                <!-- Blockquote / Explanation Box -->
+                <div id="redline-quote-container" class="bg-brand-darkCanvas rounded border-l-2 border-brand-emerald border-t border-r border-b border-brand-border p-3 font-mono text-xs text-zinc-200 space-y-2 max-h-56 overflow-y-auto">
+                  <pre id="redline-quote-text" class="whitespace-pre-wrap leading-relaxed text-zinc-300"></pre>
+                </div>
+
+                <!-- Explanation & Precedence Resolution -->
+                <div id="redline-explanation-box" class="bg-brand-card rounded p-2.5 border border-brand-border text-xs space-y-1">
+                  <div class="text-[11px] font-mono text-brand-cyan font-medium flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs">shield</span>
+                    ROZSTRZYGNIĘCIE HIERARCHII DOWODOWEJ:
+                  </div>
+                  <p id="redline-explanation-text" class="text-zinc-200 text-xs font-sans leading-relaxed"></p>
+                </div>
+              </div>
+
+              <!-- Cryptographic Footer -->
+              <div class="p-2.5 rounded bg-brand-darkCanvas border border-brand-border flex items-center justify-between text-xs font-mono text-zinc-400">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-brand-emerald text-sm">lock</span>
+                  <span>Plik: <code id="redline-meta-file" class="text-zinc-200">01_Apex_VeloNova_MSA_2023.md</code></span>
+                </div>
+                <div>
+                  Sekcja / Strona: <span id="redline-meta-page" class="text-brand-emerald font-semibold">1</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Real-Time Metrics Strip (4 Stat Cards) -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
+          <div class="p-3 rounded-lg bg-brand-surface border border-brand-border flex items-center justify-between">
+            <div>
+              <div class="text-[10px] font-mono text-zinc-400 uppercase">Czas weryfikacji</div>
+              <div id="stat-latency" class="text-xl font-bold font-mono text-brand-emerald">1.8 ms</div>
+              <div class="text-[11px] text-zinc-500 font-sans">Lokalne regex / AST</div>
+            </div>
+            <span class="material-symbols-outlined text-brand-emerald text-2xl">bolt</span>
+          </div>
+
+          <div class="p-3 rounded-lg bg-brand-surface border border-brand-border flex items-center justify-between">
+            <div>
+              <div class="text-[10px] font-mono text-zinc-400 uppercase">Koszt Tokenów LLM</div>
+              <div class="text-xl font-bold font-mono text-zinc-100">0</div>
+              <div class="text-[11px] text-zinc-500 font-sans">Zero kosztu / zero driftu</div>
+            </div>
+            <span class="material-symbols-outlined text-brand-cyan text-2xl">toll</span>
+          </div>
+
+          <div class="p-3 rounded-lg bg-brand-surface border border-brand-border flex items-center justify-between">
+            <div>
+              <div class="text-[10px] font-mono text-zinc-400 uppercase">Determinizm Kodu</div>
+              <div class="text-xl font-bold font-mono text-brand-emerald">100%</div>
+              <div class="text-[11px] text-zinc-500 font-sans">Mechanizm nie może halucynować</div>
+            </div>
+            <span class="material-symbols-outlined text-brand-emerald text-2xl">verified</span>
+          </div>
+
+          <div class="p-3 rounded-lg bg-brand-surface border border-brand-border flex items-center justify-between">
+            <div>
+              <div class="text-[10px] font-mono text-zinc-400 uppercase">Protokół Transportu</div>
+              <div class="text-xl font-bold font-mono text-brand-cyan">MCP stdio</div>
+              <div class="text-[11px] text-zinc-500 font-sans">100% izolowany proces IPC</div>
+            </div>
+            <span class="material-symbols-outlined text-brand-cyan text-2xl">shield</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- --------------------------------------------------------------------- -->
+    <!-- ZONE C: LIVE MCP PROTOCOL INSPECTOR (Right IDE / Terminal Console)     -->
+    <!-- --------------------------------------------------------------------- -->
+    <aside class="w-80 xl:w-96 h-[calc(100vh-3.5rem)] border-l border-brand-border bg-brand-surface/90 flex flex-col shrink-0">
+      <!-- Header -->
+      <div class="p-3 border-b border-brand-border bg-brand-darkCanvas/60 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-brand-cyan text-sm">code</span>
+          <span class="text-xs font-mono font-semibold text-zinc-200 uppercase tracking-wider">INSPEKTOR PROTOKOŁU MCP</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-brand-emerald"></span>
+          <span class="text-[10px] font-mono text-zinc-400">JSON-RPC 2.0</span>
+        </div>
+      </div>
+
+      <!-- Tab Switcher -->
+      <div class="flex border-b border-brand-border bg-brand-card text-xs font-mono">
+        <button id="tab-rpc-req" class="flex-1 py-2 px-3 border-b-2 border-brand-emerald text-brand-emerald font-semibold bg-brand-surface text-center">
+          Żądanie RPC
+        </button>
+        <button id="tab-rpc-res" class="flex-1 py-2 px-3 text-zinc-400 hover:text-zinc-200 hover:bg-brand-surface text-center transition-colors">
+          Odpowiedź RPC
+        </button>
+        <button id="tab-rpc-stream" class="flex-1 py-2 px-3 text-zinc-400 hover:text-zinc-200 hover:bg-brand-surface text-center transition-colors">
+          Ślad stdio
+        </button>
+      </div>
+
+      <!-- Viewport -->
+      <div class="flex-1 p-3 overflow-y-auto font-mono text-xs bg-brand-darkCanvas text-zinc-200 leading-relaxed relative flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between text-[11px] text-zinc-400 border-b border-brand-border/60 pb-2 mb-2">
+            <span id="rpc-active-tool-label" class="flex items-center gap-1 text-brand-emerald">
+              <span class="material-symbols-outlined text-xs">terminal</span>
+              tools/call: verify
+            </span>
+            <button id="btn-copy-rpc" class="hover:text-brand-emerald flex items-center gap-1 text-zinc-400 transition-colors" title="Kopiuj JSON">
+              <span class="material-symbols-outlined text-xs">content_copy</span>
+              <span>Kopiuj</span>
+            </button>
+          </div>
+
+          <!-- Code Output -->
+          <pre id="rpc-code-display" class="overflow-x-auto text-[11px] leading-5 text-zinc-300"></pre>
+
+          <!-- Stdio Stream (Shown when stream tab active) -->
+          <div id="stdio-stream-display" class="hidden space-y-1.5 text-[11px]">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <!-- Security Footnote -->
+        <div class="pt-3 border-t border-brand-border/80 text-[11px] font-mono text-zinc-400 space-y-1">
+          <div class="flex items-center justify-between">
+            <span>Izolacja sieci:</span>
+            <span class="text-brand-emerald font-semibold">0 połączeń wychodzących</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span>Zgodność CISO:</span>
+            <span class="text-brand-emerald font-semibold">100% lokalny dysk</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 1: INFOGRAPHIC GUIDE (Gemini Image Creation)                         -->
+  <!-- ========================================================================= -->
+  <div id="modal-infographic" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-brand-surface border border-brand-border rounded-xl max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="px-4 py-3 border-b border-brand-border flex items-center justify-between bg-brand-darkCanvas">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-brand-cyan">image</span>
+          <span class="font-bold text-sm text-zinc-100">Instrukcja Uruchomienia i Architektura // Infografika</span>
+          <span class="text-xs font-mono text-zinc-400">(Wygenerowano przez Gemini Image Creation)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <a href="assets/mcp_redline_infographic.jpg" download class="px-2.5 py-1 rounded bg-brand-card hover:bg-brand-cardElevated border border-brand-border text-xs font-mono text-zinc-300 flex items-center gap-1 transition-colors">
+            <span class="material-symbols-outlined text-xs">download</span> Pobierz JPG
+          </a>
+          <button id="btn-close-infographic" class="w-7 h-7 rounded hover:bg-brand-card flex items-center justify-center text-zinc-400 hover:text-white">
+            <span class="material-symbols-outlined text-base">close</span>
+          </button>
+        </div>
+      </div>
+      <div class="p-4 overflow-auto flex items-center justify-center bg-zinc-950 flex-1">
+        <img src="assets/mcp_redline_infographic.jpg" alt="mcp-redline Instrukcja Infografika" class="max-h-[78vh] object-contain rounded border border-brand-border/60 shadow-lg"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 2: ARCHITECTURE & CISO DATA BOUNDARY (SVG Diagrams)                 -->
+  <!-- ========================================================================= -->
+  <div id="modal-architecture" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-brand-surface border border-brand-border rounded-xl max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="px-4 py-3 border-b border-brand-border flex items-center justify-between bg-brand-darkCanvas">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-brand-emerald">account_tree</span>
+          <span class="font-bold text-sm text-zinc-100">Architektura Bezpieczeństwa dla CISO i Zarządu</span>
+          <div class="flex items-center gap-1 ml-4 border-l border-brand-border pl-3">
+            <button id="tab-arch-1" class="px-2.5 py-1 rounded text-xs font-mono bg-brand-emerald/20 text-brand-emerald border border-brand-emerald/40 font-semibold">1. verify_flow</button>
+            <button id="tab-arch-2" class="px-2.5 py-1 rounded text-xs font-mono text-zinc-400 hover:text-white">2. ciso_boundary</button>
+            <button id="tab-arch-3" class="px-2.5 py-1 rounded text-xs font-mono text-zinc-400 hover:text-white">3. rag_vs_redline</button>
+          </div>
+        </div>
+        <button id="btn-close-architecture" class="w-7 h-7 rounded hover:bg-brand-card flex items-center justify-center text-zinc-400 hover:text-white">
+          <span class="material-symbols-outlined text-base">close</span>
+        </button>
+      </div>
+      <div class="p-6 overflow-auto flex flex-col items-center justify-center bg-zinc-950 flex-1 space-y-4">
+        <img id="arch-img" src="assets/01_verify_flow.svg" alt="Diagram Architektury" class="max-h-[70vh] object-contain rounded border border-brand-border/40 p-2 bg-zinc-900/60 shadow-xl"/>
+        <p id="arch-description" class="text-xs text-zinc-400 font-mono text-center max-w-3xl">
+          Diagram 1: Algorytm weryfikacji verify bez udziału modeli językowych. Czysty kod deterministyczny odcina halucynacje.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 3: DOCUMENT VIEWER (Full Corpus Text)                               -->
+  <!-- ========================================================================= -->
+  <div id="modal-doc-viewer" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-brand-surface border border-brand-border rounded-xl max-w-4xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="px-4 py-3 border-b border-brand-border flex items-center justify-between bg-brand-darkCanvas">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-brand-cyan">description</span>
+          <span id="doc-modal-title" class="font-bold text-sm text-zinc-100">Podgląd Dokumentu</span>
+          <span id="doc-modal-tier" class="px-2 py-0.5 rounded text-[10px] font-mono bg-brand-card border border-brand-border text-brand-emerald">Tier 1</span>
+        </div>
+        <button id="btn-close-doc" class="w-7 h-7 rounded hover:bg-brand-card flex items-center justify-center text-zinc-400 hover:text-white">
+          <span class="material-symbols-outlined text-base">close</span>
+        </button>
+      </div>
+      <div class="px-4 py-2 border-b border-brand-border bg-brand-card/40 flex items-center justify-between text-xs font-mono text-zinc-400">
+        <div class="flex items-center gap-3">
+          <span>Plik: <code id="doc-modal-file" class="text-zinc-200">01_...md</code></span>
+          <span>Linie: <strong id="doc-modal-lines" class="text-zinc-200">0</strong></span>
+          <span>Słowa: <strong id="doc-modal-words" class="text-zinc-200">0</strong></span>
+        </div>
+        <span id="doc-modal-hash" class="text-zinc-500">sha256:...</span>
+      </div>
+      <div class="p-4 overflow-auto flex-1 bg-brand-darkCanvas font-mono text-xs text-zinc-300 leading-relaxed">
+        <pre id="doc-modal-content" class="whitespace-pre-wrap select-text"></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 4: QUICKSTART / HOW TO RUN                                          -->
+  <!-- ========================================================================= -->
+  <div id="modal-quickstart" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-brand-surface border border-brand-border rounded-xl max-w-3xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="px-4 py-3 border-b border-brand-border flex items-center justify-between bg-brand-darkCanvas">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-brand-red">terminal</span>
+          <span class="font-bold text-sm text-zinc-100">Jak Uruchomić mcp-redline (100% Offline)</span>
+        </div>
+        <button id="btn-close-quickstart" class="w-7 h-7 rounded hover:bg-brand-card flex items-center justify-center text-zinc-400 hover:text-white">
+          <span class="material-symbols-outlined text-base">close</span>
+        </button>
+      </div>
+      <div class="p-6 overflow-auto flex-1 space-y-5 text-sm">
+        
+        <div>
+          <h4 class="font-bold text-zinc-200 mb-1 flex items-center gap-1.5">
+            <span class="w-5 h-5 rounded-full bg-brand-red text-white flex items-center justify-center text-xs">1</span>
+            Instalacja i weryfikacja czystego środowiska (Clean Clone):
+          </h4>
+          <p class="text-xs text-zinc-400 mb-2 font-sans">
+            Wymaga Node.js 18+. Całość działa bez zewnętrznych API i bez wywołań sieciowych.
+          </p>
+          <div class="bg-brand-darkCanvas p-3 rounded border border-brand-border font-mono text-xs text-zinc-200 relative group">
+            <code>git clone https://github.com/robertgrabowski/mcp-redline.git<br/>cd mcp-redline<br/>npm install<br/>npm test<br/>npm run eval</code>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-zinc-200 mb-1 flex items-center gap-1.5">
+            <span class="w-5 h-5 rounded-full bg-brand-emerald text-zinc-950 font-bold flex items-center justify-center text-xs">2</span>
+            Konfiguracja w Claude Desktop (<code class="text-xs">claude_desktop_config.json</code>):
+          </h4>
+          <div class="bg-brand-darkCanvas p-3 rounded border border-brand-border font-mono text-xs text-zinc-200 relative">
+            <pre><code>{
+  "mcpServers": {
+    "redline": {
+      "command": "node",
+      "args": ["/sciezka/do/mcp-redline/dist/index.js"]
+    }
+  }
+}</code></pre>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-zinc-200 mb-1 flex items-center gap-1.5">
+            <span class="w-5 h-5 rounded-full bg-brand-cyan text-zinc-950 font-bold flex items-center justify-center text-xs">3</span>
+            Kluczowe reguły bezpieczeństwa CISO:
+          </h4>
+          <ul class="text-xs text-zinc-300 font-sans space-y-1 list-disc pl-5">
+            <li><strong>Transport wyłącznie stdio:</strong> Brak portów sieciowych, brak serwera HTTP/SSE.</li>
+            <li><strong>Zero wycieku danych:</strong> 100% korpusu pozostaje na dysku lokalnym maszyny użytkownika.</li>
+            <li><strong>Deterministyczny algorytm weryfikacji:</strong> Narzędzie <code class="font-mono text-brand-emerald">verify</code> nie wywołuje LLM – mechanizm antyhalucynacyjny sam nie może halucynować.</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Load bundled dataset -->
+  <script type="module">
+    import { CORPUS_DOCS, SCENARIOS } from './data.js';
+
+    // State
+    let currentScenarioIndex = 0;
+    let activeRpcTab = 'req'; // 'req', 'res', 'stream'
+    let activeArchTab = 1;
+
+    // Elements
+    const corpusListEl = document.getElementById('corpus-list');
+    const corpusSearchEl = document.getElementById('corpus-search');
+    const scenarioDropdown = document.getElementById('scenario-dropdown');
+    const quickPillsEl = document.getElementById('quick-scenario-pills');
+    
+    const claimInput = document.getElementById('claim-input');
+    const claimCategoryBadge = document.getElementById('claim-category-badge');
+    const claimIdBadge = document.getElementById('claim-id-badge');
+    const btnVerify = document.getElementById('btn-verify');
+
+    // LLM Card Elements
+    const llmBanner = document.getElementById('llm-banner');
+    const llmBannerText = document.getElementById('llm-banner-text');
+    const llmRiskBadge = document.getElementById('llm-risk-badge');
+    const llmResponseText = document.getElementById('llm-response-text');
+    const llmDefectsList = document.getElementById('llm-defects-list');
+    const llmExposureBox = document.getElementById('llm-exposure-box');
+    const llmExposureText = document.getElementById('llm-exposure-text');
+
+    // Redline Card Elements
+    const redlineBanner = document.getElementById('redline-banner');
+    const redlineBannerIcon = document.getElementById('redline-banner-icon');
+    const redlineBannerText = document.getElementById('redline-banner-text');
+    const redlineStatusBadge = document.getElementById('redline-status-badge');
+    const redlineVerdictTag = document.getElementById('redline-verdict-tag');
+    const redlineSourceTitle = document.getElementById('redline-source-title');
+    const redlineTierBadge = document.getElementById('redline-tier-badge');
+    const redlineQuoteContainer = document.getElementById('redline-quote-container');
+    const redlineQuoteText = document.getElementById('redline-quote-text');
+    const redlineExplanationText = document.getElementById('redline-explanation-text');
+    const redlineMetaFile = document.getElementById('redline-meta-file');
+    const redlineMetaPage = document.getElementById('redline-meta-page');
+
+    // Stats
+    const statLatency = document.getElementById('stat-latency');
+
+    // RPC Inspector
+    const tabRpcReq = document.getElementById('tab-rpc-req');
+    const tabRpcRes = document.getElementById('tab-rpc-res');
+    const tabRpcStream = document.getElementById('tab-rpc-stream');
+    const rpcActiveToolLabel = document.getElementById('rpc-active-tool-label');
+    const rpcCodeDisplay = document.getElementById('rpc-code-display');
+    const stdioStreamDisplay = document.getElementById('stdio-stream-display');
+    const btnCopyRpc = document.getElementById('btn-copy-rpc');
+
+    // Modals
+    const modalInfographic = document.getElementById('modal-infographic');
+    const btnOpenInfographic = document.getElementById('btn-open-infographic');
+    const btnCloseInfographic = document.getElementById('btn-close-infographic');
+
+    const modalArchitecture = document.getElementById('modal-architecture');
+    const btnOpenArchitecture = document.getElementById('btn-open-architecture');
+    const btnCloseArchitecture = document.getElementById('btn-close-architecture');
+    const archImg = document.getElementById('arch-img');
+    const archDescription = document.getElementById('arch-description');
+    const tabArch1 = document.getElementById('tab-arch-1');
+    const tabArch2 = document.getElementById('tab-arch-2');
+    const tabArch3 = document.getElementById('tab-arch-3');
+
+    const modalDocViewer = document.getElementById('modal-doc-viewer');
+    const btnCloseDoc = document.getElementById('btn-close-doc');
+    const docModalTitle = document.getElementById('doc-modal-title');
+    const docModalTier = document.getElementById('doc-modal-tier');
+    const docModalFile = document.getElementById('doc-modal-file');
+    const docModalLines = document.getElementById('doc-modal-lines');
+    const docModalWords = document.getElementById('doc-modal-words');
+    const docModalHash = document.getElementById('doc-modal-hash');
+    const docModalContent = document.getElementById('doc-modal-content');
+
+    const modalQuickstart = document.getElementById('modal-quickstart');
+    const btnOpenQuickstart = document.getElementById('btn-open-quickstart');
+    const btnCloseQuickstart = document.getElementById('btn-close-quickstart');
+
+    // 1. Populate Corpus List
+    function renderCorpusList(filterText = '') {
+      corpusListEl.innerHTML = '';
+      const filter = filterText.toLowerCase();
+
+      CORPUS_DOCS.forEach((doc, idx) => {
+        if (filter && !doc.title.toLowerCase().includes(filter) && !doc.filename.toLowerCase().includes(filter) && !doc.summary.toLowerCase().includes(filter)) {
+          return;
+        }
+
+        const item = document.createElement('div');
+        item.className = 'p-2.5 rounded bg-brand-card hover:bg-brand-cardElevated border border-brand-border/60 hover:border-brand-border cursor-pointer transition-colors duration-100 group';
+        
+        let tierColorClass = 'text-brand-emerald bg-emerald-950/40 border-brand-emerald/30';
+        if (doc.tierLevel === 2) tierColorClass = 'text-brand-cyan bg-cyan-950/40 border-brand-cyan/30';
+        if (doc.tierLevel === 3) tierColorClass = 'text-brand-red bg-red-950/40 border-brand-red/30';
+
+        item.innerHTML = `
+          <div class="flex items-start justify-between mb-1">
+            <div class="flex items-center gap-1.5 overflow-hidden">
+              <span class="material-symbols-outlined text-xs text-zinc-400 group-hover:text-white">description</span>
+              <span class="font-mono font-medium text-zinc-200 text-xs truncate">${doc.title}</span>
+            </div>
+            <span class="text-[9px] font-mono px-1.5 py-0.5 rounded border ${tierColorClass}">Tier ${doc.tierLevel}</span>
+          </div>
+          <p class="text-[11px] text-zinc-400 line-clamp-1 mb-1 font-sans">${doc.summary}</p>
+          <div class="flex items-center justify-between text-[10px] font-mono text-zinc-500 pt-1 border-t border-brand-border/40">
+            <span>${doc.hash}</span>
+            <span class="text-zinc-400 group-hover:text-brand-cyan flex items-center gap-0.5">Podgląd &rarr;</span>
+          </div>
+        `;
+
+        item.addEventListener('click', () => openDocViewer(doc));
+        corpusListEl.appendChild(item);
+      });
+    }
+
+    // 2. Open Document Modal
+    function openDocViewer(doc) {
+      docModalTitle.textContent = doc.title;
+      docModalTier.textContent = doc.tier;
+      docModalFile.textContent = doc.filename;
+      docModalLines.textContent = doc.lines;
+      docModalWords.textContent = doc.words;
+      docModalHash.textContent = 'sha256:' + doc.fullHash.slice(0, 16) + '...';
+      docModalContent.textContent = doc.content;
+      modalDocViewer.classList.remove('hidden');
+    }
+
+    // 3. Populate Scenario Dropdown and Quick Pills
+    function setupScenarios() {
+      scenarioDropdown.innerHTML = '';
+      quickPillsEl.innerHTML = '';
+
+      SCENARIOS.forEach((sc, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        const isUnsupported = sc.verdict === 'UNSUPPORTED';
+        opt.textContent = `${sc.id}: ${sc.subtype} ${isUnsupported ? '[ODRZUCONE: Pułapka]' : '[POTWIERDZONE]'}`;
+        scenarioDropdown.appendChild(opt);
+
+        // Quick Pill
+        const pill = document.createElement('button');
+        pill.textContent = sc.id;
+        pill.className = `px-2 py-0.5 rounded text-[11px] font-mono font-semibold border transition-all ${
+          idx === 0 
+            ? 'bg-brand-emerald text-zinc-950 border-brand-emerald' 
+            : isUnsupported 
+              ? 'bg-brand-card hover:bg-brand-cardElevated text-brand-red border-red-900/60' 
+              : 'bg-brand-card hover:bg-brand-cardElevated text-emerald-400 border-emerald-900/60'
+        }`;
+        pill.addEventListener('click', () => {
+          scenarioDropdown.value = idx;
+          loadScenario(idx);
+        });
+        quickPillsEl.appendChild(pill);
+      });
+
+      scenarioDropdown.addEventListener('change', (e) => {
+        loadScenario(parseInt(e.target.value, 10));
+      });
+    }
+
+    // 4. Load Scenario Logic
+    function loadScenario(idx) {
+      currentScenarioIndex = idx;
+      const sc = SCENARIOS[idx];
+
+      // Update pills active state
+      Array.from(quickPillsEl.children).forEach((pill, i) => {
+        const isUnsupported = SCENARIOS[i].verdict === 'UNSUPPORTED';
+        if (i === idx) {
+          pill.className = `px-2 py-0.5 rounded text-[11px] font-mono font-semibold border ${
+            isUnsupported ? 'bg-brand-red text-white border-brand-red' : 'bg-brand-emerald text-zinc-950 border-brand-emerald'
+          }`;
+        } else {
+          pill.className = `px-2 py-0.5 rounded text-[11px] font-mono font-semibold border bg-brand-card hover:bg-brand-cardElevated ${
+            isUnsupported ? 'text-brand-red border-red-900/60' : 'text-emerald-400 border-emerald-900/60'
+          }`;
+        }
+      });
+
+      // Update Proposition
+      claimIdBadge.textContent = `ID: ${sc.id}`;
+      claimCategoryBadge.textContent = sc.category;
+      claimCategoryBadge.className = `px-2 py-0.5 rounded text-[10px] font-mono border font-semibold ${
+        sc.verdict === 'GROUNDED' 
+          ? 'bg-emerald-950/40 text-brand-emerald border-brand-emerald/40' 
+          : 'bg-red-950/40 text-brand-red border-brand-red/40'
+      }`;
+      claimInput.value = sc.prompt;
+
+      // Update LLM Card
+      llmBannerText.textContent = sc.riskLevel === 'CRITICAL' 
+        ? 'KRYTYCZNA HALUCYNACJA LUB ROZMYCIE PRAWA (WYSOKIE RYZYKO)' 
+        : sc.riskLevel === 'HIGH'
+          ? 'BŁĄD ZARZĄDCZY / AUDYTOWY'
+          : 'SYNTEZA BEZ ŚCISŁEGO CYTATU KONTRAKTOWEGO';
+      
+      llmRiskBadge.textContent = `RYZYKO: ${sc.riskLevel}`;
+      llmRiskBadge.className = `px-2 py-0.5 rounded text-[10px] font-mono font-semibold border ${
+        sc.riskLevel === 'CRITICAL' ? 'bg-red-900 text-white border-red-500' :
+        sc.riskLevel === 'HIGH' ? 'bg-red-950/60 text-red-300 border-red-800' :
+        'bg-zinc-800 text-zinc-300 border-zinc-700'
+      }`;
+
+      llmResponseText.textContent = sc.llmResponse;
+      
+      llmDefectsList.innerHTML = '';
+      sc.llmDefects.forEach(defect => {
+        const li = document.createElement('li');
+        li.textContent = defect;
+        llmDefectsList.appendChild(li);
+      });
+
+      llmExposureText.textContent = sc.financialExposure;
+
+      // Update Redline Card
+      const isGrounded = sc.verdict === 'GROUNDED';
+      
+      if (isGrounded) {
+        redlineBanner.className = 'bg-emerald-950/50 border-b border-emerald-800/40 px-3 py-2 flex items-center justify-between';
+        redlineBannerIcon.textContent = 'verified';
+        redlineBannerIcon.className = 'material-symbols-outlined text-brand-emerald text-base font-bold';
+        redlineBannerText.textContent = 'DETERMINISTYCZNY DOWÓD // 100% GROUNDED';
+        redlineBannerText.className = 'text-xs font-mono font-bold text-brand-emerald tracking-wide';
+        
+        redlineStatusBadge.textContent = 'POTWIERDZONE W ŹRÓDLE';
+        redlineStatusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-900/40 text-emerald-200 border border-emerald-700/50 font-semibold';
+        
+        redlineVerdictTag.textContent = 'STATUS: GROUNDED';
+        redlineVerdictTag.className = 'font-mono text-xs px-2 py-0.5 rounded bg-brand-darkCanvas border border-brand-emerald/40 text-brand-emerald';
+        
+        redlineSourceTitle.textContent = 'ŚCISŁY CYTAT (TIER 1 DOWÓD NAJWYŻSZEJ MOCY):';
+        redlineTierBadge.textContent = 'Tier 1: Legal Precedence';
+        redlineTierBadge.className = 'text-brand-emerald font-semibold';
+
+        redlineQuoteContainer.className = 'bg-brand-darkCanvas rounded border-l-2 border-brand-emerald border-t border-r border-b border-brand-border p-3 font-mono text-xs text-zinc-200 space-y-2 max-h-56 overflow-y-auto';
+        redlineQuoteText.textContent = sc.quote || 'Fragment zweryfikowany w dokumencie.';
+        redlineExplanationText.textContent = sc.explanation + ' ' + sc.comment;
+
+      } else {
+        redlineBanner.className = 'bg-red-950/60 border-b border-red-800/50 px-3 py-2 flex items-center justify-between';
+        redlineBannerIcon.textContent = 'gpp_bad';
+        redlineBannerIcon.className = 'material-symbols-outlined text-brand-red text-base font-bold';
+        redlineBannerText.textContent = 'TWARDA ODMOWA // DETERMINISTIC REFUSAL';
+        redlineBannerText.className = 'text-xs font-mono font-bold text-brand-red tracking-wide';
+
+        redlineStatusBadge.textContent = 'UNSUPPORTED (BEZWZGLĘDNA ODMOWA)';
+        redlineStatusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-red-900/60 text-red-100 border border-red-600 font-semibold';
+
+        redlineVerdictTag.textContent = 'STATUS: UNSUPPORTED';
+        redlineVerdictTag.className = 'font-mono text-xs px-2 py-0.5 rounded bg-brand-darkCanvas border border-brand-red/60 text-brand-red font-bold';
+
+        redlineSourceTitle.textContent = 'ROZSTRZYGNIĘCIE SPRZECZNOŚCI KONTRAKTOWEJ:';
+        redlineTierBadge.textContent = 'Tier 1 unieważnia Tier 3';
+        redlineTierBadge.className = 'text-brand-red font-semibold';
+
+        redlineQuoteContainer.className = 'bg-brand-darkCanvas rounded border-l-2 border-brand-red border-t border-r border-b border-brand-border p-3 font-mono text-xs text-red-200 space-y-2 max-h-56 overflow-y-auto';
+        redlineQuoteText.textContent = sc.quote 
+          ? `[DOWÓD WYKLUCZAJĄCY ROSZCZENIE]:\n${sc.quote}` 
+          : `[BRAK OPARCIA DOWODOWEGO]:\nŻaden z 7 dokumentów korpusu nie potwierdza podanej tezy lub waluty. Serwer deterministycznie odmawia wygenerowania niezweryfikowanej odpowiedzi.`;
+        
+        redlineExplanationText.textContent = sc.explanation + ' ' + sc.comment;
+      }
+
+      redlineMetaFile.textContent = sc.file || 'Brak pliku';
+      redlineMetaPage.textContent = sc.page ? `Sekcja / Strona ${sc.page}` : 'N/A';
+      statLatency.textContent = (sc.durationMs || 1.8).toFixed(2) + ' ms';
+
+      // Update Inspector
+      renderInspector();
+    }
+
+    // 5. Render Protocol Inspector
+    function renderInspector() {
+      const sc = SCENARIOS[currentScenarioIndex];
+
+      if (activeRpcTab === 'req') {
+        rpcActiveToolLabel.innerHTML = '<span class="material-symbols-outlined text-xs">arrow_upward</span> tools/call: verify';
+        rpcCodeDisplay.classList.remove('hidden');
+        stdioStreamDisplay.classList.add('hidden');
+
+        const reqPayload = {
+          jsonrpc: "2.0",
+          id: `req-${sc.id}-${Date.now().toString().slice(-4)}`,
+          method: "tools/call",
+          params: {
+            name: "verify",
+            arguments: {
+              claim: sc.prompt
+            }
+          }
+        };
+        rpcCodeDisplay.innerHTML = syntaxHighlight(JSON.stringify(reqPayload, null, 2));
+
+      } else if (activeRpcTab === 'res') {
+        rpcActiveToolLabel.innerHTML = '<span class="material-symbols-outlined text-xs text-brand-emerald">arrow_downward</span> tools/call response';
+        rpcCodeDisplay.classList.remove('hidden');
+        stdioStreamDisplay.classList.add('hidden');
+
+        const resPayload = {
+          jsonrpc: "2.0",
+          id: `req-${sc.id}`,
+          result: {
+            content: [
+              {
+                type: "text",
+                text: JSON.stringify({
+                  claim: sc.prompt,
+                  verdict: sc.verdict,
+                  durationMs: sc.durationMs,
+                  file: sc.file,
+                  page: sc.page,
+                  explanation: sc.explanation,
+                  quote: sc.quote
+                }, null, 2)
+              }
+            ]
+          }
+        };
+        rpcCodeDisplay.innerHTML = syntaxHighlight(JSON.stringify(resPayload, null, 2));
+
+      } else if (activeRpcTab === 'stream') {
+        rpcActiveToolLabel.innerHTML = '<span class="material-symbols-outlined text-xs text-brand-cyan">sync_alt</span> stdio IPC stream';
+        rpcCodeDisplay.classList.add('hidden');
+        stdioStreamDisplay.classList.remove('hidden');
+
+        const now = new Date();
+        const timeStr = now.toTimeString().split(' ')[0] + '.' + now.getMilliseconds().toString().padStart(3, '0');
+
+        stdioStreamDisplay.innerHTML = `
+          <div class="text-zinc-500 font-mono text-[10px] pb-1 border-b border-brand-border/40 flex justify-between">
+            <span>ZDARZENIA STDIN / STDOUT</span>
+            <span class="text-brand-emerald">100% AIR-GAPPED</span>
+          </div>
+          <div class="text-zinc-400"><span class="text-zinc-500">[${timeStr}]</span> <span class="text-brand-cyan">[stdin]</span> JSON-RPC payload received (${BufferByteLength(sc.prompt)} bytes)</div>
+          <div class="text-zinc-400"><span class="text-zinc-500">[${timeStr}]</span> <span class="text-brand-emerald">[corpus:load]</span> 7 markdown documents loaded into memory</div>
+          <div class="text-zinc-400"><span class="text-zinc-500">[${timeStr}]</span> <span class="text-brand-emerald">[tokenize]</span> Extracting discrete substantive tokens</div>
+          <div class="text-zinc-400"><span class="text-zinc-500">[${timeStr}]</span> <span class="text-brand-cyan">[precedence]</span> Evaluating Tier 1 (Governing) vs Tier 3 (Email)</div>
+          <div class="${sc.verdict === 'GROUNDED' ? 'text-brand-emerald' : 'text-brand-red'} font-semibold">
+            <span class="text-zinc-500">[${timeStr}]</span> [verdict:${sc.verdict.toLowerCase()}] ${sc.verdict === 'GROUNDED' ? 'Exact verbatim match located' : 'Hard refusal triggered (contradiction / unbacked)'}
+          </div>
+          <div class="text-zinc-400"><span class="text-zinc-500">[${timeStr}]</span> <span class="text-brand-cyan">[stdout]</span> RPC response flushed to stdout (${sc.durationMs.toFixed(2)} ms)</div>
+        `;
+      }
+    }
+
+    function BufferByteLength(str) {
+      return new Blob([str]).size;
+    }
+
+    // JSON Syntax highlighter
+    function syntaxHighlight(json) {
+      json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        let cls = 'text-brand-cyan';
+        if (/^"/.test(match)) {
+          if (/:$/.test(match)) {
+            cls = 'text-zinc-400';
+          } else {
+            cls = 'text-emerald-300';
+          }
+        } else if (/true|false/.test(match)) {
+          cls = 'text-amber-300';
+        } else if (/null/.test(match)) {
+          cls = 'text-red-400';
+        } else {
+          cls = 'text-sky-300';
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+      });
+    }
+
+    // Tab buttons
+    tabRpcReq.addEventListener('click', () => {
+      activeRpcTab = 'req';
+      tabRpcReq.className = 'flex-1 py-2 px-3 border-b-2 border-brand-emerald text-brand-emerald font-semibold bg-brand-surface text-center';
+      tabRpcRes.className = 'flex-1 py-2 px-3 text-zinc-400 hover:text-zinc-200 hover:bg-brand-surface text-center transition-colors';
+      tabRpcStream.className = 'flex-1 py-2 px-3 text-zinc-400 hover:text-zinc-200 hover:bg-brand-surface text-center transition-colors';
+      renderInspector();
+    });
+
+    tabRpcRes.addEventListener('click', () => {
+      activeRpcTab = 'res';
+      tabRpcRes.className = 'flex-1 py-2 px-3 border-b-2 border-brand-emerald text-brand-emerald font-semibold bg-brand-surface text-center';
+      tabRpcReq.className = 'flex-1 py-2 px-3 text-zinc-400 hover:text-zinc-200 hover:bg-brand-surface text-center transition-colors';
+      tabRpcStream.className = 'flex-1 py-2 px-3 text-zinc-400 hover:text-zinc-200 hover:bg-brand-surface text-center transition-colors';
+      renderInspector();
+    });
+
+    tabRpcStream.addEventListener('click', () => {
+      activeRpcTab = 'stream';
+      tabRpcStream.className = 'flex-1 py-2 px-3 border-b-2 border-brand-emerald text-brand-emerald font-semibold bg-brand-surface text-center';
+      tabRpcReq.className = 'flex-1 py-2 px-3 text-zinc-400 hover:text-zinc-200 hover:bg-brand-surface text-center transition-colors';
+      tabRpcRes.className = 'flex-1 py-2 px-3 text-zinc-400 hover:text-zinc-200 hover:bg-brand-surface text-center transition-colors';
+      renderInspector();
+    });
+
+    // Copy RPC
+    btnCopyRpc.addEventListener('click', () => {
+      const sc = SCENARIOS[currentScenarioIndex];
+      const payload = activeRpcTab === 'res' 
+        ? { jsonrpc: "2.0", id: `req-${sc.id}`, result: { verdict: sc.verdict, explanation: sc.explanation, quote: sc.quote } }
+        : { jsonrpc: "2.0", method: "tools/call", params: { name: "verify", arguments: { claim: sc.prompt } } };
+      
+      navigator.clipboard.writeText(JSON.stringify(payload, null, 2)).then(() => {
+        btnCopyRpc.innerHTML = '<span class="material-symbols-outlined text-xs">check</span> Skopiowano!';
+        setTimeout(() => {
+          btnCopyRpc.innerHTML = '<span class="material-symbols-outlined text-xs">content_copy</span> Kopiuj';
+        }, 1500);
+      });
+    });
+
+    // Custom Claim Verification Simulation
+    btnVerify.addEventListener('click', () => {
+      const customClaim = claimInput.value.trim();
+      if (!customClaim) return;
+
+      // Check if matches known scenario
+      const matchedIdx = SCENARIOS.findIndex(s => s.prompt.toLowerCase() === customClaim.toLowerCase());
+      if (matchedIdx !== -1) {
+        scenarioDropdown.value = matchedIdx;
+        loadScenario(matchedIdx);
+        return;
+      }
+
+      // If user typed a custom phrase, run quick substantive test against corpus
+      let isGrounded = false;
+      let matchedDoc = null;
+      let quote = null;
+
+      for (const doc of CORPUS_DOCS) {
+        if (doc.content.toLowerCase().includes(customClaim.toLowerCase())) {
+          isGrounded = true;
+          matchedDoc = doc;
+          quote = customClaim;
+          break;
+        }
+      }
+
+      // Display custom result
+      claimCategoryBadge.textContent = 'NIESTANDARDOWE ZAPYTANIE';
+      claimIdBadge.textContent = 'CUSTOM';
+      
+      if (isGrounded) {
+        redlineBanner.className = 'bg-emerald-950/50 border-b border-emerald-800/40 px-3 py-2 flex items-center justify-between';
+        redlineBannerIcon.textContent = 'verified';
+        redlineBannerText.textContent = 'DOWÓD POTWIERDZONY // GROUNDED';
+        redlineStatusBadge.textContent = '100% GROUNDED';
+        redlineVerdictTag.textContent = 'STATUS: GROUNDED';
+        redlineVerdictTag.className = 'font-mono text-xs px-2 py-0.5 rounded bg-brand-darkCanvas border border-brand-emerald/40 text-brand-emerald';
+        redlineQuoteText.textContent = `Fragment odnaleziony w: ${matchedDoc.filename}\n\n"${quote}"`;
+        redlineExplanationText.textContent = `Twierdzenie wprost potwierdzone w dokumencie ${matchedDoc.filename}.`;
+        redlineMetaFile.textContent = matchedDoc.filename;
+        redlineMetaPage.textContent = 'Dopasowanie tekstu';
+        statLatency.textContent = '1.20 ms';
+      } else {
+        redlineBanner.className = 'bg-red-950/60 border-b border-red-800/50 px-3 py-2 flex items-center justify-between';
+        redlineBannerIcon.textContent = 'gpp_bad';
+        redlineBannerText.textContent = 'TWARDA ODMOWA // UNSUPPORTED';
+        redlineStatusBadge.textContent = 'UNSUPPORTED';
+        redlineVerdictTag.textContent = 'STATUS: UNSUPPORTED';
+        redlineVerdictTag.className = 'font-mono text-xs px-2 py-0.5 rounded bg-brand-darkCanvas border border-brand-red/60 text-brand-red font-bold';
+        redlineQuoteText.textContent = `[BRAK PODSTAWY DOWODOWEJ]\nPodane twierdzenie nie posiada oparcia w żadnym z 7 dokumentów korpusu lub stoi w sprzeczności z zawartymi umowami. Silnik mcp-redline odmawia syntetyzowania domysłów.`;
+        redlineExplanationText.textContent = 'Deterministyczna odmowa: brak oparcia w zweryfikowanym korpusie (teza ograniczonego zaufania do modeli).';
+        redlineMetaFile.textContent = 'Brak dopasowania';
+        redlineMetaPage.textContent = 'N/A';
+        statLatency.textContent = '0.90 ms';
+      }
+
+      // Update LLM card with simulated hallucination notice
+      llmBannerText.textContent = 'POTENCJALNA HALUCYNACJA STANDARDOWEGO MODELU';
+      llmRiskBadge.textContent = 'RYZYKO: WYSOKIE';
+      llmResponseText.textContent = `„Model LLM bez bramki mcp-redline miałby tendencję do rozwinięcia odpowiedzi i domniemywania szczegółów dla zapytania: '${customClaim}'. mcp-redline odciął to zapytanie deterministycznie.”`;
+      llmDefectsList.innerHTML = '<li>Brak jednoznacznego certyfikatu prawnego w lokalnym korpusie</li><li>Ryzyko podania fałszywych kwot lub nieistniejących klauzul</li>';
+      llmExposureText.textContent = 'Brak zweryfikowanej podstawy w umowach spółki';
+
+      renderInspector();
+    });
+
+    // Search filter in sidebar
+    corpusSearchEl.addEventListener('input', (e) => {
+      renderCorpusList(e.target.value);
+    });
+
+    // Architecture Tabs
+    const archData = [
+      {
+        file: 'assets/01_verify_flow.svg',
+        desc: 'Diagram 1: Przepływ algorytmu verify. Całość realizowana jest w deterministycznym kodzie (bez wywoływania LLM). Dopasowanie tokenów, weryfikacja liczb i hierarchia dowodowa prowadzą wyłącznie do ścisłego cytatu lub twardej odmowy UNSUPPORTED.'
+      },
+      {
+        file: 'assets/02_ciso_data_boundary.svg',
+        desc: 'Diagram 2: Granica bezpieczeństwa dla CISO. 100% korpusu dokumentów pozostaje na lokalnym dysku maszyny. Komunikacja odbywa się przez strumienie stdin/stdout (IPC). Zero wywołań HTTP, zero telemetrii, 0 bajtów opuszcza infrastrukturę klienta.'
+      },
+      {
+        file: 'assets/03_rag_vs_redline.svg',
+        desc: 'Diagram 3: Porównanie tradycyjnego podejścia RAG z deterministycznym mcp-redline. Standardowy RAG zmusza model do generowania odpowiedzi na podstawie chunków, co często prowadzi do halucynacji w przypadku pytań-pułapek. mcp-redline stosuje twardą bramkę logiczną bez syntezy.'
+      }
+    ];
+
+    function setArchTab(tabIdx) {
+      activeArchTab = tabIdx;
+      archImg.src = archData[tabIdx - 1].file;
+      archDescription.textContent = archData[tabIdx - 1].desc;
+
+      tabArch1.className = tabIdx === 1 ? 'px-2.5 py-1 rounded text-xs font-mono bg-brand-emerald/20 text-brand-emerald border border-brand-emerald/40 font-semibold' : 'px-2.5 py-1 rounded text-xs font-mono text-zinc-400 hover:text-white';
+      tabArch2.className = tabIdx === 2 ? 'px-2.5 py-1 rounded text-xs font-mono bg-brand-emerald/20 text-brand-emerald border border-brand-emerald/40 font-semibold' : 'px-2.5 py-1 rounded text-xs font-mono text-zinc-400 hover:text-white';
+      tabArch3.className = tabIdx === 3 ? 'px-2.5 py-1 rounded text-xs font-mono bg-brand-emerald/20 text-brand-emerald border border-brand-emerald/40 font-semibold' : 'px-2.5 py-1 rounded text-xs font-mono text-zinc-400 hover:text-white';
+    }
+
+    tabArch1.addEventListener('click', () => setArchTab(1));
+    tabArch2.addEventListener('click', () => setArchTab(2));
+    tabArch3.addEventListener('click', () => setArchTab(3));
+
+    // Modals event listeners
+    btnOpenInfographic.addEventListener('click', () => modalInfographic.classList.remove('hidden'));
+    btnCloseInfographic.addEventListener('click', () => modalInfographic.classList.add('hidden'));
+
+    btnOpenArchitecture.addEventListener('click', () => {
+      setArchTab(1);
+      modalArchitecture.classList.remove('hidden');
+    });
+    btnCloseArchitecture.addEventListener('click', () => modalArchitecture.classList.add('hidden'));
+
+    btnCloseDoc.addEventListener('click', () => modalDocViewer.classList.add('hidden'));
+
+    btnOpenQuickstart.addEventListener('click', () => modalQuickstart.classList.remove('hidden'));
+    btnCloseQuickstart.addEventListener('click', () => modalQuickstart.classList.add('hidden'));
+
+    // Close modals on ESC or outside click
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        modalInfographic.classList.add('hidden');
+        modalArchitecture.classList.add('hidden');
+        modalDocViewer.classList.add('hidden');
+        modalQuickstart.classList.add('hidden');
+      }
+    });
+
+    [modalInfographic, modalArchitecture, modalDocViewer, modalQuickstart].forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.add('hidden');
+      });
+    });
+
+    // Init
+    renderCorpusList();
+    setupScenarios();
+    loadScenario(0);
+  </script>
+</body>
+</html>
