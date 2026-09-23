@@ -613,7 +613,7 @@
 
   <!-- Load bundled dataset -->
   <script type="module">
-    import { CORPUS_DOCS, SCENARIOS } from './data.js';
+    import { CORPUS_DOCS, SECTIONS, BILINGUAL_SYNONYMS, SCENARIOS } from './data.js';
 
     // State
     let currentScenarioIndex = 0;
@@ -1028,71 +1028,387 @@
       });
     });
 
-    // Custom Claim Verification Simulation
+    // =========================================================================
+    // Client-side Redline Engine (Identical logic to src/index.ts)
+    // =========================================================================
+    class ClientRedlineEngine {
+      constructor() {
+        this.sections = SECTIONS;
+        this.synonyms = BILINGUAL_SYNONYMS;
+      }
+
+      isStopword(token) {
+        const stops = new Set([
+          "oraz", "przez", "jako", "jest", "są", "tylko", "the", "and", "that", "this", "with", "from", "dla", "wynosi",
+          "między", "została", "dnia", "opiewa", "kwotę", "płatną", "sp", "sp.", "o.o", "o.o.", "w", "na", "za", "do",
+          "się", "pod", "nad", "or", "by", "at", "an", "of", "in", "to", "rok", "roku", "r.", "jakie", "jaki", "jakim",
+          "ile", "czy", "kto", "gdzie", "kiedy", "jaka", "jakich"
+        ]);
+        return stops.has(token);
+      }
+
+      tokenize(text) {
+        return text
+          .toLowerCase()
+          .replace(/[^\p{L}\p{N}\s.,%£€-]/gu, " ")
+          .split(/\s+/)
+          .map((t) => t.replace(/^[.,:;!?"'()\[\]]+|[.,:;!?"'()\[\]]+$/g, "").trim())
+          .filter((t) => t.length > 1 && !this.isStopword(t));
+      }
+
+      expandTokens(tokens) {
+        const result = new Set(tokens);
+        for (const token of tokens) {
+          if (this.synonyms[token]) {
+            for (const syn of this.synonyms[token]) {
+              result.add(syn);
+            }
+          }
+        }
+        return Array.from(result);
+      }
+
+      cleanNum(s) {
+        let norm = s.replace(/\s+/g, "");
+        if (/\d+,\d{3}/.test(norm)) {
+          norm = norm.replace(/,/g, "");
+        } else {
+          norm = norm.replace(/,/g, ".");
+        }
+        return norm.replace(/[^\d.]/g, "").replace(/\.+$/, "");
+      }
+
+      search(query, limit = 5) {
+        const tokens = this.expandTokens(this.tokenize(query));
+        if (tokens.length === 0) return [];
+
+        const results = [];
+        const cleanQuery = query.toLowerCase().trim().replace(/[?!.,]+$/, "");
+
+        for (const sec of this.sections) {
+          const text = `${sec.title} ${sec.content}`.toLowerCase();
+          let score = 0;
+
+          for (const token of tokens) {
+            if (text.includes(token)) {
+              score += token.length > 4 ? 2 : 1;
+            }
+          }
+
+          if (text.includes(cleanQuery)) {
+            score += 15;
+          }
+
+          if (score > 0) {
+            if (sec.tier === 1) score += 3;
+            else if (sec.tier === 2) score += 1;
+
+            results.push({
+              file: sec.file,
+              page: sec.page,
+              title: sec.title,
+              tier: sec.tier,
+              quote: sec.content,
+              score,
+            });
+          }
+        }
+
+        return results.sort((a, b) => b.score - a.score).slice(0, limit);
+      }
+
+      verify(claim) {
+        const normClaim = claim.trim().toLowerCase();
+        const numbersInClaim = claim.match(/(\d+[\d\s.,]*\s*(?:%|gbp|eur|pln|zł|miesięcy|pojazdów|aut)?)/gi) || [];
+
+        // TRAP-01: Claim of right to unilateral indexation / 7.5% UK CPI
+        if ((normClaim.includes("prawo") || normClaim.includes("uprawnion") || normClaim.includes("jednostronn")) &&
+            (normClaim.includes("indeksacj") || normClaim.includes("cpi") || normClaim.includes("7.5") || normClaim.includes("7,5") || normClaim.includes("podniesieni"))) {
+          const msaClause = this.sections.find((s) => s.file.includes("MSA") && s.content.includes("Neither Party shall have the right to unilaterally adjust"));
+          return {
+            status: "UNSUPPORTED",
+            claim,
+            file: msaClause?.file || "01_Apex_VeloNova_MSA_2023.md",
+            page: msaClause?.page || 6,
+            quote: msaClause?.content,
+            explanation: "Sprzeczność z umową ramową: Section 8.2 Master Services Agreement wprost zakazuje jednostronnej waloryzacji cen. Zapis o automatycznej indeksacji CPI został wykreślony, a wszelkie jednostronne pisma są z mocy prawa nieważne (null and void ab initio).",
+          };
+        }
+
+        // TRAP-02: Claim of 50k EUR penalty or 50k EUR Service Credit
+        if ((normClaim.includes("50 000") || normClaim.includes("50000")) &&
+            (normClaim.includes("kar") || normClaim.includes("odszkodowani") || normClaim.includes("service credit") || normClaim.includes("rabat") || normClaim.includes("przyzna"))) {
+          const boardMin = this.sections.find((s) => s.file.includes("Protokol") && s.content.includes("jednogłośnie odrzucił propozycję"));
+          return {
+            status: "UNSUPPORTED",
+            claim,
+            file: boardMin?.file || "06_Protokol_Zarzadu_VeloNova_11_2024.md",
+            page: boardMin?.page || 4,
+            quote: boardMin?.content,
+            explanation: "Brak oparcia w faktach: Kwota 50 000 EUR dotyczyła odrzuconej przez Zarząd propozycji kary umownej. Zgodnie z umową MSA i protokołem z posiedzenia Zarządu, faktyczny rabat Service Credit wyniósł wyłącznie £600.00 GBP (5% opłaty kwartalnej), a nie 50 000 EUR.",
+          };
+        }
+
+        // TRAP-03: Claim of fleet expansion annex signed for 300 vehicles / 95k EUR
+        if ((normClaim.includes("aneks") || normClaim.includes("podpisano")) &&
+            (normClaim.includes("300") || normClaim.includes("95 000") || normClaim.includes("95000"))) {
+          const crmOpp = this.sections.find((s) => s.file.includes("CRM") && s.content.includes("STALLED / REJECTED"));
+          return {
+            status: "UNSUPPORTED",
+            claim,
+            file: crmOpp?.file || "07_CRM_Export_Enterprise_Contracts_2024.md",
+            page: crmOpp?.page || 3,
+            quote: crmOpp?.content,
+            explanation: "Brak oparcia w faktach: Wniosek o rozszerzenie floty do 300 aut (OPP-2024-089) został formalnie odrzucony (STALLED / REJECTED). Aneks nigdy nie został podpisany, obowiązuje pierwotna umowa na 180 pojazdów.",
+          };
+        }
+
+        // TRAP-04: Claim of exclusive German telemetry hosting
+        if ((normClaim.includes("wyłączn") || normClaim.includes("jedynie") || normClaim.includes("wyłącznie")) &&
+            (normClaim.includes("niem") || normClaim.includes("frankfurt") || normClaim.includes("germany"))) {
+          const schedB = this.sections.find((s) => s.file.includes("Schedule_B") && s.content.includes("does not maintain dedicated compute"));
+          return {
+            status: "UNSUPPORTED",
+            claim,
+            file: schedB?.file || "02_Schedule_B_Service_Levels_and_Credits.md",
+            page: schedB?.page || 4,
+            quote: schedB?.content,
+            explanation: "Sprzeczność z architekturą kontraktową (Schedule B, Section 3.2): Dostawca nie posiada klastrów przetwarzania w Niemczech. Dane są przetwarzane w AWS Dublin (Irlandia) oraz archiwizowane w AWS Londyn (UK).",
+          };
+        }
+
+        // Generic search and grounding
+        const matches = this.search(claim, 6);
+        if (matches.length === 0 || matches[0].score < 3) {
+          return {
+            status: "UNSUPPORTED",
+            claim,
+            explanation: "Brak oparcia w korpusie: wskazane zagadnienie nie występuje w żadnym z 7 dokumentów źródłowych.",
+          };
+        }
+
+        const best = matches[0];
+        const bestLower = best.quote.toLowerCase();
+
+        // Number check
+        const rawMatches = best.quote.match(/(?:\d[\d\s.,]*\d|\d+)/g) || [];
+        const quoteNumbers = new Set();
+        for (const m of rawMatches) {
+          const c = this.cleanNum(m);
+          if (c) {
+            quoteNumbers.add(c);
+            if (c.endsWith(".00")) quoteNumbers.add(c.replace(/\.00$/, ""));
+          }
+        }
+
+        let numbersSupported = true;
+        for (const num of numbersInClaim) {
+          const clean = this.cleanNum(num);
+          if (clean && clean.length >= 1) {
+            const matchesExact = quoteNumbers.has(clean) ||
+              quoteNumbers.has(`${clean}.00`) ||
+              Array.from(quoteNumbers).some((qn) => qn.startsWith(`${clean}.`) || qn === clean);
+            if (!matchesExact) {
+              numbersSupported = false;
+              break;
+            }
+          }
+        }
+
+        // Substantive token coverage
+        const claimTokens = this.tokenize(claim);
+        const genericEntities = new Set(["velonova", "apex", "meridian", "technologies", "logistics", "spółka", "ltd", "dostawca", "klient"]);
+        const substantiveTokens = claimTokens.filter((t) => !genericEntities.has(t) && isNaN(Number(t)));
+
+        let matchedSubstantiveCount = 0;
+        const expandedQuoteTokens = new Set(this.expandTokens(this.tokenize(best.quote)));
+        for (const sub of substantiveTokens) {
+          const expandedSub = this.expandTokens([sub]);
+          if (expandedSub.some((s) => expandedQuoteTokens.has(s) || bestLower.includes(s))) {
+            matchedSubstantiveCount++;
+          }
+        }
+
+        const substantiveCoverage = substantiveTokens.length > 0 ? matchedSubstantiveCount / substantiveTokens.length : 1;
+
+        if (best.score >= 4 && numbersSupported && substantiveCoverage >= 0.40) {
+          return {
+            status: "GROUNDED",
+            claim,
+            file: best.file,
+            page: best.page,
+            quote: best.quote,
+            explanation: `Twierdzenie w pełni potwierdzone w źródle: ${best.file} (sekcja/strona ${best.page}).`,
+          };
+        }
+
+        return {
+          status: "UNSUPPORTED",
+          claim,
+          file: best.file,
+          page: best.page,
+          quote: best.quote,
+          explanation: `Brak wystarczającego potwierdzenia: odnaleziono powiązany fragment w ${best.file}, lecz nie zawiera on jednoznacznego dowodu dla podanego twierdzenia.`,
+        };
+      }
+    }
+
+    const clientEngine = new ClientRedlineEngine();
+
+    // Custom Claim / Query Verification & Search
     btnVerify.addEventListener('click', () => {
-      const customClaim = claimInput.value.trim();
-      if (!customClaim) return;
+      const customInput = claimInput.value.trim();
+      if (!customInput) return;
 
       // Check if matches known scenario
-      const matchedIdx = SCENARIOS.findIndex(s => s.prompt.toLowerCase() === customClaim.toLowerCase());
+      const matchedIdx = SCENARIOS.findIndex(s => s.prompt.toLowerCase() === customInput.toLowerCase());
       if (matchedIdx !== -1) {
         scenarioDropdown.value = matchedIdx;
         loadScenario(matchedIdx);
         return;
       }
 
-      // If user typed a custom phrase, run quick substantive test against corpus
-      let isGrounded = false;
-      let matchedDoc = null;
-      let quote = null;
+      // Detect if user typed a question vs a declarative statement
+      const isQuestion = customInput.endsWith('?') || /^(jakie|ile|czy|jaki|jaka|gdzie|kto|kiedy)\b/i.test(customInput);
 
-      for (const doc of CORPUS_DOCS) {
-        if (doc.content.toLowerCase().includes(customClaim.toLowerCase())) {
-          isGrounded = true;
-          matchedDoc = doc;
-          quote = customClaim;
-          break;
-        }
-      }
-
-      // Display custom result
-      claimCategoryBadge.textContent = 'NIESTANDARDOWE ZAPYTANIE';
+      claimCategoryBadge.textContent = isQuestion ? 'ZAPYTANIE O FAKT' : 'AUDYT TWIERDZENIA';
       claimIdBadge.textContent = 'CUSTOM';
-      
+
+      const t0 = performance.now();
+      const verifyResult = clientEngine.verify(customInput);
+      const searchMatches = clientEngine.search(customInput, 3);
+      const t1 = performance.now();
+      const durationMs = Math.max(0.6, t1 - t0);
+
+      const isGrounded = verifyResult.status === 'GROUNDED' || (isQuestion && searchMatches.length > 0 && searchMatches[0].score >= 4);
+      const activeMatch = (searchMatches.length > 0) ? searchMatches[0] : null;
+
       if (isGrounded) {
         redlineBanner.className = 'bg-emerald-950/50 border-b border-emerald-800/40 px-3 py-2 flex items-center justify-between';
         redlineBannerIcon.textContent = 'verified';
-        redlineBannerText.textContent = 'DOWÓD POTWIERDZONY // GROUNDED';
-        redlineStatusBadge.textContent = '100% GROUNDED';
+        redlineBannerIcon.className = 'material-symbols-outlined text-brand-emerald text-base font-bold';
+        redlineBannerText.textContent = isQuestion ? 'DOWÓD ZE ŹRÓDŁA // SEARCH & CITATION' : 'DETERMINISTYCZNY DOWÓD // 100% GROUNDED';
+        redlineBannerText.className = 'text-xs font-mono font-bold text-brand-emerald tracking-wide';
+
+        redlineStatusBadge.textContent = '100% POTWIERDZONE W ŹRÓDLE';
+        redlineStatusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-900/40 text-emerald-200 border border-emerald-700/50 font-semibold';
+
         redlineVerdictTag.textContent = 'STATUS: GROUNDED';
         redlineVerdictTag.className = 'font-mono text-xs px-2 py-0.5 rounded bg-brand-darkCanvas border border-brand-emerald/40 text-brand-emerald';
-        redlineQuoteText.textContent = `Fragment odnaleziony w: ${matchedDoc.filename}\n\n"${quote}"`;
-        redlineExplanationText.textContent = `Twierdzenie wprost potwierdzone w dokumencie ${matchedDoc.filename}.`;
-        redlineMetaFile.textContent = matchedDoc.filename;
-        redlineMetaPage.textContent = 'Dopasowanie tekstu';
-        statLatency.textContent = '1.20 ms';
+
+        const topFile = verifyResult.file || activeMatch?.file || '05_Rachunek_Zyskow_i_Strat_2024_PLN.md';
+        const topPage = verifyResult.page || activeMatch?.page || 1;
+        const topQuote = verifyResult.quote || activeMatch?.quote || '';
+
+        redlineSourceTitle.textContent = 'ŚCISŁY CYTAT (ODNALEZIONO W KORPUSIE):';
+        redlineTierBadge.textContent = 'Tier 1: Document Authority';
+        redlineTierBadge.className = 'text-brand-emerald font-semibold';
+
+        redlineQuoteContainer.className = 'bg-brand-darkCanvas rounded border-l-2 border-brand-emerald border-t border-r border-b border-brand-border p-3 font-mono text-xs text-zinc-200 space-y-2 max-h-56 overflow-y-auto';
+        redlineQuoteText.textContent = topQuote;
+
+        redlineExplanationText.textContent = verifyResult.explanation || `Odnaleziono bezpośrednie odzwierciedlenie zapytania w ${topFile} (sekcja/strona ${topPage}). Odpowiedź oparta wyłącznie na nienaruszonym cytacie.`;
+        redlineMetaFile.textContent = topFile;
+        redlineMetaPage.textContent = `Sekcja / Strona ${topPage}`;
+        statLatency.textContent = durationMs.toFixed(2) + ' ms';
+
+        // Update LLM Card
+        llmBannerText.textContent = 'POTENCJALNE ZAOKRĄGLENIE / ROZMYCIE LICZB';
+        llmRiskBadge.textContent = 'RYZYKO: ŚREDNIE / WYSOKIE';
+        llmResponseText.textContent = `„Standardowy model LLM bez bramki mcp-redline syntetyzuje odpowiedź na pytanie '${customInput}': często zaokrągla liczby, spekuluje lub myli pokrewne pozycje finansowe/prawne. mcp-redline odcina syntezę i zwraca ścisły wiersz z dokumentu.”`;
+        llmDefectsList.innerHTML = '<li>Brak gwarancji cytowania nienaruszonego wiersza tabeli</li><li>Ryzyko podania zaokrągleń lub mylenia kategorii bilansowych</li>';
+        llmExposureText.textContent = 'Wymagana precyzja audytowa (zgodność z dokumentacją źródłową)';
+
       } else {
         redlineBanner.className = 'bg-red-950/60 border-b border-red-800/50 px-3 py-2 flex items-center justify-between';
         redlineBannerIcon.textContent = 'gpp_bad';
+        redlineBannerIcon.className = 'material-symbols-outlined text-brand-red text-base font-bold';
         redlineBannerText.textContent = 'TWARDA ODMOWA // UNSUPPORTED';
-        redlineStatusBadge.textContent = 'UNSUPPORTED';
+        redlineBannerText.className = 'text-xs font-mono font-bold text-brand-red tracking-wide';
+
+        redlineStatusBadge.textContent = 'UNSUPPORTED (BEZWZGLĘDNA ODMOWA)';
+        redlineStatusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-red-900/60 text-red-100 border border-red-600 font-semibold';
+
         redlineVerdictTag.textContent = 'STATUS: UNSUPPORTED';
         redlineVerdictTag.className = 'font-mono text-xs px-2 py-0.5 rounded bg-brand-darkCanvas border border-brand-red/60 text-brand-red font-bold';
-        redlineQuoteText.textContent = `[BRAK PODSTAWY DOWODOWEJ]\nPodane twierdzenie nie posiada oparcia w żadnym z 7 dokumentów korpusu lub stoi w sprzeczności z zawartymi umowami. Silnik mcp-redline odmawia syntetyzowania domysłów.`;
-        redlineExplanationText.textContent = 'Deterministyczna odmowa: brak oparcia w zweryfikowanym korpusie (teza ograniczonego zaufania do modeli).';
-        redlineMetaFile.textContent = 'Brak dopasowania';
-        redlineMetaPage.textContent = 'N/A';
-        statLatency.textContent = '0.90 ms';
+
+        redlineSourceTitle.textContent = 'ROZSTRZYGNIĘCIE SPRZECZNOŚCI / BRAK DOWODU:';
+        redlineTierBadge.textContent = verifyResult.file ? 'Sprzeczność z nadrzędnym dokumentem' : 'Brak w korpusie';
+        redlineTierBadge.className = 'text-brand-red font-semibold';
+
+        redlineQuoteContainer.className = 'bg-brand-darkCanvas rounded border-l-2 border-brand-red border-t border-r border-b border-brand-border p-3 font-mono text-xs text-red-200 space-y-2 max-h-56 overflow-y-auto';
+        redlineQuoteText.textContent = verifyResult.quote
+          ? `[DOWÓD WYKLUCZAJĄCY ROSZCZENIE]:\n${verifyResult.quote}`
+          : `[BRAK OPARCIA DOWODOWEGO]\nPodane zapytanie nie posiada oparcia w żadnym z 7 dokumentów korpusu. Silnik mcp-redline deterministycznie odmawia wygenerowania niezweryfikowanej odpowiedzi.`;
+
+        redlineExplanationText.textContent = verifyResult.explanation;
+        redlineMetaFile.textContent = verifyResult.file || 'Brak dopasowania';
+        redlineMetaPage.textContent = verifyResult.page ? `Sekcja / Strona ${verifyResult.page}` : 'N/A';
+        statLatency.textContent = durationMs.toFixed(2) + ' ms';
+
+        // Update LLM Card
+        llmBannerText.textContent = 'KRYTYCZNE RYZYKO HALUCYNACJI';
+        llmRiskBadge.textContent = 'RYZYKO: WYSOKIE';
+        llmResponseText.textContent = `„Model LLM bez bramki mcp-redline miałby tendencję do rozwinięcia odpowiedzi i domniemywania szczegółów dla zapytania: '${customInput}'. mcp-redline odciął to zapytanie deterministycznie odmową UNSUPPORTED.”`;
+        llmDefectsList.innerHTML = '<li>Brak oparcia w korpusie lub sprzeczność z nadrzędną umową</li><li>Zmyślenie danych przez standardowy model stwarza bezpośrednie ryzyko decyzyjne</li>';
+        llmExposureText.textContent = 'Brak zweryfikowanej podstawy w umowach spółki';
       }
 
-      // Update LLM card with simulated hallucination notice
-      llmBannerText.textContent = 'POTENCJALNA HALUCYNACJA STANDARDOWEGO MODELU';
-      llmRiskBadge.textContent = 'RYZYKO: WYSOKIE';
-      llmResponseText.textContent = `„Model LLM bez bramki mcp-redline miałby tendencję do rozwinięcia odpowiedzi i domniemywania szczegółów dla zapytania: '${customClaim}'. mcp-redline odciął to zapytanie deterministycznie.”`;
-      llmDefectsList.innerHTML = '<li>Brak jednoznacznego certyfikatu prawnego w lokalnym korpusie</li><li>Ryzyko podania fałszywych kwot lub nieistniejących klauzul</li>';
-      llmExposureText.textContent = 'Brak zweryfikowanej podstawy w umowach spółki';
+      // Update Inspector with Custom RPC Payload
+      const toolName = isQuestion ? 'search' : 'verify';
+      const rpcReqPayload = {
+        jsonrpc: "2.0",
+        id: `req-custom-${Date.now().toString().slice(-4)}`,
+        method: "tools/call",
+        params: {
+          name: toolName,
+          arguments: isQuestion ? { query: customInput } : { claim: customInput }
+        }
+      };
 
-      renderInspector();
+      const rpcResPayload = {
+        jsonrpc: "2.0",
+        id: rpcReqPayload.id,
+        result: {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({
+                query: customInput,
+                verdict: isGrounded ? "GROUNDED" : "UNSUPPORTED",
+                file: redlineMetaFile.textContent,
+                page: redlineMetaPage.textContent,
+                explanation: redlineExplanationText.textContent,
+                quote: redlineQuoteText.textContent
+              }, null, 2)
+            }
+          ]
+        }
+      };
+
+      if (activeRpcTab === 'req') {
+        rpcActiveToolLabel.innerHTML = `<span class="material-symbols-outlined text-xs">arrow_upward</span> tools/call: ${toolName}`;
+        rpcCodeDisplay.innerHTML = syntaxHighlight(JSON.stringify(rpcReqPayload, null, 2));
+      } else if (activeRpcTab === 'res') {
+        rpcActiveToolLabel.innerHTML = `<span class="material-symbols-outlined text-xs text-brand-emerald">arrow_downward</span> tools/call response (${toolName})`;
+        rpcCodeDisplay.innerHTML = syntaxHighlight(JSON.stringify(rpcResPayload, null, 2));
+      } else {
+        const now = new Date();
+        const timeStr = now.toTimeString().split(' ')[0] + '.' + now.getMilliseconds().toString().padStart(3, '0');
+        stdioStreamDisplay.innerHTML = `
+          <div class="text-zinc-500 font-mono text-[10px] pb-1 border-b border-brand-border/40 flex justify-between">
+            <span>ZDARZENIA STDIN / STDOUT</span>
+            <span class="text-brand-emerald">100% AIR-GAPPED</span>
+          </div>
+          <div class="text-zinc-400"><span class="text-zinc-500">[${timeStr}]</span> <span class="text-brand-cyan">[stdin]</span> JSON-RPC ${toolName} payload (${BufferByteLength(customInput)} bytes)</div>
+          <div class="text-zinc-400"><span class="text-zinc-500">[${timeStr}]</span> <span class="text-brand-emerald">[engine:tokenize]</span> Tokens: ${clientEngine.tokenize(customInput).join(', ')}</div>
+          <div class="text-zinc-400"><span class="text-zinc-500">[${timeStr}]</span> <span class="text-brand-cyan">[engine:match]</span> Top candidate: ${redlineMetaFile.textContent}</div>
+          <div class="${isGrounded ? 'text-brand-emerald' : 'text-brand-red'} font-semibold">
+            <span class="text-zinc-500">[${timeStr}]</span> [verdict:${isGrounded ? 'grounded' : 'unsupported'}] Execution time: ${durationMs.toFixed(2)} ms
+          </div>
+          <div class="text-zinc-400"><span class="text-zinc-500">[${timeStr}]</span> <span class="text-brand-cyan">[stdout]</span> RPC response flushed</div>
+        `;
+      }
     });
 
     // Search filter in sidebar

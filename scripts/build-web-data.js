@@ -211,13 +211,113 @@ const scenarios = evalRaw.results.map((r, idx) => {
   };
 });
 
+const sections = [];
+
+for (const file of files) {
+  const rawText = fs.readFileSync(path.join(corpusDir, file), 'utf-8');
+  const lines = rawText.split('\n');
+  let currentTitle = file.replace('.md', '');
+  let currentBuffer = [];
+  let pageCounter = 1;
+
+  let tier = 1;
+  if (file.includes('CRM')) tier = 2;
+  else if (file.includes('Email')) tier = 3;
+
+  const isSinglePageDoc = file.toLowerCase().includes('invoice');
+
+  for (const line of lines) {
+    const isHeader = !isSinglePageDoc && /^#{1,2}\s+|^###\s+(?:\d+\.|[A-Z0-9_ -]{3,}:?)/.test(line);
+    if (isHeader) {
+      if (currentBuffer.length > 0 && currentBuffer.join('\n').trim().length > 0) {
+        sections.push({
+          file,
+          page: pageCounter++,
+          title: currentTitle,
+          content: currentBuffer.join('\n').trim(),
+          tier,
+        });
+        currentBuffer = [];
+      }
+      currentTitle = line.replace(/^#{1,3}\s+/, '').trim();
+    }
+    currentBuffer.push(line);
+  }
+
+  if (currentBuffer.length > 0 && currentBuffer.join('\n').trim().length > 0) {
+    sections.push({
+      file,
+      page: pageCounter++,
+      title: currentTitle,
+      content: currentBuffer.join('\n').trim(),
+      tier,
+    });
+  }
+}
+
+const BILINGUAL_SYNONYMS = {
+  dostępność: ["uptime", "availability"],
+  dostępności: ["uptime", "availability"],
+  miesięcznej: ["monthly", "month", "months"],
+  miesięczna: ["monthly", "month", "months"],
+  miesiącach: ["months", "month"],
+  gwarantowane: ["guaranteed", "guarantees", "target"],
+  gwarantowana: ["guaranteed", "guarantees", "target"],
+  umowa: ["agreement", "contract", "msa"],
+  umowy: ["agreement", "contract", "msa"],
+  ramowa: ["master"],
+  ramowej: ["master"],
+  podpisana: ["entered", "signed", "effective"],
+  zawarta: ["entered", "signed", "effective"],
+  stycznia: ["january"],
+  styczeń: ["january"],
+  lutego: ["february"],
+  marca: ["march"],
+  kwietnia: ["april"],
+  maja: ["may"],
+  czerwca: ["june"],
+  lipca: ["july"],
+  sierpnia: ["august"],
+  września: ["september"],
+  października: ["october"],
+  listopada: ["november"],
+  grudnia: ["december"],
+  kara: ["penalty", "liquidated damages", "credit"],
+  kary: ["penalty", "liquidated damages", "credit"],
+  karę: ["penalty", "liquidated damages", "credit"],
+  faktura: ["invoice", "invoicing"],
+  faktury: ["invoice", "invoicing"],
+  kwartał: ["quarter", "quarterly", "q4"],
+  kwartalnie: ["quarter", "quarterly", "q4"],
+  czwarty: ["fourth", "q4", "quarter"],
+  indeksacja: ["indexation", "adjustment", "cpi"],
+  inflacja: ["inflation", "cpi"],
+  inflacji: ["inflation", "cpi"],
+  przychody: ["revenues", "sales", "przychód", "sprzedaż"],
+  przychód: ["revenues", "sales"],
+  operacyjne: ["operating", "operations", "operacyjna", "działalności"],
+  operacyjna: ["operating", "operations"],
+  zysk: ["profit", "net"],
+  limit: ["limit", "limitation", "cap"],
+  odpowiedzialności: ["liability"],
+  odpowiedzialność: ["liability"],
+  ograniczony: ["limited", "cap"],
+  rachunek: ["account", "bank", "remittance"],
+  konto: ["account", "bank"],
+};
+
 const fileContent = `// Auto-generated dataset for mcp-redline interactive single-page demo
 // Generated at: ${new Date().toISOString()}
 
 export const CORPUS_DOCS = ${JSON.stringify(docs, null, 2)};
 
+export const SECTIONS = ${JSON.stringify(sections, null, 2)};
+
+export const BILINGUAL_SYNONYMS = ${JSON.stringify(BILINGUAL_SYNONYMS, null, 2)};
+
 export const SCENARIOS = ${JSON.stringify(scenarios, null, 2)};
 `;
 
 fs.writeFileSync(outputPath, fileContent, 'utf-8');
-console.log('Successfully generated web/data.js (' + Buffer.byteLength(fileContent) + ' bytes)');
+console.log('Successfully generated web/data.js (' + Buffer.byteLength(fileContent) + ' bytes, ' + sections.length + ' sections)');
+
