@@ -42,5 +42,9 @@ Format oparty na [Keep a Changelog](https://keepachangelog.com/pl/1.0.0/).
     - Inspektor protokołu JSON-RPC 2.0 (żądania, odpowiedzi, ślad stdio z mikrosekundową precyzją).
     - Zintegrowana przeglądarka infografiki instruktażowej i 3 diagramów architektury CISO.
     - Konfiguracja `vercel.json` i skrypt `npm run demo` do uruchamiania w trybie zerowego backendu.
+  - **Poprawka silnika Web SPA:**
+    - Przeniesienie pełnego algorytmu `RedlineEngine` (tokenizacja, stopwordy, synonimy dwujęzyczne, scoring sekcji, ekstrakcja liczb) do kodu klienta w `web/index.html`.
+    - Obsługa pytań otwartych (np. *"jakie są przychody operacyjne?"*) przez deterministyczny mechanizm wyszukiwania i cytowania `search & quote`, zamiast naiwnego dopasowywania pełnego podciągu.
+    - Weryfikacja: zapytanie o przychody natychmiast odnajduje oficjalny RZiS (`05_Rachunek_Zyskow_i_Strat_2024_PLN.md`) ze statusem `GROUNDED` i dokładną tabelą (Pozycja A: 48 520 000 PLN, Pozycja D: 180 000 PLN).
 
 
