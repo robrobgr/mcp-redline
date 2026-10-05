@@ -8,7 +8,7 @@ Cel dnia: publiczne repozytorium `robrobgr/mcp-redline` z demo, które nie przec
 
 - [x] **#1 Demo na prawdziwym silniku** — bundle z `src/` przez esbuild do `web/dist/engine.bundle.js`; usunięto ręczną kopię silnika z `TRAP-01…04` (`web/index.html`).
 - [x] **#2 Oznaczenie odpowiedzi „Standard LLM”** — etykieta „ODPOWIEDŹ ILUSTRACYJNA” i ostrzeżenie o symulacji braku bramki przy każdej karcie.
-- [x] **#3 Licznik ryzyka: każda kwota ze wzorem albo usunięta** — kwoty przeliczone ze wzorów korpusu (`7.5% × £48 000 = £3 600/rok`), koszt audytu oznaczony jako `SZACUNEK`.
+- [x] **#3 Licznik ryzyka: każda kwota ze wzorem albo usunięta** — kwoty przeliczone ze wzorów korpusu (`7.5% × £48 000 = £3 600/rok`), koszt audytu oznaczony jako `SZACUNEK`. Usunięto arbitralne £184,200 GBP jako wartość startową i fallback w `renderLiabilityMeter` (przed wyborem scenariusza licznik wyświetla „wybierz scenariusz”, nie liczbę). Usunięto zdanie o kosztach z „£184,200”, „proces w Londynie” i „art. 296 k.k.” z `web/index.html`. Do `web/fonts/` dodano wymagane licencje: SIL OFL 1.1 dla Inter i JetBrains Mono oraz Apache 2.0 dla Material Symbols.
 - [x] **#4 `package.json`** — `main` i `bin` wskazują na `dist/src/index.js`, dodano pole `files` i skrypt `bundle:engine` w łańcuchu `build`.
 - [x] **#5 Demo offline** — Tailwind CSS prekompilowany lokalnie, fonty Inter, JetBrains Mono i Material Symbols w `web/fonts/`, przetestowano w przeglądarce bez zapytań zewnętrznych.
 - [x] **#6 Publikacja** — czysty klon → `npm test` (14/14 pass) → `npm run eval` (64 twierdzenia, 91%, 0 false GROUNDED) → gałąź `master` → `main` → pomyślny push publicznie do `robrobgr/mcp-redline`. W README zawarto uczciwe liczby z jawną adnotacją o skażonym holdoucie.

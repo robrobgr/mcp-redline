@@ -242,7 +242,7 @@
                 <span class="material-symbols-outlined text-brand-red text-xs">trending_up</span>
               </div>
               <div id="meter-llm-val" class="text-xl lg:text-2xl font-black font-mono text-red-400 my-1">
-                £184,200 GBP
+                wybierz scenariusz
               </div>
               <div id="meter-llm-desc" class="text-[11px] text-zinc-300 font-sans leading-tight">
                 Niekontrolowana akceptacja roszczeń przez gładką syntezę LLM.
@@ -1116,7 +1116,7 @@
     // 4b. Render CFO Financial Liability Meter
     function renderLiabilityMeter(sc) {
       meterScenarioTag.textContent = `${sc.id} // ${sc.subtype}`;
-      meterLlmVal.textContent = sc.financialExposureValue || '£184,200 GBP';
+      meterLlmVal.textContent = sc.financialExposureValue || 'wybierz scenariusz';
       meterLlmDesc.textContent = sc.financialExposure || 'Brak twardej weryfikacji i ryzyko strat.';
       
       meterRedlineVal.textContent = '0 PLN / £0';
@@ -1473,9 +1473,6 @@
                 <p class="text-xs text-zinc-300 font-sans">
                   Model LLM bez bramki mówi z pełną pewnością: <em>„Tak, dostawca ma prawo do 7.5% podwyżki CPI”</em> lub <em>„Kara 50 000 EUR jest należna”</em>.
                 </p>
-                <div class="text-xs font-mono text-red-400 font-bold">
-                  Koszt: Bezprawna wypłata £184,200 lub 50 000 EUR, przegrany proces w Londynie, odpowiedzialność karna zarządu za poświadczenie nieprawdy (art. 296 k.k.).
-                </div>
               </div>
 
               <!-- False Negative -->
