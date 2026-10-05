@@ -112,6 +112,12 @@ const I18N = {
     quickstart_ciso_2: "Zero data leakage: 100% of corpus remains on the local workstation disk.",
     quickstart_ciso_3: "Deterministic verification algorithm: The verify tool does not call an LLM — an anti-hallucination mechanism cannot itself hallucinate.",
 
+    // Modals: Architecture
+    arch_modal_title: "Security Architecture for CISO & Board",
+    arch_desc_1: "Diagram 1: Verification algorithm 'verify' without language model involvement. Pure deterministic code eliminates hallucinations.",
+    arch_desc_2: "Diagram 2: Boundary between LLM agent and local MCP server. Total air-gap (zero outbound network, 100% local disk).",
+    arch_desc_3: "Diagram 3: RAG with vector DB vs MCP-Redline. Deterministic grounding instead of probabilistic cosine similarity.",
+
     // Modals: Story Mode
     story_modal_title: "Story Mode // Pressure Hallucination vs Digital Auditor",
     story_modal_badge: "BOARD & CISO EDUCATION",
@@ -119,6 +125,10 @@ const I18N = {
     story_tab_1: "ACT 1: The Model's Temptation (Why LLMs Lie Under Pressure)",
     story_tab_2: "ACT 2: Engine Anatomy (5 Stages of Determinism)",
     story_tab_3: "ACT 3: Risk Asymmetry & Financial Liability",
+    story_btn_prev: "Previous Act",
+    story_btn_next: "Next Act",
+    story_btn_finish: "Finish and return to workbench",
+    story_footer_tagline: "mcp-redline: auditability, deterministic boundaries, and hard refusal.",
     story_act_1_title: "ACT 1: WHY A LANGUAGE MODEL FABRICATES A SMOOTH LIE UNDER PRESSURE",
     story_act_1_sec1_title: "1. Probabilistic Mechanism vs Logical Truth",
     story_act_1_sec1_body: "LLMs possess no internal representation of truth or falsehood. Their singular optimization objective is maximizing the conditional probability of the next token: P(w_n | w_{1..n-1}). When a user poses a suggestive query (e.g. \"Does the vendor have the legal right to raise rates by 7.5%?\"), the model naturally exhibits sycophancy, weaving a logically fluent narrative even from non-existent contractual premises.",
@@ -418,6 +428,12 @@ const I18N = {
     quickstart_ciso_2: "Zero wycieku danych: 100% korpusu pozostaje na dysku lokalnym maszyny użytkownika.",
     quickstart_ciso_3: "Deterministyczny algorytm weryfikacji: Narzędzie verify nie wywołuje LLM – mechanizm antyhalucynacyjny sam nie może halucynować.",
 
+    // Modals: Architecture
+    arch_modal_title: "Architektura Bezpieczeństwa dla CISO i Zarządu",
+    arch_desc_1: "Diagram 1: Algorytm weryfikacji verify bez udziału modeli językowych. Czysty kod deterministyczny odcina halucynacje.",
+    arch_desc_2: "Diagram 2: Granica zaufania między agentem LLM a lokalnym serwerem MCP. Pełny air-gap (0 sieci, 100% lokalny dysk).",
+    arch_desc_3: "Diagram 3: RAG z wektorową bazą danych vs MCP-Redline. Deterministyczne ugruntowanie zamiast probabilistycznego podobieństwa.",
+
     // Modals: Story Mode
     story_modal_title: "Story Mode // Kłamstwo pod presją vs Cyfrowy Rewident",
     story_modal_badge: "EDUKACJA ZARZĄDÓW & CISO",
@@ -425,6 +441,10 @@ const I18N = {
     story_tab_1: "AKT 1: Pokusa Modelu (Dlaczego LLM kłamie pod presją)",
     story_tab_2: "AKT 2: Anatomia Silnika (5 etapów determinizmu)",
     story_tab_3: "AKT 3: Asymetria Ryzyka i Odpowiedzialność Finansowa",
+    story_btn_prev: "Poprzedni Akt",
+    story_btn_next: "Następny Akt",
+    story_btn_finish: "Zakończ i wróć do konsoli",
+    story_footer_tagline: "mcp-redline: audytowalność, deterministyczne granice i twarda odmowa.",
     story_act_1_title: "AKT 1: DLACZEGO MODEL JĘZYKOWY POD PRESJĄ FABRYKUJE GŁADKIE KŁAMSTWO",
     story_act_1_sec1_title: "1. Mechanizm probabilistyczny vs Prawda logiczna",
     story_act_1_sec1_body: "Modele LLM nie posiadają pojęcia prawdy ani fałszu. Ich jedynym zadaniem optymalizacyjnym jest maksymalizacja prawdopodobieństwa kolejnego tokena: P(w_n | w_{1..n-1}). Gdy użytkownik zadaje pytanie sugerujące (np. „Czy dostawca ma prawo podnieść ceny o 7.5%?”), model w naturalny sposób dąży do potwierdzenia tezy (sycophancy), syntetyzując logicznie brzmiącą narrację nawet z nieistniejących przesłanek.",
@@ -609,7 +629,7 @@ const I18N = {
           "Model wygenerował fikcyjną 83-krotnie zawyżoną kwotę rabatu"
         ],
         financialExposure: "BŁĄD KSIĘGOWY: oczekiwanie 50 000 EUR rabatu zamiast £600 GBP zniekształca cashflow spółki",
-        financialExposureValue: "5 000.00 EUR (nieuzasadnione roszczenie) vs £600.00 GBP (5% × £12 000 GBP z Sched B Sec 4.1)",
+        financialExposureValue: "50 000.00 EUR (nieuzasadnione roszczenie) vs £600.00 GBP (5% × £12 000 GBP z Sched B Sec 2.1)",
         financialExposureCfo: "Fikcyjne potrącenie z faktury dostawcy grozi natychmiastowym odcięciem telematyki dla 180 pojazdów z powodu zaległości płatniczej.",
         financialFailSafeCost: "~30 PLN (SZACUNEK: 5 min audytu)"
       }

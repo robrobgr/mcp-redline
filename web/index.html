@@ -1,15 +1,18 @@
 <!DOCTYPE html>
-<html class="dark" lang="pl">
+<html class="dark" lang="en">
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>mcp-redline // Deterministyczny Serwer MCP Weryfikacji Dokumentów i Cytowania</title>
+  <title>mcp-redline // Deterministic Document Citation & Claim Verification MCP Server</title>
   
   <!-- Offline Local Fonts & Material Symbols -->
   <link rel="stylesheet" href="fonts/fonts.css" />
   
   <!-- Offline Local Pre-compiled Tailwind CSS -->
   <link rel="stylesheet" href="dist/tailwind.css" />
+
+  <!-- Bilingual i18n Translation Dictionary -->
+  <script type="module" src="i18n.js"></script>
 
   <!-- Genuine Deterministic Verification Engine (Bundled directly from src/ via esbuild) -->
   <script src="dist/engine.bundle.js"></script>
@@ -70,48 +73,54 @@
         </div>
         <div class="flex flex-col">
           <div class="flex items-center gap-2">
-            <span class="font-bold text-sm tracking-wider text-white">mcp-redline</span>
+            <span class="font-bold text-sm tracking-wider text-white" data-i18n="brand_title">mcp-redline</span>
             <span class="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-950/40 border border-brand-emerald/40 text-brand-emerald font-semibold">
               <span class="w-1.5 h-1.5 rounded-full bg-brand-emerald animate-pulse"></span>
-              Air-Gapped stdio (0 Network)
+              <span data-i18n="brand_badge">Air-Gapped stdio (0 Network)</span>
             </span>
           </div>
-          <span class="hidden sm:block text-[11px] font-mono text-zinc-400">Deterministyczny Silnik Weryfikacji i Odmów</span>
+          <span class="hidden sm:block text-[11px] font-mono text-zinc-400" data-i18n="brand_subtitle">Deterministic Document Citation & Claim Verification MCP Server</span>
         </div>
       </div>
     </div>
 
     <!-- Center Thesis Statement -->
     <div class="hidden lg:flex items-center gap-2 px-3 py-1 rounded bg-brand-surface border border-brand-border text-xs text-zinc-300">
-      <span class="text-brand-red font-semibold">Teza:</span>
-      <span class="italic text-zinc-300">„Model, który pewnym tonem podaje nieprawdę, jest groźniejszy niż model, który odmawia.”</span>
+      <span class="text-brand-red font-semibold" data-i18n="thesis_label">Thesis:</span>
+      <span class="italic text-zinc-300" data-i18n="thesis_quote">“A model that states an untruth with confidence is far more dangerous than one that refuses.”</span>
     </div>
 
     <!-- Action Triggers -->
     <div class="flex items-center gap-1.5 sm:gap-2">
+      <!-- Language Switcher -->
+      <div class="flex items-center rounded border border-brand-border bg-brand-surface p-0.5 text-xs font-mono shrink-0">
+        <button id="btn-lang-en" class="px-2 py-0.5 rounded font-bold transition-colors bg-brand-cardElevated text-white">EN</button>
+        <button id="btn-lang-pl" class="px-2 py-0.5 rounded transition-colors text-zinc-400 hover:text-white">PL</button>
+      </div>
+
       <!-- Story Mode Trigger -->
       <button id="btn-open-story" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded bg-brand-surface hover:bg-brand-cardElevated border border-brand-red text-xs font-semibold text-brand-red hover:text-white shadow-sm transition-colors whitespace-nowrap">
         <span class="material-symbols-outlined text-sm">menu_book</span>
-        <span class="hidden xs:inline">Story Mode</span>
-        <span class="hidden md:inline">(3 Akty)</span>
+        <span class="hidden xs:inline" data-i18n="nav_story">Story Mode</span>
+        <span class="hidden md:inline">(3 Acts)</span>
       </button>
 
       <!-- Infographic Trigger -->
       <button id="btn-open-infographic" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded bg-brand-card hover:bg-brand-cardElevated border border-brand-border hover:border-brand-cyan text-xs font-medium text-zinc-200 transition-colors whitespace-nowrap">
         <span class="material-symbols-outlined text-brand-cyan text-sm">image</span>
-        <span>Infografika</span>
+        <span data-i18n="nav_infographic">Infographics</span>
       </button>
 
       <!-- Architecture Trigger -->
       <button id="btn-open-architecture" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded bg-brand-card hover:bg-brand-cardElevated border border-brand-border hover:border-brand-emerald text-xs font-medium text-zinc-200 transition-colors whitespace-nowrap">
         <span class="material-symbols-outlined text-brand-emerald text-sm">account_tree</span>
-        <span>Architektura CISO</span>
+        <span data-i18n="nav_architecture">CISO Architecture</span>
       </button>
 
       <!-- Quickstart Trigger -->
       <button id="btn-open-quickstart" class="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded bg-brand-red hover:bg-brand-crimson text-white text-xs font-semibold shadow-sm transition-colors whitespace-nowrap">
         <span class="material-symbols-outlined text-sm">terminal</span>
-        <span>Uruchom Serwer</span>
+        <span data-i18n="nav_quickstart">Run Server</span>
       </button>
     </div>
   </header>
@@ -128,15 +137,15 @@
       <!-- Header -->
       <div class="p-3 border-b border-brand-border bg-brand-darkCanvas/60">
         <div class="flex items-center justify-between mb-2">
-          <span class="text-[11px] font-mono font-semibold text-zinc-400 uppercase tracking-wider">KORPUS DOKUMENTÓW</span>
-          <span class="px-1.5 py-0.5 rounded text-[9px] font-mono bg-brand-card border border-brand-border text-brand-cyan">7 PLIKÓW</span>
+          <span class="text-[11px] font-mono font-semibold text-zinc-400 uppercase tracking-wider" data-i18n="zone_a_title">DOCUMENT CORPUS</span>
+          <span class="px-1.5 py-0.5 rounded text-[9px] font-mono bg-brand-card border border-brand-border text-brand-cyan" data-i18n="zone_a_badge">7 FILES</span>
         </div>
-        <p class="text-xs text-zinc-400 mb-2">Lokalne źródła dowodowe z hierarchią prawną</p>
+        <p class="text-xs text-zinc-400 mb-2" data-i18n="zone_a_subtitle">Local evidential sources with legal hierarchy</p>
         
         <!-- Search filter -->
         <div class="relative">
           <span class="material-symbols-outlined absolute left-2.5 top-2 text-zinc-500 text-sm">search</span>
-          <input id="corpus-search" type="text" placeholder="Filtruj dokumenty, klauzule..." class="w-full bg-brand-card border border-brand-border rounded pl-8 pr-3 py-1.5 font-mono text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-brand-cyan"/>
+          <input id="corpus-search" type="text" placeholder="Filter documents, clauses..." data-i18n-placeholder="search_placeholder" class="w-full bg-brand-card border border-brand-border rounded pl-8 pr-3 py-1.5 font-mono text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-brand-cyan"/>
         </div>
       </div>
 
@@ -148,13 +157,13 @@
       <!-- Sidebar Footer -->
       <div class="p-3 border-t border-brand-border bg-brand-darkCanvas/80 text-xs font-mono space-y-1.5">
         <div class="flex items-center justify-between text-zinc-400">
-          <span>HIERARCHIA DOWODOWA:</span>
+          <span data-i18n="evidence_hierarchy">EVIDENTIAL HIERARCHY:</span>
           <span class="text-zinc-200 font-semibold">Tier 1 &gt; Tier 2 &gt; Tier 3</span>
         </div>
         <div class="flex items-center justify-between text-[11px] text-zinc-500">
           <span class="flex items-center gap-1.5">
             <span class="w-1.5 h-1.5 rounded-full bg-brand-emerald"></span>
-            Stdio IPC Protocol
+            <span data-i18n="ipc_protocol">Stdio IPC Protocol</span>
           </span>
           <span class="text-zinc-400">JSON-RPC 2.0</span>
         </div>
@@ -170,7 +179,7 @@
       <div class="p-3 border-b border-brand-border bg-brand-surface/80 flex flex-wrap items-center justify-between gap-3 shrink-0">
         <div class="flex items-center gap-2 flex-1 min-w-0">
           <span class="material-symbols-outlined text-brand-cyan text-sm shrink-0">checklist</span>
-          <label for="scenario-dropdown" class="text-xs font-mono text-zinc-400 uppercase tracking-wider shrink-0">Scenariusz:</label>
+          <label for="scenario-dropdown" class="text-xs font-mono text-zinc-400 uppercase tracking-wider shrink-0" data-i18n="scenario_label">Scenario:</label>
           <div class="relative flex-1 min-w-0">
             <select id="scenario-dropdown" class="w-full appearance-none bg-brand-card border border-brand-border rounded px-3 py-1.5 font-mono text-xs text-zinc-200 focus:outline-none focus:border-brand-emerald pr-8 cursor-pointer truncate">
               <!-- Injected via JavaScript from SCENARIOS -->
@@ -180,7 +189,7 @@
         </div>
 
         <div class="flex items-center gap-2 max-w-full overflow-hidden">
-          <span class="text-xs font-mono text-zinc-400 shrink-0">Szybki wybór:</span>
+          <span class="text-xs font-mono text-zinc-400 shrink-0" data-i18n="quick_select">Quick select:</span>
           <div id="quick-scenario-pills" class="flex items-center gap-1 overflow-x-auto max-w-full">
             <!-- Buttons P01-P10 injected by JS -->
           </div>
@@ -195,24 +204,24 @@
           <div class="flex items-center gap-2">
             <span class="text-xs font-mono font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
               <span class="material-symbols-outlined text-brand-cyan text-sm">visibility</span>
-              Trzy Perspektywy Decyzyjne:
+              <span data-i18n="triad_title">Three Decision Perspectives:</span>
             </span>
-            <span class="hidden sm:inline-block text-[11px] text-zinc-400 font-sans">
-              Zbadaj dynamikę ryzyka biznesowego w trzech konfiguracjach:
+            <span class="hidden sm:inline-block text-[11px] text-zinc-400 font-sans" data-i18n="triad_subtitle">
+              Examine business risk dynamics across three configurations:
             </span>
           </div>
           <div class="flex flex-wrap sm:flex-nowrap items-center gap-1.5 bg-brand-card p-1 rounded border border-brand-border text-xs font-mono max-w-full">
-            <button id="btn-persp-1" class="px-2.5 sm:px-3 py-1.5 rounded transition-all flex items-center gap-1.5 text-zinc-400 hover:text-white text-[11px] sm:text-xs" title="Perspektywa 1: Samotny model LLM bez zabezpieczeń">
+            <button id="btn-persp-1" class="px-2.5 sm:px-3 py-1.5 rounded transition-all flex items-center gap-1.5 text-zinc-400 hover:text-white text-[11px] sm:text-xs" title="Perspective 1: Lonely LLM without safeguards">
               <span class="w-2 h-2 rounded-full bg-brand-red shrink-0"></span>
-              <span>1. Tylko LLM (Halucynacja)</span>
+              <span data-i18n="persp_1_name">1. Lonely LLM (Hallucination)</span>
             </button>
-            <button id="btn-persp-2" class="px-2.5 sm:px-3 py-1.5 rounded bg-brand-emerald text-zinc-950 font-bold shadow-sm transition-all flex items-center gap-1.5 text-[11px] sm:text-xs" title="Perspektywa 2: Model chroniony przez deterministyczny serwer mcp-redline">
+            <button id="btn-persp-2" class="px-2.5 sm:px-3 py-1.5 rounded bg-brand-emerald text-zinc-950 font-bold shadow-sm transition-all flex items-center gap-1.5 text-[11px] sm:text-xs" title="Perspective 2: Protected by deterministic mcp-redline server">
               <span class="w-2 h-2 rounded-full bg-zinc-950 shrink-0"></span>
-              <span>2. LLM + Redline (Protected)</span>
+              <span data-i18n="persp_2_name">2. LLM + Redline (Protected)</span>
             </button>
-            <button id="btn-persp-3" class="px-2.5 sm:px-3 py-1.5 rounded transition-all flex items-center gap-1.5 text-zinc-400 hover:text-white text-[11px] sm:text-xs" title="Perspektywa 3: Analiza sytuacji wątpliwości lub błędu serwera mcp-redline (Fail-Safe)">
+            <button id="btn-persp-3" class="px-2.5 sm:px-3 py-1.5 rounded transition-all flex items-center gap-1.5 text-zinc-400 hover:text-white text-[11px] sm:text-xs" title="Perspective 3: Doubt or fail-safe server refusal">
               <span class="w-2 h-2 rounded-full bg-brand-cyan shrink-0"></span>
-              <span>3. Wątpliwości Redline (Fail-Safe)</span>
+              <span data-i18n="persp_3_name">3. Redline Doubt (Fail-Safe)</span>
             </button>
           </div>
         </div>
@@ -222,11 +231,11 @@
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div class="flex flex-wrap items-center gap-2">
               <span class="material-symbols-outlined text-brand-red text-base shrink-0">payments</span>
-              <span class="text-xs font-mono font-bold text-zinc-100 uppercase tracking-wider">
-                Licznik Ryzyka Finansowego & Ekspozycji Zarządczej (CFO Liability Meter)
+              <span class="text-xs font-mono font-bold text-zinc-100 uppercase tracking-wider" data-i18n="cfo_meter_title">
+                Financial Liability & Executive Exposure Meter (CFO Liability Meter)
               </span>
               <span id="meter-perspective-pill" class="text-[10px] font-mono px-2 py-0.5 rounded bg-brand-card border border-brand-border text-brand-emerald font-semibold">
-                Tryb: LLM + Redline (Chroniony)
+                Mode: LLM + Redline (Protected)
               </span>
             </div>
             <div id="meter-scenario-tag" class="text-xs font-mono text-zinc-400">
@@ -239,42 +248,42 @@
             <!-- Metric 1: LLM Exposure -->
             <div id="meter-col-llm" class="p-2.5 rounded bg-red-950/50 border border-red-800/60 flex flex-col justify-between transition-all">
               <div class="flex items-center justify-between text-[11px] font-mono text-red-300">
-                <span>EKSPOZYCJA LLM (BRAK BRAMKI):</span>
+                <span data-i18n="meter_col_llm_label">LLM EXPOSURE (NO GATEWAY):</span>
                 <span class="material-symbols-outlined text-brand-red text-xs">trending_up</span>
               </div>
               <div id="meter-llm-val" class="text-xl lg:text-2xl font-black font-mono text-red-400 my-1">
-                wybierz scenariusz
+                select scenario
               </div>
-              <div id="meter-llm-desc" class="text-[11px] text-zinc-300 font-sans leading-tight">
-                Niekontrolowana akceptacja roszczeń przez gładką syntezę LLM.
+              <div id="meter-llm-desc" class="text-[11px] text-zinc-300 font-sans leading-tight" data-i18n="meter_col_llm_sub">
+                Uncontrolled claims acceptance via smooth LLM synthesis.
               </div>
             </div>
 
             <!-- Metric 2: Protected by Redline -->
             <div id="meter-col-redline" class="p-2.5 rounded bg-emerald-950/50 border border-emerald-800/60 flex flex-col justify-between transition-all">
               <div class="flex items-center justify-between text-[11px] font-mono text-emerald-300">
-                <span>OCHRONA MCP-REDLINE:</span>
+                <span data-i18n="meter_col_redline_label">MCP-REDLINE PROTECTION:</span>
                 <span class="material-symbols-outlined text-brand-emerald text-xs">shield</span>
               </div>
               <div id="meter-redline-val" class="text-xl lg:text-2xl font-black font-mono text-brand-emerald my-1">
                 0 PLN / £0
               </div>
-              <div id="meter-redline-desc" class="text-[11px] text-zinc-300 font-sans leading-tight">
-                100% zablokowana strata. Twarda deterministyczna weryfikacja.
+              <div id="meter-redline-desc" class="text-[11px] text-zinc-300 font-sans leading-tight" data-i18n="meter_col_redline_sub">
+                100% blocked loss. Strict deterministic verification.
               </div>
             </div>
 
             <!-- Metric 3: Fail-Safe Cost -->
             <div id="meter-col-failsafe" class="p-2.5 rounded bg-cyan-950/40 border border-cyan-800/50 flex flex-col justify-between transition-all">
               <div class="flex items-center justify-between text-[11px] font-mono text-cyan-300">
-                <span>KOSZT AUDYTU (FAIL-SAFE) [SZACUNEK]:</span>
+                <span data-i18n="meter_col_failsafe_label">AUDIT COST (FAIL-SAFE) [ESTIMATE]:</span>
                 <span class="material-symbols-outlined text-brand-cyan text-xs">schedule</span>
               </div>
               <div id="meter-failsafe-val" class="text-xl lg:text-2xl font-black font-mono text-brand-cyan my-1">
                 ~30 PLN
               </div>
-              <div id="meter-failsafe-desc" class="text-[11px] text-zinc-300 font-sans leading-tight">
-                Szacunek: 3-5 min weryfikacji przez audytora/prawnika w razie wątpliwości lub odmowy serwera.
+              <div id="meter-failsafe-desc" class="text-[11px] text-zinc-300 font-sans leading-tight" data-i18n="meter_col_failsafe_sub">
+                Estimate: 3-5 min auditor/lawyer review in case of doubt or server refusal.
               </div>
             </div>
           </div>
@@ -283,8 +292,8 @@
           <div class="p-2.5 rounded bg-brand-darkCanvas/80 border border-brand-border/60 flex items-start gap-2.5">
             <span class="material-symbols-outlined text-brand-cyan text-base shrink-0 mt-0.5">account_balance</span>
             <div class="text-xs text-zinc-200 font-sans leading-relaxed flex-1">
-              <span class="font-bold text-zinc-100 font-mono">OCENA DLA ZARZĄDU / DYREKTORA FINANSOWEGO (CFO): </span>
-              <span id="meter-cfo-analysis">Wczytywanie analizy ekspozycji finansowej...</span>
+              <span class="font-bold text-zinc-100 font-mono" data-i18n="cfo_board_label">BOARD & CFO ASSESSMENT: </span>
+              <span id="meter-cfo-analysis">Loading financial exposure analysis...</span>
             </div>
           </div>
         </div>
@@ -293,18 +302,18 @@
         <div class="bg-brand-surface border border-brand-border rounded-lg p-3 relative shadow-md">
           <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
             <div class="flex flex-wrap items-center gap-2">
-              <span id="claim-category-badge" class="px-2 py-0.5 rounded text-[10px] font-mono bg-brand-card text-brand-cyan border border-brand-border font-semibold">
-                AUDYTOWANE TWIERDZENIE
+              <span id="claim-category-badge" class="px-2 py-0.5 rounded text-[10px] font-mono bg-brand-card text-brand-cyan border border-brand-border font-semibold" data-i18n="claim_badge_audit">
+                AUDITED CLAIM
               </span>
               <span id="claim-id-badge" class="text-xs font-mono text-zinc-400">ID: P01</span>
-              <button id="btn-simulate-noise" class="px-2 py-0.5 rounded bg-brand-card hover:bg-brand-cardElevated border border-brand-border text-zinc-300 text-[10px] font-mono flex items-center gap-1 transition-colors" title="Wstrzyknij realistyczny szum OCR / literówkę, aby sprawdzić odporność silnika">
+              <button id="btn-simulate-noise" class="px-2 py-0.5 rounded bg-brand-card hover:bg-brand-cardElevated border border-brand-border text-zinc-300 text-[10px] font-mono flex items-center gap-1 transition-colors" title="Inject realistic OCR noise / typo to test engine resilience">
                 <span class="material-symbols-outlined text-brand-cyan text-xs">auto_fix_high</span>
-                <span id="noise-btn-label">Symuluj szum OCR</span>
+                <span id="noise-btn-label" data-i18n="noise_btn_label">Simulate OCR noise</span>
               </button>
             </div>
             <span class="text-xs font-mono text-zinc-400 hidden sm:flex items-center gap-1">
               <span class="material-symbols-outlined text-xs text-brand-emerald">fingerprint</span>
-              <span>Deterministyczny silnik AST (bez halucynacji)</span>
+              <span data-i18n="engine_label">Deterministic AST engine (hallucination-free)</span>
             </span>
           </div>
 
@@ -314,7 +323,7 @@
             </div>
             <button id="btn-verify" class="px-4 bg-brand-emerald hover:bg-brand-darkEmerald text-zinc-950 font-bold text-xs rounded transition-colors flex flex-col items-center justify-center gap-1 shadow-md">
               <span class="material-symbols-outlined font-bold text-lg">play_arrow</span>
-              <span>WERYFIKUJ</span>
+              <span data-i18n="btn_verify">VERIFY</span>
             </button>
           </div>
         </div>
@@ -329,15 +338,15 @@
               <div class="flex items-center gap-2">
                 <span class="material-symbols-outlined text-brand-red text-base">warning</span>
                 <span id="llm-banner-text" class="text-xs font-mono font-bold text-brand-red tracking-wide">
-                  HALUCYNACJA LUB BRAK ŚCISŁEGO CYTATU
+                  HALLUCINATION OR MISSING VERBATIM CITATION
                 </span>
               </div>
               <div class="flex items-center gap-1.5">
-                <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-800 text-amber-300 border border-amber-500/40 font-semibold" title="Odpowiedź ilustracyjna reprezentująca skłonność modeli LLM do uległości i potwierdzania tezy (sycophancy). Prawdziwe zapisane odpowiedzi modeli: w kolejnej wersji.">
-                  ODPOWIEDŹ ILUSTRACYJNA
+                <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-800 text-amber-300 border border-amber-500/40 font-semibold" title="Illustrative response representing LLM sycophancy propensity." data-i18n="card_llm_illustrative">
+                  ILLUSTRATIVE RESPONSE
                 </span>
-                <span id="llm-risk-badge" class="px-2 py-0.5 rounded text-[10px] font-mono bg-red-900/40 text-red-200 border border-red-700/50 font-semibold">
-                  RYZYKO: WYSOKIE
+                <span id="llm-risk-badge" class="px-2 py-0.5 rounded text-[10px] font-mono bg-red-900/40 text-red-200 border border-red-700/50 font-semibold" data-i18n="card_llm_risk_high">
+                  RISK: HIGH
                 </span>
               </div>
             </div>
@@ -345,11 +354,11 @@
             <div class="px-3 py-1.5 bg-amber-950/20 border-b border-amber-900/40 flex items-center justify-between text-xs text-zinc-400">
               <span class="flex items-center gap-1.5 text-zinc-300">
                 <span class="material-symbols-outlined text-xs text-amber-400">psychology</span>
-                <span>Standardowy LLM (Syntetyzujący na siłę)</span>
+                <span data-i18n="card_llm_heading">Standard LLM (Forced Synthesis)</span>
               </span>
               <span class="font-mono text-amber-400/90 text-[10px] flex items-center gap-1">
                 <span class="material-symbols-outlined text-[11px]">info</span>
-                <span>Symulacja ilustracyjna — brak twardej bramki</span>
+                <span data-i18n="card_llm_disclaimer">Illustrative simulation — no strict guardrail</span>
               </span>
             </div>
 
@@ -364,7 +373,7 @@
                 <div class="bg-brand-darkCanvas/70 rounded border-l-2 border-brand-red border-t border-r border-b border-brand-border p-3 space-y-1.5">
                   <div class="flex items-center gap-1.5 text-xs font-mono text-brand-red font-semibold">
                     <span class="material-symbols-outlined text-xs">gpp_bad</span>
-                    IDENTYFIKACJA WAD SYNTEZY / HALUCYNACJI:
+                    <span data-i18n="card_llm_defects_title">SYNTHESIS DEFECTS / HALLUCINATION IDENTIFICATION:</span>
                   </div>
                   <ul id="llm-defects-list" class="text-xs text-zinc-300 space-y-1 list-disc pl-4 font-sans">
                     <!-- Defects injected by JS -->
@@ -387,18 +396,18 @@
               <div class="flex items-center gap-2">
                 <span id="redline-banner-icon" class="material-symbols-outlined text-brand-emerald text-base font-bold">verified</span>
                 <span id="redline-banner-text" class="text-xs font-mono font-bold text-brand-emerald tracking-wide">
-                  DETERMINISTYCZNY DOWÓD // GROUNDED
+                  DETERMINISTIC PROOF // 100% GROUNDED
                 </span>
               </div>
-              <span id="redline-status-badge" class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-900/40 text-emerald-200 border border-emerald-700/50 font-semibold">
-                ZERO HALUCYNACJI
+              <span id="redline-status-badge" class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-900/40 text-emerald-200 border border-emerald-700/50 font-semibold" data-i18n="card_redline_badge_safe">
+                FAIL-SAFE // ZERO HALLUCINATION
               </span>
             </div>
 
             <div class="px-3 py-2 bg-brand-card/70 border-b border-brand-border flex items-center justify-between text-xs text-zinc-400">
               <span class="flex items-center gap-1.5 text-brand-emerald font-semibold">
                 <span class="material-symbols-outlined text-xs">security</span>
-                mcp-redline Engine (Deterministyczny kod weryfikacyjny)
+                <span data-i18n="card_redline_heading">mcp-redline Engine (Deterministic Verification Code)</span>
               </span>
               <span id="redline-verdict-tag" class="font-mono text-xs px-2 py-0.5 rounded bg-brand-darkCanvas border border-brand-emerald/40 text-brand-emerald">
                 STATUS: GROUNDED
@@ -409,7 +418,7 @@
             <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
               <div class="space-y-3">
                 <div class="flex items-center justify-between text-xs font-mono text-zinc-400">
-                  <span id="redline-source-title">ŹRÓDŁO DOKUMENTOWE:</span>
+                  <span id="redline-source-title" data-i18n="card_redline_source_label">DOCUMENT SOURCE:</span>
                   <span id="redline-tier-badge" class="text-brand-emerald font-semibold">Tier 1: Governing Contract</span>
                 </div>
 
@@ -422,7 +431,7 @@
                 <div id="redline-explanation-box" class="bg-brand-card rounded p-2.5 border border-brand-border text-xs space-y-1">
                   <div class="text-[11px] font-mono text-brand-cyan font-medium flex items-center gap-1">
                     <span class="material-symbols-outlined text-xs">shield</span>
-                    ROZSTRZYGNIĘCIE HIERARCHII DOWODOWEJ:
+                    <span data-i18n="card_redline_precedence_label">EVIDENTIAL HIERARCHY RESOLUTION:</span>
                   </div>
                   <p id="redline-explanation-text" class="text-zinc-200 text-xs font-sans leading-relaxed"></p>
                 </div>
@@ -432,10 +441,10 @@
               <div class="p-2.5 rounded bg-brand-darkCanvas border border-brand-border flex items-center justify-between text-xs font-mono text-zinc-400">
                 <div class="flex items-center gap-2">
                   <span class="material-symbols-outlined text-brand-emerald text-sm">lock</span>
-                  <span>Plik: <code id="redline-meta-file" class="text-zinc-200">01_Apex_VeloNova_MSA_2023.md</code></span>
+                  <span><span data-i18n="card_redline_file">File:</span> <code id="redline-meta-file" class="text-zinc-200">01_Apex_VeloNova_MSA_2023.md</code></span>
                 </div>
                 <div>
-                  Sekcja / Strona: <span id="redline-meta-page" class="text-brand-emerald font-semibold">1</span>
+                  <span data-i18n="card_redline_page">Section / Page:</span> <span id="redline-meta-page" class="text-brand-emerald font-semibold">1</span>
                 </div>
               </div>
             </div>
@@ -447,11 +456,11 @@
           <button id="btn-toggle-trace" class="w-full px-3.5 py-2.5 bg-brand-card hover:bg-brand-cardElevated flex items-center justify-between text-xs font-mono transition-colors">
             <div class="flex items-center gap-2">
               <span class="material-symbols-outlined text-brand-cyan text-sm">hub</span>
-              <span class="font-bold text-zinc-100">ŚLAD MYŚLOWY AGENTA I INTERCEPCJA MCP W LOCIE</span>
-              <span id="trace-badge" class="text-[10px] px-2 py-0.5 rounded bg-emerald-950/60 text-brand-emerald border border-brand-emerald/40 font-semibold">Active Agent Loop</span>
+              <span class="font-bold text-zinc-100" data-i18n="trace_title">AGENT THOUGHT INTERCEPTION & REAL-TIME MCP TRACE</span>
+              <span id="trace-badge" class="text-[10px] px-2 py-0.5 rounded bg-emerald-950/60 text-brand-emerald border border-brand-emerald/40 font-semibold" data-i18n="trace_badge">Active Agent Loop</span>
             </div>
             <div class="flex items-center gap-2 text-zinc-400">
-              <span class="text-[11px] font-sans hidden sm:inline">Zobacz jak mcp-redline przechwytuje odpowiedź modelu</span>
+              <span class="text-[11px] font-sans hidden sm:inline" data-i18n="trace_subtitle">See how mcp-redline intercepts model generation in real time</span>
               <span id="trace-chevron" class="material-symbols-outlined text-sm transition-transform">expand_more</span>
             </div>
           </button>
@@ -464,36 +473,36 @@
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
           <div class="p-3 rounded-lg bg-brand-surface border border-brand-border flex items-center justify-between">
             <div>
-              <div class="text-[10px] font-mono text-zinc-400 uppercase">Czas weryfikacji</div>
+              <div class="text-[10px] font-mono text-zinc-400 uppercase" data-i18n="stat_latency_title">Verification Time</div>
               <div id="stat-latency" class="text-xl font-bold font-mono text-brand-emerald">1.8 ms</div>
-              <div class="text-[11px] text-zinc-500 font-sans">Lokalne regex / AST</div>
+              <div class="text-[11px] text-zinc-500 font-sans" data-i18n="stat_latency_desc">Local regex / AST</div>
             </div>
             <span class="material-symbols-outlined text-brand-emerald text-2xl">bolt</span>
           </div>
 
           <div class="p-3 rounded-lg bg-brand-surface border border-brand-border flex items-center justify-between">
             <div>
-              <div class="text-[10px] font-mono text-zinc-400 uppercase">Koszt Tokenów LLM</div>
+              <div class="text-[10px] font-mono text-zinc-400 uppercase" data-i18n="stat_tokens_title">LLM Token Cost</div>
               <div class="text-xl font-bold font-mono text-zinc-100">0</div>
-              <div class="text-[11px] text-zinc-500 font-sans">Zero kosztu / zero driftu</div>
+              <div class="text-[11px] text-zinc-500 font-sans" data-i18n="stat_tokens_desc">Zero cost / zero drift</div>
             </div>
             <span class="material-symbols-outlined text-brand-cyan text-2xl">toll</span>
           </div>
 
           <div class="p-3 rounded-lg bg-brand-surface border border-brand-border flex items-center justify-between">
             <div>
-              <div class="text-[10px] font-mono text-zinc-400 uppercase">Determinizm Kodu</div>
+              <div class="text-[10px] font-mono text-zinc-400 uppercase" data-i18n="stat_determinism_title">Code Determinism</div>
               <div class="text-xl font-bold font-mono text-brand-emerald">100%</div>
-              <div class="text-[11px] text-zinc-500 font-sans">Mechanizm nie może halucynować</div>
+              <div class="text-[11px] text-zinc-500 font-sans" data-i18n="stat_determinism_desc">Engine cannot hallucinate</div>
             </div>
             <span class="material-symbols-outlined text-brand-emerald text-2xl">verified</span>
           </div>
 
           <div class="p-3 rounded-lg bg-brand-surface border border-brand-border flex items-center justify-between">
             <div>
-              <div class="text-[10px] font-mono text-zinc-400 uppercase">Protokół Transportu</div>
+              <div class="text-[10px] font-mono text-zinc-400 uppercase" data-i18n="stat_protocol_title">Transport Protocol</div>
               <div class="text-xl font-bold font-mono text-brand-cyan">MCP stdio</div>
-              <div class="text-[11px] text-zinc-500 font-sans">100% izolowany proces IPC</div>
+              <div class="text-[11px] text-zinc-500 font-sans" data-i18n="stat_protocol_desc">100% isolated IPC process</div>
             </div>
             <span class="material-symbols-outlined text-brand-cyan text-2xl">shield</span>
           </div>
@@ -510,7 +519,7 @@
       <div class="p-3 border-b border-brand-border bg-brand-darkCanvas/60 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <span class="material-symbols-outlined text-brand-cyan text-sm">code</span>
-          <span class="text-xs font-mono font-semibold text-zinc-200 uppercase tracking-wider">INSPEKTOR PROTOKOŁU MCP</span>
+          <span class="text-xs font-mono font-semibold text-zinc-200 uppercase tracking-wider" data-i18n="inspector_title">MCP PROTOCOL INSPECTOR</span>
         </div>
         <div class="flex items-center gap-1.5">
           <span class="w-2 h-2 rounded-full bg-brand-emerald"></span>
@@ -520,14 +529,14 @@
 
       <!-- Tab Switcher -->
       <div class="flex border-b border-brand-border bg-brand-card text-xs font-mono">
-        <button id="tab-rpc-req" class="flex-1 py-2 px-3 border-b-2 border-brand-emerald text-brand-emerald font-semibold bg-brand-surface text-center">
-          Żądanie RPC
+        <button id="tab-rpc-req" class="flex-1 py-2 px-3 border-b-2 border-brand-emerald text-brand-emerald font-semibold bg-brand-surface text-center" data-i18n="tab_req">
+          RPC Request
         </button>
-        <button id="tab-rpc-res" class="flex-1 py-2 px-3 text-zinc-400 hover:text-zinc-200 hover:bg-brand-surface text-center transition-colors">
-          Odpowiedź RPC
+        <button id="tab-rpc-res" class="flex-1 py-2 px-3 text-zinc-400 hover:text-zinc-200 hover:bg-brand-surface text-center transition-colors" data-i18n="tab_res">
+          RPC Response
         </button>
-        <button id="tab-rpc-stream" class="flex-1 py-2 px-3 text-zinc-400 hover:text-zinc-200 hover:bg-brand-surface text-center transition-colors">
-          Ślad stdio
+        <button id="tab-rpc-stream" class="flex-1 py-2 px-3 text-zinc-400 hover:text-zinc-200 hover:bg-brand-surface text-center transition-colors" data-i18n="tab_stream">
+          Stdio Trace
         </button>
       </div>
 
@@ -539,9 +548,9 @@
               <span class="material-symbols-outlined text-xs">terminal</span>
               tools/call: verify
             </span>
-            <button id="btn-copy-rpc" class="hover:text-brand-emerald flex items-center gap-1 text-zinc-400 transition-colors" title="Kopiuj JSON">
+            <button id="btn-copy-rpc" class="hover:text-brand-emerald flex items-center gap-1 text-zinc-400 transition-colors" title="Copy JSON">
               <span class="material-symbols-outlined text-xs">content_copy</span>
-              <span>Kopiuj</span>
+              <span data-i18n="btn_copy">Copy</span>
             </button>
           </div>
 
@@ -557,12 +566,12 @@
         <!-- Security Footnote -->
         <div class="pt-3 border-t border-brand-border/80 text-[11px] font-mono text-zinc-400 space-y-1">
           <div class="flex items-center justify-between">
-            <span>Izolacja sieci:</span>
-            <span class="text-brand-emerald font-semibold">0 połączeń wychodzących</span>
+            <span data-i18n="sec_net">Network isolation:</span>
+            <span class="text-brand-emerald font-semibold" data-i18n="sec_net_val">0 outbound connections</span>
           </div>
           <div class="flex items-center justify-between">
-            <span>Zgodność CISO:</span>
-            <span class="text-brand-emerald font-semibold">100% lokalny dysk</span>
+            <span data-i18n="sec_ciso">CISO compliance:</span>
+            <span class="text-brand-emerald font-semibold" data-i18n="sec_ciso_val">100% local disk</span>
           </div>
         </div>
       </div>
@@ -574,7 +583,7 @@
   <!-- 3. FOOTER (Author Citation)                                               -->
   <!-- ========================================================================= -->
   <footer class="h-8 border-t border-brand-border bg-brand-darkCanvas px-4 flex items-center justify-center text-xs text-zinc-400 shrink-0 font-mono select-none z-20">
-    <span>Zbudował Robert Grabowski — <a href="https://robertgrabowski.com" target="_blank" rel="noopener noreferrer" class="text-zinc-300 hover:text-white underline underline-offset-2 transition-colors">robertgrabowski.com</a></span>
+    <span><span data-i18n="footer_built_by">Built by Robert Grabowski —</span> <a href="https://robertgrabowski.com" target="_blank" rel="noopener noreferrer" class="text-zinc-300 hover:text-white underline underline-offset-2 transition-colors">robertgrabowski.com</a></span>
   </footer>
 
   <!-- ========================================================================= -->
@@ -611,7 +620,7 @@
       <div class="px-4 py-3 border-b border-brand-border flex items-center justify-between bg-brand-darkCanvas">
         <div class="flex items-center gap-3">
           <span class="material-symbols-outlined text-brand-emerald">account_tree</span>
-          <span class="font-bold text-sm text-zinc-100">Architektura Bezpieczeństwa dla CISO i Zarządu</span>
+          <span class="font-bold text-sm text-zinc-100" data-i18n="arch_modal_title">Security Architecture for CISO & Board</span>
           <div class="flex items-center gap-1 ml-4 border-l border-brand-border pl-3">
             <button id="tab-arch-1" class="px-2.5 py-1 rounded text-xs font-mono bg-brand-emerald/20 text-brand-emerald border border-brand-emerald/40 font-semibold">1. verify_flow</button>
             <button id="tab-arch-2" class="px-2.5 py-1 rounded text-xs font-mono text-zinc-400 hover:text-white">2. ciso_boundary</button>
@@ -623,9 +632,9 @@
         </button>
       </div>
       <div class="p-6 overflow-auto flex flex-col items-center justify-center bg-zinc-950 flex-1 space-y-4">
-        <img id="arch-img" src="assets/01_verify_flow.svg" alt="Diagram Architektury" class="max-h-[70vh] object-contain rounded border border-brand-border/40 p-2 bg-zinc-900/60 shadow-xl"/>
-        <p id="arch-description" class="text-xs text-zinc-400 font-mono text-center max-w-3xl">
-          Diagram 1: Algorytm weryfikacji verify bez udziału modeli językowych. Czysty kod deterministyczny odcina halucynacje.
+        <img id="arch-img" src="assets/01_verify_flow.svg" alt="Architecture Diagram" class="max-h-[70vh] object-contain rounded border border-brand-border/40 p-2 bg-zinc-900/60 shadow-xl"/>
+        <p id="arch-description" class="text-xs text-zinc-400 font-mono text-center max-w-3xl" data-i18n="arch_desc_1">
+          Diagram 1: Verification algorithm 'verify' without language model involvement. Pure deterministic code eliminates hallucinations.
         </p>
       </div>
     </div>
@@ -639,7 +648,7 @@
       <div class="px-4 py-3 border-b border-brand-border flex items-center justify-between bg-brand-darkCanvas">
         <div class="flex items-center gap-2">
           <span class="material-symbols-outlined text-brand-cyan">description</span>
-          <span id="doc-modal-title" class="font-bold text-sm text-zinc-100">Podgląd Dokumentu</span>
+          <span id="doc-modal-title" class="font-bold text-sm text-zinc-100">Document Viewer</span>
           <span id="doc-modal-tier" class="px-2 py-0.5 rounded text-[10px] font-mono bg-brand-card border border-brand-border text-brand-emerald">Tier 1</span>
         </div>
         <button id="btn-close-doc" class="w-7 h-7 rounded hover:bg-brand-card flex items-center justify-center text-zinc-400 hover:text-white">
@@ -648,9 +657,9 @@
       </div>
       <div class="px-4 py-2 border-b border-brand-border bg-brand-card/40 flex items-center justify-between text-xs font-mono text-zinc-400">
         <div class="flex items-center gap-3">
-          <span>Plik: <code id="doc-modal-file" class="text-zinc-200">01_...md</code></span>
-          <span>Linie: <strong id="doc-modal-lines" class="text-zinc-200">0</strong></span>
-          <span>Słowa: <strong id="doc-modal-words" class="text-zinc-200">0</strong></span>
+          <span>File: <code id="doc-modal-file" class="text-zinc-200">01_...md</code></span>
+          <span>Lines: <strong id="doc-modal-lines" class="text-zinc-200">0</strong></span>
+          <span>Words: <strong id="doc-modal-words" class="text-zinc-200">0</strong></span>
         </div>
         <span id="doc-modal-hash" class="text-zinc-500">sha256:...</span>
       </div>
@@ -668,7 +677,7 @@
       <div class="px-4 py-3 border-b border-brand-border flex items-center justify-between bg-brand-darkCanvas">
         <div class="flex items-center gap-2">
           <span class="material-symbols-outlined text-brand-red">terminal</span>
-          <span class="font-bold text-sm text-zinc-100">Jak Uruchomić mcp-redline (100% Offline)</span>
+          <span class="font-bold text-sm text-zinc-100" data-i18n="quickstart_title">How to Run mcp-redline (100% Offline)</span>
         </div>
         <button id="btn-close-quickstart" class="w-7 h-7 rounded hover:bg-brand-card flex items-center justify-center text-zinc-400 hover:text-white">
           <span class="material-symbols-outlined text-base">close</span>
@@ -679,10 +688,10 @@
         <div>
           <h4 class="font-bold text-zinc-200 mb-1 flex items-center gap-1.5">
             <span class="w-5 h-5 rounded-full bg-brand-red text-white flex items-center justify-center text-xs">1</span>
-            Instalacja i weryfikacja czystego środowiska (Clean Clone):
+            <span data-i18n="quickstart_step1">1. Clean Clone Installation & Verification:</span>
           </h4>
-          <p class="text-xs text-zinc-400 mb-2 font-sans">
-            Wymaga Node.js 18+. Całość działa bez zewnętrznych API i bez wywołań sieciowych.
+          <p class="text-xs text-zinc-400 mb-2 font-sans" data-i18n="quickstart_step1_desc">
+            Requires Node.js 18+. Runs completely without external APIs or network calls.
           </p>
           <div class="bg-brand-darkCanvas p-3 rounded border border-brand-border font-mono text-xs text-zinc-200 relative group">
             <code>git clone https://github.com/robertgrabowski/mcp-redline.git<br/>cd mcp-redline<br/>npm install<br/>npm test<br/>npm run eval</code>
@@ -692,7 +701,7 @@
         <div>
           <h4 class="font-bold text-zinc-200 mb-1 flex items-center gap-1.5">
             <span class="w-5 h-5 rounded-full bg-brand-emerald text-zinc-950 font-bold flex items-center justify-center text-xs">2</span>
-            Konfiguracja w Claude Desktop (<code class="text-xs">claude_desktop_config.json</code>):
+            <span data-i18n="quickstart_step2">2. Claude Desktop Configuration (claude_desktop_config.json):</span>
           </h4>
           <div class="bg-brand-darkCanvas p-3 rounded border border-brand-border font-mono text-xs text-zinc-200 relative">
             <pre><code>{
@@ -709,12 +718,12 @@
         <div>
           <h4 class="font-bold text-zinc-200 mb-1 flex items-center gap-1.5">
             <span class="w-5 h-5 rounded-full bg-brand-cyan text-zinc-950 font-bold flex items-center justify-center text-xs">3</span>
-            Kluczowe reguły bezpieczeństwa CISO:
+            <span data-i18n="quickstart_step3">3. Key CISO Security Principles:</span>
           </h4>
           <ul class="text-xs text-zinc-300 font-sans space-y-1 list-disc pl-5">
-            <li><strong>Transport wyłącznie stdio:</strong> Brak portów sieciowych, brak serwera HTTP/SSE.</li>
-            <li><strong>Zero wycieku danych:</strong> 100% korpusu pozostaje na dysku lokalnym maszyny użytkownika.</li>
-            <li><strong>Deterministyczny algorytm weryfikacji:</strong> Narzędzie <code class="font-mono text-brand-emerald">verify</code> nie wywołuje LLM – mechanizm antyhalucynacyjny sam nie może halucynować.</li>
+            <li data-i18n="quickstart_ciso_1"><strong>Stdio transport only:</strong> No open network ports, no HTTP/SSE server.</li>
+            <li data-i18n="quickstart_ciso_2"><strong>Zero data leakage:</strong> 100% of corpus remains on the local workstation disk.</li>
+            <li data-i18n="quickstart_ciso_3"><strong>Deterministic verification algorithm:</strong> The verify tool does not call an LLM — an anti-hallucination mechanism cannot itself hallucinate.</li>
           </ul>
         </div>
 
@@ -723,7 +732,7 @@
   </div>
 
   <!-- ========================================================================= -->
-  <!-- MODAL 5: STORY MODE (3 AKTY: KŁAMSTWO POD PRESJĄ VS CYFROWY REWIDENT)     -->
+  <!-- MODAL 5: STORY MODE (3 ACTS + ONBOARDING GUIDE)                           -->
   <!-- ========================================================================= -->
   <div id="modal-story" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="bg-brand-surface border border-brand-border rounded-xl max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
@@ -735,10 +744,10 @@
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <span class="font-bold text-sm text-zinc-100 uppercase tracking-wide">Story Mode // Kłamstwo pod presją vs Cyfrowy Rewident</span>
-              <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-brand-card text-brand-cyan border border-brand-border font-semibold">EDUKACJA ZARZĄDÓW & CISO</span>
+              <span class="font-bold text-sm text-zinc-100 uppercase tracking-wide" data-i18n="story_modal_title">Story Mode // Pressure Hallucination vs Digital Auditor</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-brand-card text-brand-cyan border border-brand-border font-semibold" data-i18n="story_modal_badge">BOARD & CISO EDUCATION</span>
             </div>
-            <p class="text-xs text-zinc-400">Dlaczego deterministyczny kod wygrywa z modelem LLM trenowanym za miliony dolarów</p>
+            <p class="text-xs text-zinc-400" data-i18n="story_modal_subtitle">Why deterministic code triumphs over a multi-million-dollar trained LLM</p>
           </div>
         </div>
         <button id="btn-close-story" class="w-8 h-8 rounded hover:bg-brand-card flex items-center justify-center text-zinc-400 hover:text-white transition-colors">
@@ -746,19 +755,71 @@
         </button>
       </div>
 
+      <!-- Onboarding Guide Section (Introductory Walkthrough) -->
+      <div id="onboarding-guide-section" class="bg-brand-darkCanvas/90 border-b border-brand-border p-4 sm:p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+          <div>
+            <h3 class="font-bold text-sm text-zinc-100 flex items-center gap-2">
+              <span class="material-symbols-outlined text-brand-emerald text-base">explore</span>
+              <span data-i18n="onboarding_title">How to use this workbench</span>
+            </h3>
+            <p class="text-xs text-zinc-400" data-i18n="onboarding_subtitle">Quick walkthrough to evaluate LLM hallucination risks vs deterministic verification</p>
+          </div>
+          <button id="btn-start-demo" class="px-3.5 py-1.5 rounded bg-brand-emerald hover:bg-brand-darkEmerald text-zinc-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow transition-colors shrink-0">
+            <span class="material-symbols-outlined text-sm font-bold">play_arrow</span>
+            <span data-i18n="btn_start_demo">Start exploring demo</span>
+          </button>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs font-mono">
+          <div class="p-2.5 rounded bg-brand-surface border border-brand-border/80 flex flex-col justify-between">
+            <div>
+              <div class="font-bold text-brand-cyan mb-1 flex items-center gap-1.5">
+                <span class="w-4 h-4 rounded-full bg-brand-cyan/20 text-brand-cyan flex items-center justify-center text-[10px]">1</span>
+                <span data-i18n="step1_title">1. Select Scenario</span>
+              </div>
+              <p class="text-[11px] text-zinc-300 font-sans leading-relaxed" data-i18n="step1_desc">Pick from contractual traps, false penalties, inflation disputes, or verified invoice facts.</p>
+            </div>
+          </div>
+          <div class="p-2.5 rounded bg-brand-surface border border-brand-border/80 flex flex-col justify-between">
+            <div>
+              <div class="font-bold text-brand-emerald mb-1 flex items-center gap-1.5">
+                <span class="w-4 h-4 rounded-full bg-brand-emerald/20 text-brand-emerald flex items-center justify-center text-[10px]">2</span>
+                <span data-i18n="step2_title">2. Verify & Compare</span>
+              </div>
+              <p class="text-[11px] text-zinc-300 font-sans leading-relaxed" data-i18n="step2_desc">Witness how standard LLM generates smooth hallucinations, while Redline deterministically proves or refuses claims with exact citations.</p>
+            </div>
+          </div>
+          <div class="p-2.5 rounded bg-brand-surface border border-brand-border/80 flex flex-col justify-between">
+            <div>
+              <div class="font-bold text-brand-red mb-1 flex items-center gap-1.5">
+                <span class="w-4 h-4 rounded-full bg-brand-red/20 text-brand-red flex items-center justify-center text-[10px]">3</span>
+                <span data-i18n="step3_title">3. Check CFO Exposure</span>
+              </div>
+              <p class="text-[11px] text-zinc-300 font-sans leading-relaxed" data-i18n="step3_desc">Analyze executive financial liability calculated strictly from corporate contract figures.</p>
+            </div>
+          </div>
+          <div class="p-2.5 rounded bg-brand-surface border border-brand-border/80 flex flex-col justify-between">
+            <div>
+              <div class="font-bold text-amber-400 mb-1 flex items-center gap-1.5">
+                <span class="w-4 h-4 rounded-full bg-amber-400/20 text-amber-400 flex items-center justify-center text-[10px]">4</span>
+                <span data-i18n="step4_title">4. Inspect MCP stdio Stream</span>
+              </div>
+              <p class="text-[11px] text-zinc-300 font-sans leading-relaxed" data-i18n="step4_desc">Inspect real-time JSON-RPC 2.0 frames over air-gapped stdio — 0 network requests.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Acts Tab Switcher -->
       <div class="flex border-b border-brand-border bg-brand-card text-xs font-mono">
         <button id="tab-act-1" class="flex-1 py-3 px-4 border-b-2 border-brand-red text-brand-red font-bold bg-brand-surface text-center flex items-center justify-center gap-2">
-          <span>AKT 1:</span>
-          <span>Pokusa Modelu (Dlaczego LLM kłamie pod presją)</span>
+          <span data-i18n="story_tab_1">ACT 1: The Model's Temptation (Why LLMs Lie Under Pressure)</span>
         </button>
         <button id="tab-act-2" class="flex-1 py-3 px-4 text-zinc-400 hover:text-zinc-200 hover:bg-brand-surface text-center flex items-center justify-center gap-2 transition-colors">
-          <span>AKT 2:</span>
-          <span>Anatomia Silnika (5 etapów determinizmu)</span>
+          <span data-i18n="story_tab_2">ACT 2: Engine Anatomy (5 Stages of Determinism)</span>
         </button>
         <button id="tab-act-3" class="flex-1 py-3 px-4 text-zinc-400 hover:text-zinc-200 hover:bg-brand-surface text-center flex items-center justify-center gap-2 transition-colors">
-          <span>AKT 3:</span>
-          <span>Asymetria Ryzyka i Odpowiedzialność Finansowa</span>
+          <span data-i18n="story_tab_3">ACT 3: Risk Asymmetry & Financial Liability</span>
         </button>
       </div>
 
@@ -771,14 +832,14 @@
       <div class="px-5 py-3 border-t border-brand-border bg-brand-darkCanvas flex items-center justify-between text-xs font-mono">
         <div class="flex items-center gap-2 text-zinc-400">
           <span class="material-symbols-outlined text-brand-emerald text-sm">verified</span>
-          <span>mcp-redline: audytowalność, zero halucynacji w weryfikacji, zero sieci</span>
+          <span data-i18n="story_footer_tagline">mcp-redline: auditability, deterministic boundaries, and hard refusal.</span>
         </div>
         <div class="flex items-center gap-2">
-          <button id="btn-story-prev" class="px-3 py-1.5 rounded bg-brand-card hover:bg-brand-cardElevated border border-brand-border text-zinc-300 disabled:opacity-40">
-            &larr; Poprzedni Akt
+          <button id="btn-story-prev" class="px-3 py-1.5 rounded bg-brand-card hover:bg-brand-cardElevated border border-brand-border text-zinc-300 disabled:opacity-40" data-i18n="story_btn_prev">
+            Previous Act
           </button>
-          <button id="btn-story-next" class="px-3 py-1.5 rounded bg-brand-emerald text-zinc-950 font-bold hover:bg-brand-darkEmerald transition-colors">
-            Następny Akt &rarr;
+          <button id="btn-story-next" class="px-3 py-1.5 rounded bg-brand-emerald text-zinc-950 font-bold hover:bg-brand-darkEmerald transition-colors" data-i18n="story_btn_next">
+            Next Act
           </button>
         </div>
       </div>
@@ -788,6 +849,7 @@
   <!-- Load bundled dataset -->
   <script type="module">
     import { CORPUS_DOCS, SCENARIOS } from './data.js';
+    import { I18N } from './i18n.js';
 
     // State
     let currentScenarioIndex = 0;
@@ -1930,6 +1992,10 @@
       modalStory.classList.remove('hidden');
     });
     btnCloseStory.addEventListener('click', () => modalStory.classList.add('hidden'));
+    const btnStartDemo = document.getElementById('btn-start-demo');
+    if (btnStartDemo) {
+      btnStartDemo.addEventListener('click', () => modalStory.classList.add('hidden'));
+    }
     tabAct1.addEventListener('click', () => renderStoryAct(1));
     tabAct2.addEventListener('click', () => renderStoryAct(2));
     tabAct3.addEventListener('click', () => renderStoryAct(3));
