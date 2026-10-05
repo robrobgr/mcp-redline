@@ -24,6 +24,62 @@ var RedlineBundle = (() => {
     RedlineEngine: () => RedlineEngineCore
   });
 
+  // src/messages.ts
+  var REASON_CODES = {
+    NO_CHECKABLE_TERMS: "NO_CHECKABLE_TERMS",
+    NO_RELEVANT_DOCUMENTS: "NO_RELEVANT_DOCUMENTS",
+    LOW_COVERAGE: "LOW_COVERAGE",
+    NUMBERS_MISSING: "NUMBERS_MISSING",
+    NUMBER_MISMATCH: "NUMBER_MISMATCH",
+    CURRENCY_MISMATCH: "CURRENCY_MISMATCH",
+    POLARITY_MISMATCH: "POLARITY_MISMATCH",
+    NEGATED: "NEGATED",
+    PARTY_MISMATCH: "PARTY_MISMATCH",
+    HIGHER_TIER_OVERRIDE: "HIGHER_TIER_OVERRIDE",
+    HIGHER_TIER_CONFLICT: "HIGHER_TIER_CONFLICT",
+    LOWER_TIER_CONFLICT: "LOWER_TIER_CONFLICT",
+    COMPLEX_CLAIM_MULTI_UNIT: "COMPLEX_CLAIM_MULTI_UNIT",
+    EXACT_MATCH: "EXACT_MATCH"
+  };
+  var MESSAGES = {
+    en: {
+      unsupported_no_terms: () => "Unsupported: claim does not contain concepts that can be checked in the corpus.",
+      unsupported_no_docs: () => "Unsupported by corpus: no document refers to this claim.",
+      unsupported_nearest: ({ file, page, why }) => `Insufficient evidential support. The nearest fragment (${file}, section ${page}) is inconclusive: ${why.join("; ")}.`,
+      contradicted_by_source: ({ file, page, tier, reasons, conflicting }) => `Contradicted by source ${file} (section ${page}, Tier ${tier}): ${reasons.join("; ")}.` + (conflicting ? ` A matching fragment exists in ${conflicting.file} (Tier ${conflicting.tier}), but an equal or higher tier source contradicts it.` : ""),
+      grounded_single: ({ file, page, tier, coverage, numbers, conflicting }) => `Grounded by verbatim fragment: ${file} (section ${page}, Tier ${tier}); concept coverage ${coverage}%` + (numbers ? `, numbers match (${numbers})` : "") + "." + (conflicting ? ` Note: lower tier source (${conflicting.file}, Tier ${conflicting.tier}) claims otherwise.` : ""),
+      grounded_multi: ({ file, page, tier, count, coverage, numbers }) => `Grounded by ${count} verbatim fragments: ${file} (section ${page}, Tier ${tier}); coverage ${coverage}%` + (numbers ? `, numbers match (${numbers})` : "") + ".",
+      reason_polarity_claim_neg: () => "polarity: claim denies, source affirms",
+      reason_polarity_source_neg: (cues) => `polarity: source denies/rejects (${cues})`,
+      reason_currency_mismatch: (claim, source) => `currency: claim ${claim}, source ${source}`,
+      reason_value_mismatch: (claim, source) => `value: claim ${claim}, source ${source}`,
+      reason_low_coverage: (pct, missing) => `concept coverage too low (${pct}%, missing: ${missing || "\u2014"})`,
+      reason_numbers_missing: () => "numbers from claim do not appear in this fragment",
+      reason_polarity_mismatch: () => "polarity mismatch",
+      reason_compound_claim: (count) => `compound claim: grounded by ${count} fragments of the same section`,
+      reason_lower_tier_match: () => "matches source of lower or equal tier",
+      reason_lower_tier_claims_otherwise: (file, tier) => `lower tier source (${file}, Tier ${tier}) claims otherwise`
+    },
+    pl: {
+      unsupported_no_terms: () => "Brak oparcia: twierdzenie nie zawiera poj\u0119\u0107, kt\xF3re mo\u017Cna sprawdzi\u0107 w korpusie.",
+      unsupported_no_docs: () => "Brak oparcia w korpusie: \u017Caden dokument nie odnosi si\u0119 do tego twierdzenia.",
+      unsupported_nearest: ({ file, page, why }) => `Brak wystarczaj\u0105cego oparcia. Najbli\u017Cszy fragment (${file}, sekcja ${page}) nie rozstrzyga: ${why.join("; ")}.`,
+      contradicted_by_source: ({ file, page, tier, reasons, conflicting }) => `Sprzeczne ze \u017Ar\xF3d\u0142em ${file} (sekcja ${page}, Tier ${tier}): ${reasons.join("; ")}.` + (conflicting ? ` Zgodny fragment istnieje w ${conflicting.file} (Tier ${conflicting.tier}), ale \u017Ar\xF3d\u0142o o wy\u017Cszej lub r\xF3wnej randze mu przeczy.` : ""),
+      grounded_single: ({ file, page, tier, coverage, numbers, conflicting }) => `Potwierdzone dos\u0142ownym fragmentem: ${file} (sekcja ${page}, Tier ${tier}); pokrycie poj\u0119\u0107 ${coverage}%` + (numbers ? `, liczby zgodne (${numbers})` : "") + "." + (conflicting ? ` Uwaga: \u017Ar\xF3d\u0142o o ni\u017Cszej randze (${conflicting.file}, Tier ${conflicting.tier}) twierdzi inaczej.` : ""),
+      grounded_multi: ({ file, page, tier, count, coverage, numbers }) => `Potwierdzone ${count} dos\u0142ownymi fragmentami: ${file} (sekcja ${page}, Tier ${tier}); pokrycie ${coverage}%` + (numbers ? `, liczby zgodne (${numbers})` : "") + ".",
+      reason_polarity_claim_neg: () => "polaryzacja: twierdzenie zaprzecza, \u017Ar\xF3d\u0142o twierdzi",
+      reason_polarity_source_neg: (cues) => `polaryzacja: \u017Ar\xF3d\u0142o zaprzecza/odrzuca (${cues})`,
+      reason_currency_mismatch: (claim, source) => `waluta: twierdzenie ${claim}, \u017Ar\xF3d\u0142o ${source}`,
+      reason_value_mismatch: (claim, source) => `warto\u015B\u0107: twierdzenie ${claim}, \u017Ar\xF3d\u0142o ${source}`,
+      reason_low_coverage: (pct, missing) => `za niskie pokrycie poj\u0119\u0107 (${pct}%, brakuje: ${missing || "\u2014"})`,
+      reason_numbers_missing: () => "liczby z twierdzenia nie wyst\u0119puj\u0105 w tym fragmencie",
+      reason_polarity_mismatch: () => "niezgodna polaryzacja",
+      reason_compound_claim: (count) => `twierdzenie z\u0142o\u017Cone: potwierdzone ${count} fragmentami tej samej sekcji`,
+      reason_lower_tier_match: () => "zgodne ze \u017Ar\xF3d\u0142em o ni\u017Cszej lub r\xF3wnej randze",
+      reason_lower_tier_claims_otherwise: (file, tier) => `\u017Ar\xF3d\u0142o o ni\u017Cszej randze (${file}, Tier ${tier}) twierdzi inaczej`
+    }
+  };
+
   // src/engine.ts
   var THRESHOLDS = {
     support: 0.6,
@@ -519,12 +575,19 @@ var RedlineBundle = (() => {
     return out.map((s) => s.trim()).filter((s) => s.length > 0);
   }
   var RedlineEngineCore = class {
+    lang = "en";
     sections = [];
     sources = [];
     units = [];
     sectionUnits = /* @__PURE__ */ new Map();
     vocabulary = /* @__PURE__ */ new Set();
     parties = [];
+    constructor(lang = "en") {
+      this.lang = lang;
+    }
+    setLanguage(lang) {
+      this.lang = lang;
+    }
     tokenize(text) {
       return rawTokens(text);
     }
@@ -747,6 +810,7 @@ var RedlineBundle = (() => {
       const unitCoverage = fullW / n;
       const contraCoverage = (fullW + ctx) / n;
       const conflicts = [];
+      const conflictCodes = [];
       let numbersOk = true;
       const sectionYears = sectionUnits.flatMap((s) => s.numbers.filter((n2) => n2.kind === "year"));
       for (const n2 of f.numbers) {
@@ -755,7 +819,8 @@ var RedlineBundle = (() => {
         const found = same.some((x) => !(n2.currency && x.currency && x.currency !== n2.currency)) || n2.kind === "year" && sectionYears.some((y) => y.value === n2.value);
         if (curClash) {
           numbersOk = false;
-          conflicts.push(`waluta: twierdzenie ${fmt(n2)}, \u017Ar\xF3d\u0142o ${fmt(same[0])}`);
+          conflictCodes.push(REASON_CODES.CURRENCY_MISMATCH);
+          conflicts.push(MESSAGES[this.lang].reason_currency_mismatch(fmt(n2), fmt(same[0])));
           continue;
         }
         if (found) continue;
@@ -766,7 +831,10 @@ var RedlineBundle = (() => {
           if (n2.kind === "year") return x.kind === "year";
           return x.kind === "plain" && !f.numbers.some((c) => sameValue(c.value, x.value)) && !!n2.word && !!x.word && this.sameConcept(n2.word, x.word);
         });
-        if (rivals.length > 0) conflicts.push(`warto\u015B\u0107: twierdzenie ${fmt(n2)}, \u017Ar\xF3d\u0142o ${rivals.map(fmt).join(" / ")}`);
+        if (rivals.length > 0) {
+          conflictCodes.push(REASON_CODES.NUMBER_MISMATCH);
+          conflicts.push(MESSAGES[this.lang].reason_value_mismatch(fmt(n2), rivals.map(fmt).join(" / ")));
+        }
       }
       const hitsIn = (c) => f.content.filter((t) => [...c.tokens].some((x) => f.alts.get(t).has(x))).length;
       const best = Math.max(0, ...u.clauses.map(hitsIn));
@@ -779,7 +847,7 @@ var RedlineBundle = (() => {
       const supportCoverage = (cov + Math.max(0, numFound) * NW) / denom;
       const supportUnitCoverage = (fullW + Math.max(0, numFound) * NW) / denom;
       const score = coverage + (3 - u.tier) * 0.02 + (numbersOk && f.numbers.length ? 0.1 : 0);
-      return { unit: u, unitNegative, coverage, unitCoverage, contraCoverage, supportCoverage, supportUnitCoverage, valueConflict: conflicts.length > 0, full, matched, missing, numbersOk, conflicts, polarityFlip, score };
+      return { unit: u, unitNegative, coverage, unitCoverage, contraCoverage, supportCoverage, supportUnitCoverage, valueConflict: conflicts.length > 0, full, matched, missing, numbersOk, conflicts, conflictCodes, polarityFlip, score };
     }
     /** Two words denote the same concept (stem match or same lexicon group). */
     sameConcept(a, b) {
@@ -850,7 +918,12 @@ var RedlineBundle = (() => {
     verify(claim) {
       const f = this.features(claim);
       if (f.content.length === 0) {
-        return { status: "UNSUPPORTED", claim, explanation: "Brak oparcia: twierdzenie nie zawiera poj\u0119\u0107, kt\xF3re mo\u017Cna sprawdzi\u0107 w korpusie." };
+        return {
+          status: "UNSUPPORTED",
+          claim,
+          explanation: MESSAGES[this.lang].unsupported_no_terms(),
+          reasonCodes: [REASON_CODES.NO_CHECKABLE_TERMS]
+        };
       }
       const minFull = Math.min(2, f.content.length);
       const scored = this.units.map((u) => this.scoreUnit(f, u)).sort((a, b) => b.score - a.score);
@@ -861,13 +934,31 @@ var RedlineBundle = (() => {
       const bestS = pick(supports);
       const overrides = (c) => !bestS || c.unit.tier < bestS.unit.tier && c.contraCoverage >= THRESHOLDS.override * bestS.contraCoverage || c.unit.tier === bestS.unit.tier && polarityContra(c) && c.numbersOk && c.contraCoverage >= bestS.contraCoverage - THRESHOLDS.tieMargin;
       const bestC = pick(contras.filter(overrides));
-      const contraReasons = (c) => [
-        ...polarityContra(c) ? [`polaryzacja: ${f.negative ? "twierdzenie zaprzecza, \u017Ar\xF3d\u0142o twierdzi" : `\u017Ar\xF3d\u0142o zaprzecza/odrzuca (${c.unit.clauses.flatMap((k) => k.cues).slice(0, 3).join(", ") || c.unit.negCues.slice(0, 3).join(", ")})`}`] : [],
-        ...c.conflicts
-      ];
+      const contraReasonDetails = (c) => {
+        const codes = [];
+        const reasons = [];
+        if (polarityContra(c)) {
+          codes.push(REASON_CODES.POLARITY_MISMATCH, REASON_CODES.NEGATED);
+          if (f.negative) {
+            reasons.push(MESSAGES[this.lang].reason_polarity_claim_neg());
+          } else {
+            const cues = c.unit.clauses.flatMap((k) => k.cues).slice(0, 3).join(", ") || c.unit.negCues.slice(0, 3).join(", ");
+            reasons.push(MESSAGES[this.lang].reason_polarity_source_neg(cues));
+          }
+        }
+        codes.push(...c.conflictCodes);
+        reasons.push(...c.conflicts);
+        return { codes, reasons };
+      };
       if (bestC) {
-        const ev = this.toEvidence(bestC, contraReasons(bestC));
-        const conflicting = bestS ? this.toEvidence(bestS, ["zgodne ze \u017Ar\xF3d\u0142em o ni\u017Cszej lub r\xF3wnej randze"]) : void 0;
+        const { codes: contraCodes, reasons: contraReasons } = contraReasonDetails(bestC);
+        const ev = this.toEvidence(bestC, contraReasons);
+        const reasonCodes2 = [...new Set(contraCodes)];
+        let conflicting;
+        if (bestS) {
+          reasonCodes2.push(REASON_CODES.HIGHER_TIER_CONFLICT);
+          conflicting = this.toEvidence(bestS, [MESSAGES[this.lang].reason_lower_tier_match()]);
+        }
         return {
           status: "CONTRADICTED",
           claim,
@@ -875,7 +966,14 @@ var RedlineBundle = (() => {
           page: ev.page,
           tier: ev.tier,
           quote: ev.quote,
-          explanation: `Sprzeczne ze \u017Ar\xF3d\u0142em ${ev.file} (sekcja ${ev.page}, Tier ${ev.tier}): ${ev.reasons.join("; ")}.` + (conflicting ? ` Zgodny fragment istnieje w ${conflicting.file} (Tier ${conflicting.tier}), ale \u017Ar\xF3d\u0142o o wy\u017Cszej lub r\xF3wnej randze mu przeczy.` : ""),
+          explanation: MESSAGES[this.lang].contradicted_by_source({
+            file: ev.file,
+            page: ev.page,
+            tier: ev.tier,
+            reasons: ev.reasons,
+            conflicting: conflicting ? { file: conflicting.file, tier: conflicting.tier } : void 0
+          }),
+          reasonCodes: reasonCodes2,
           evidence: ev,
           conflicting
         };
@@ -896,7 +994,7 @@ var RedlineBundle = (() => {
             coverage: Math.round(combo.coverage * 100) / 100,
             matched: combo.matched,
             missing: combo.missing,
-            reasons: [`twierdzenie z\u0142o\u017Cone: potwierdzone ${ordered.length} fragmentami tej samej sekcji`]
+            reasons: [MESSAGES[this.lang].reason_compound_claim(ordered.length)]
           };
           return {
             status: "GROUNDED",
@@ -905,7 +1003,15 @@ var RedlineBundle = (() => {
             page: ev.page,
             tier: ev.tier,
             quote: ev.quote,
-            explanation: `Potwierdzone ${ordered.length} dos\u0142ownymi fragmentami: ${ev.file} (sekcja ${ev.page}, Tier ${ev.tier}); pokrycie ${Math.round(ev.coverage * 100)}%` + (f.numbers.length ? `, liczby zgodne (${f.numbers.map((n) => n.raw).join(", ")})` : "") + ".",
+            explanation: MESSAGES[this.lang].grounded_multi({
+              file: ev.file,
+              page: ev.page,
+              tier: ev.tier,
+              count: ordered.length,
+              coverage: Math.round(ev.coverage * 100),
+              numbers: f.numbers.length ? f.numbers.map((n) => n.raw).join(", ") : void 0
+            }),
+            reasonCodes: [REASON_CODES.COMPLEX_CLAIM_MULTI_UNIT, REASON_CODES.EXACT_MATCH],
             evidence: ev
           };
         }
@@ -913,7 +1019,13 @@ var RedlineBundle = (() => {
       if (bestS) {
         const ev = this.toEvidence(bestS);
         const lower = pick(contras.filter((c) => c.unit.tier > bestS.unit.tier));
-        const conflicting = lower ? this.toEvidence(lower, contraReasons(lower)) : void 0;
+        const reasonCodes2 = [REASON_CODES.EXACT_MATCH];
+        let conflicting;
+        if (lower) {
+          reasonCodes2.push(REASON_CODES.LOWER_TIER_CONFLICT);
+          const { reasons: lowerReasons } = contraReasonDetails(lower);
+          conflicting = this.toEvidence(lower, lowerReasons);
+        }
         return {
           status: "GROUNDED",
           claim,
@@ -921,7 +1033,15 @@ var RedlineBundle = (() => {
           page: ev.page,
           tier: ev.tier,
           quote: ev.quote,
-          explanation: `Potwierdzone dos\u0142ownym fragmentem: ${ev.file} (sekcja ${ev.page}, Tier ${ev.tier}); pokrycie poj\u0119\u0107 ${Math.round(ev.coverage * 100)}%` + (f.numbers.length ? `, liczby zgodne (${f.numbers.map((n) => n.raw).join(", ")})` : "") + "." + (conflicting ? ` Uwaga: \u017Ar\xF3d\u0142o o ni\u017Cszej randze (${conflicting.file}, Tier ${conflicting.tier}) twierdzi inaczej.` : ""),
+          explanation: MESSAGES[this.lang].grounded_single({
+            file: ev.file,
+            page: ev.page,
+            tier: ev.tier,
+            coverage: Math.round(ev.coverage * 100),
+            numbers: f.numbers.length ? f.numbers.map((n) => n.raw).join(", ") : void 0,
+            conflicting: conflicting ? { file: conflicting.file, tier: conflicting.tier } : void 0
+          }),
+          reasonCodes: reasonCodes2,
           evidence: ev,
           conflicting
         };
@@ -929,15 +1049,32 @@ var RedlineBundle = (() => {
       const near = scored[0];
       const nearest = near && near.full > 0 ? this.toEvidence(near) : void 0;
       const why = [];
+      const reasonCodes = [];
       if (near) {
-        if (near.coverage < THRESHOLDS.support) why.push(`za niskie pokrycie poj\u0119\u0107 (${Math.round(near.coverage * 100)}%, brakuje: ${near.missing.join(", ") || "\u2014"})`);
-        if (!near.numbersOk) why.push("liczby z twierdzenia nie wyst\u0119puj\u0105 w tym fragmencie");
-        if (near.polarityFlip) why.push("niezgodna polaryzacja");
+        if (this.partyMismatch(f.parties, near.unit)) {
+          reasonCodes.push(REASON_CODES.PARTY_MISMATCH);
+        }
+        if (near.coverage < THRESHOLDS.support) {
+          reasonCodes.push(REASON_CODES.LOW_COVERAGE);
+          why.push(MESSAGES[this.lang].reason_low_coverage(Math.round(near.coverage * 100), near.missing.join(", ")));
+        }
+        if (!near.numbersOk) {
+          reasonCodes.push(REASON_CODES.NUMBERS_MISSING);
+          why.push(MESSAGES[this.lang].reason_numbers_missing());
+        }
+        if (near.polarityFlip) {
+          reasonCodes.push(REASON_CODES.POLARITY_MISMATCH);
+          why.push(MESSAGES[this.lang].reason_polarity_mismatch());
+        }
+      }
+      if (!nearest) {
+        reasonCodes.push(REASON_CODES.NO_RELEVANT_DOCUMENTS);
       }
       return {
         status: "UNSUPPORTED",
         claim,
-        explanation: nearest ? `Brak wystarczaj\u0105cego oparcia. Najbli\u017Cszy fragment (${nearest.file}, sekcja ${nearest.page}) nie rozstrzyga: ${why.join("; ")}.` : "Brak oparcia w korpusie: \u017Caden dokument nie odnosi si\u0119 do tego twierdzenia.",
+        explanation: nearest ? MESSAGES[this.lang].unsupported_nearest({ file: nearest.file, page: nearest.page, why }) : MESSAGES[this.lang].unsupported_no_docs(),
+        reasonCodes: reasonCodes.length > 0 ? [...new Set(reasonCodes)] : [REASON_CODES.NO_RELEVANT_DOCUMENTS],
         nearest
       };
     }

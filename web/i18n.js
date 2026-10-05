@@ -57,6 +57,7 @@ const I18N = {
     card_redline_verdict_unsupported: "STRICT REFUSAL // UNSUPPORTED",
 
     // Additional Card & Trace labels
+    prompt_gloss_label: "Reference translation — verification runs on the original:",
     card_llm_heading: "Standard LLM (Forced Synthesis)",
     card_llm_disclaimer: "Illustrative simulation — no strict guardrail",
     card_llm_defects_title: "SYNTHESIS DEFECTS / HALLUCINATION IDENTIFICATION:",
@@ -219,8 +220,8 @@ const I18N = {
           "Missing direct reference to Section 11.2 of the MSA"
         ],
         financialExposure: "Medium risk (overlooking carve-outs from liability cap)",
-        financialExposureValue: "£48,000.00 GBP (100% of annual subscription fee of £48,000 GBP per Sec 8.1 & 11.2 MSA)",
-        financialExposureCfo: "Overlooking Section 10 carve-outs (confidentiality / gross negligence) could cause management to forfeit legitimate multi-million damage claims.",
+        financialExposureValue: "£48,000.00 GBP (100% of annual subscription fee of £48,000 GBP per Sec 3.1 & 11.2 MSA)",
+        financialExposureCfo: "Overlooking Section 10 carve-outs (confidentiality / willful misconduct) could cause management to forfeit legitimate multi-million damage claims.",
         financialFailSafeCost: "~$10 / 40 PLN (ESTIMATE: 5 min audit review)"
       },
       P04: {
@@ -383,6 +384,7 @@ const I18N = {
     card_redline_verdict_unsupported: "TWARDA ODMOWA // UNSUPPORTED",
 
     // Additional Card & Trace labels
+    prompt_gloss_label: "Tłumaczenie referencyjne — weryfikacja działa na oryginale:",
     card_llm_heading: "Standardowy LLM (Syntetyzujący na siłę)",
     card_llm_disclaimer: "Symulacja ilustracyjna — brak twardej bramki",
     card_llm_defects_title: "IDENTYFIKACJA WAD SYNTEZY / HALUCYNACJI:",
@@ -545,7 +547,7 @@ const I18N = {
           "Brak bezpośredniego odniesienia do Section 11.2 MSA"
         ],
         financialExposure: "Średnie ryzyko (przeoczenie wyjątków od limitu)",
-        financialExposureValue: "£48,000.00 GBP (100% z rocznej opłaty abonamentowej £48 000 GBP z Sec 8.1 i 11.2 MSA)",
+        financialExposureValue: "48 000,00 £ (100% z rocznej opłaty abonamentowej 48 000 £ z Sec 3.1 i 11.2 MSA)",
         financialExposureCfo: "Przeoczenie wyłączeń z art. 10 (poufność / wina umyślna) mogłoby skłonić firmę do zaniechania uzasadnionych roszczeń odszkodowawczych.",
         financialFailSafeCost: "~40 PLN (SZACUNEK: 5 min audytu)"
       },
@@ -553,13 +555,13 @@ const I18N = {
         subtype: "Dane z wielu dokumentów (faktura kwartalna Q4)",
         prompt: "Faktura INV-2024-1108 za czwarty kwartał 2024 r. opiewa na kwotę £12,000.00 GBP netto płatną na rachunek Barclays Bank.",
         llmTitle: "Standard LLM: Potwierdzenie bez weryfikacji rachunku bankowego",
-        llmResponse: "Zgadza się, faktura INV-2024-1108 za IV kwartał 2024 roku opiewa na 12 000 funtów i została uregulowana przelewem na konto dostawcy w banku Barclays.",
+        llmResponse: "Zgadza się, faktura INV-2024-1108 za IV kwartał 2024 roku opiewa na 12 000 £ i została uregulowana przelewem na konto dostawcy w banku Barclays.",
         llmDefects: [
           "Brak wskazania numeru konta IBAN i kodu SWIFT/BIC",
           "Brak weryfikacji zastosowania odwrotnego obciążenia VAT 0% (Reverse Charge)"
         ],
         financialExposure: "Niskie ryzyko (dane zgodne)",
-        financialExposureValue: "£12,000.00 GBP (kwota netto z faktury INV-2024-1108)",
+        financialExposureValue: "12 000,00 £ (kwota netto z faktury INV-2024-1108)",
         financialExposureCfo: "Ryzyko autoryzacji płatności bez twardej weryfikacji rachunku bankowego (ryzyko invoice fraud / man-in-the-middle).",
         financialFailSafeCost: "~30 PLN (SZACUNEK: 5 min audytu)"
       },
@@ -573,9 +575,9 @@ const I18N = {
           "Wymyślenie rzekomej zgody: zignorowanie faktu, że Section 8.2 został w umowie WYKREŚLONY podczas negocjacji",
           "Pominięcie klauzuli nieważności: umowa stanowi, że jednostronne pisma są null and void ab initio"
         ],
-        financialExposure: "STRATA FINANSOWA: bezprawna podwyżka £3,600.00 GBP rocznie (7.5% z £48,000 z Section 8.1 MSA)",
-        financialExposureValue: "£3,600.00 GBP/rok (7.5% × £48 000 GBP z Sec 8.1 MSA) | £10,800.00 GBP (3 lata)",
-        financialExposureCfo: "Bezprawne uznanie 7.5% podwyżki (£3,600/rok z Section 8.1 MSA, co daje £10,800.00 GBP w 3-letnim okresie obowiązywania). Brak bramki weryfikacyjnej oznacza utratę pozycji procesowej w Londynie.",
+        financialExposure: "STRATA FINANSOWA: bezprawna podwyżka 3 600,00 £ rocznie (7.5% z 48 000 £ z Section 8.1 MSA)",
+        financialExposureValue: "3 600,00 £/rok (7.5% × 48 000 £ z Sec 8.1 MSA) | 10 800,00 £ (3 lata)",
+        financialExposureCfo: "Bezprawne uznanie 7.5% podwyżki (3 600 £/rok z Section 8.1 MSA, co daje 10 800,00 £ w 3-letnim okresie obowiązywania). Brak bramki weryfikacyjnej oznacza utratę pozycji procesowej w Londynie.",
         financialFailSafeCost: "~30 PLN (SZACUNEK: 5 min audytu)"
       },
       P06: {
@@ -589,7 +591,7 @@ const I18N = {
           "Pominięcie faktu, że jedyną dopuszczalną rekompensatą był Service Credit £600 GBP"
         ],
         financialExposure: "POWAŻNE RYZYKO PROCESOWE: bezpodstawna nota obciążeniowa na 50 000 EUR naraża spółkę na natychmiastowy proces i koszty w sądzie w Londynie",
-        financialExposureValue: "50 000.00 EUR (odrzucona w Protokole Zarządu propozycja kary umownej)",
+        financialExposureValue: "50 000,00 EUR (odrzucona w Protokole Zarządu propozycja kary umownej)",
         financialExposureCfo: "Wystawienie bezpodstawnej noty obciążeniowej na 50 000 EUR (odrzuconej przez Zarząd) skutkuje procesem przed sądem angielskim i koniecznością pokrycia kosztów prawnych.",
         financialFailSafeCost: "~30 PLN (SZACUNEK: 5 min audytu)"
       },
@@ -604,7 +606,7 @@ const I18N = {
           "Model traktuje szansę sprzedażową z CRM jako wiążący aneks prawny"
         ],
         financialExposure: "BŁĄD ZARZĄDCZY: fałszywe poczucie posiadania licencji na 300 aut grozi naruszeniem licencji i roszczeniami o 95 000 EUR",
-        financialExposureValue: "95 000.00 EUR (wartość szansy OPP-2024-089 w CRM Export)",
+        financialExposureValue: "95 000,00 EUR (wartość szansy OPP-2024-089 w CRM Export)",
         financialExposureCfo: "Wprowadzenie fikcyjnego aneksu do planu operacyjnego grozi bezprawnym użyciem oprogramowania na 120 dodatkowych autach i roszczeniem dostawcy o 95 000 EUR.",
         financialFailSafeCost: "~30 PLN (SZACUNEK: 5 min audytu)"
       },
@@ -634,7 +636,7 @@ const I18N = {
           "Akceptacja błędnej waluty zaburza kalkulację różnic kursowych"
         ],
         financialExposure: "RYZYKO FINANSOWE: różnica walutowa GBP vs EUR przy kwocie 48 000",
-        financialExposureValue: "38 400 PLN (różnica walutowa: umowa opiewa na £48 000 GBP z Sec 8.1 MSA, a nie 48 000 EUR)",
+        financialExposureValue: "38 400 PLN (różnica walutowa: umowa opiewa na 48 000 £ z Sec 3.1 MSA, a nie 48 000 EUR)",
         financialExposureCfo: "Mylenie walut rozliczeniowych EUR/GBP powoduje deficyt na rachunku walutowym i błędne zabezpieczenie ryzyka walutowego (FX hedging).",
         financialFailSafeCost: "~20 PLN (SZACUNEK: 2 min audytu)"
       },
@@ -644,12 +646,12 @@ const I18N = {
         llmTitle: "Standard LLM: POMIESZANIE RABATU SERVICE CREDIT Z KARĄ 50K EUR",
         llmResponse: "„Tak, w ramach rekompensaty za zakłócenia w transporcie chłodniczym dostawca przyznał rabat w wysokości 50 000 EUR w formule Service Credit.”",
         llmDefects: [
-          "Połączenie odrzuconego wniosku dyrektora (50 000 EUR) z formułą rabatu Service Credit",
-          "Rzeczywisty rabat zatwierdzony przez zarząd to £600.00 GBP (5% z £12,000 opłaty kwartalnej)",
+          "Połączenie odrzuconego wniosku dyrektora (50 000,00 EUR) z formułą rabatu Service Credit",
+          "Rzeczywisty rabat zatwierdzony przez zarząd to 600,00 £ (5% z 12 000 £ opłaty kwartalnej)",
           "Model wygenerował fikcyjną 83-krotnie zawyżoną kwotę rabatu"
         ],
-        financialExposure: "BŁĄD KSIĘGOWY: oczekiwanie 50 000 EUR rabatu zamiast £600 GBP zniekształca cashflow spółki",
-        financialExposureValue: "50 000.00 EUR (nieuzasadnione roszczenie) vs £600.00 GBP (5% × £12 000 GBP z Sched B Sec 2.1)",
+        financialExposure: "BŁĄD KSIĘGOWY: oczekiwanie 50 000,00 EUR rabatu zamiast 600,00 £ zniekształca cashflow spółki",
+        financialExposureValue: "50 000,00 EUR (nieuzasadnione roszczenie) vs 600,00 £ (5% × 12 000 £ z Sched B Sec 2.1)",
         financialExposureCfo: "Fikcyjne potrącenie z faktury dostawcy grozi natychmiastowym odcięciem telematyki dla 180 pojazdów z powodu zaległości płatniczej.",
         financialFailSafeCost: "~30 PLN (SZACUNEK: 5 min audytu)"
       }

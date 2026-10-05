@@ -63,7 +63,7 @@
   <!-- ========================================================================= -->
   <!-- 1. TOP APP BAR                                                            -->
   <!-- ========================================================================= -->
-  <header class="flex justify-between items-center w-full px-2 sm:px-4 h-14 border-b border-brand-border bg-brand-darkCanvas/95 backdrop-blur select-none z-30 shrink-0">
+  <header class="flex justify-between items-center w-full px-2 sm:px-4 h-14 border-b border-brand-border bg-brand-darkCanvas/95 backdrop-blur select-none z-[60] shrink-0">
     <!-- Brand Anchor & Product Identity -->
     <div class="flex items-center gap-3">
       <div class="flex items-center gap-2 sm:gap-2.5">
@@ -325,6 +325,11 @@
               <span class="material-symbols-outlined font-bold text-lg">play_arrow</span>
               <span data-i18n="btn_verify">VERIFY</span>
             </button>
+          </div>
+          <!-- Prompt Gloss (Reference translation when in EN mode for PL claims) -->
+          <div id="prompt-gloss-container" class="hidden text-[11px] font-sans text-zinc-400 italic mt-1.5 px-0.5">
+            <span class="font-mono text-zinc-500 not-italic" id="prompt-gloss-label" data-i18n="prompt_gloss_label">Reference translation — verification runs on the original:</span>
+            <span id="prompt-gloss-text" class="text-zinc-300"></span>
           </div>
         </div>
 
@@ -734,7 +739,7 @@
   <!-- ========================================================================= -->
   <!-- MODAL 5: STORY MODE (3 ACTS + ONBOARDING GUIDE)                           -->
   <!-- ========================================================================= -->
-  <div id="modal-story" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+  <div id="modal-story" class="fixed inset-x-0 top-14 bottom-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="bg-brand-surface border border-brand-border rounded-xl max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
       <!-- Modal Header -->
       <div class="px-5 py-3.5 border-b border-brand-border flex items-center justify-between bg-brand-darkCanvas">
@@ -851,9 +856,12 @@
     import { CORPUS_DOCS, SCENARIOS } from './data.js';
     import { I18N } from './i18n.js';
 
-    // State
-    let currentLang = localStorage.getItem('redline_lang') || 'en';
+    // State & URL Language Precedence
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramLang = urlParams.get('lang');
+    let currentLang = (paramLang === 'pl' || paramLang === 'en') ? paramLang : (localStorage.getItem('redline_lang') || 'en');
     let currentScenarioIndex = 0;
+    let currentExplanation = '';
     let activeRpcTab = 'req'; // 'req', 'res', 'stream'
     let activeArchTab = 1;
     let activePerspective = 2; // 1: Pure LLM, 2: Protected, 3: Fail-Safe
@@ -861,6 +869,14 @@
     let isTraceOpen = false;
     let activeStoryAct = 1;
     let currentDoc = null;
+
+    // Genuine Redline Verification Engine (Loaded from dist/engine.bundle.js)
+    const EngineConstructor = window.RedlineEngine || (window.RedlineBundle && window.RedlineBundle.RedlineEngine);
+    if (!EngineConstructor) {
+      console.error("[mcp-redline] RedlineEngine not found on window. Ensure dist/engine.bundle.js is loaded.");
+    }
+    const clientEngine = new EngineConstructor({ lang: currentLang });
+    clientEngine.loadDocuments(CORPUS_DOCS.map(d => ({ file: d.filename || d.file, content: d.content })));
 
     // Elements
     const btnLangEn = document.getElementById('btn-lang-en');
@@ -871,6 +887,8 @@
     const quickPillsEl = document.getElementById('quick-scenario-pills');
     
     const claimInput = document.getElementById('claim-input');
+    const promptGlossContainer = document.getElementById('prompt-gloss-container');
+    const promptGlossText = document.getElementById('prompt-gloss-text');
     const claimCategoryBadge = document.getElementById('claim-category-badge');
     const claimIdBadge = document.getElementById('claim-id-badge');
     const btnVerify = document.getElementById('btn-verify');
@@ -1093,7 +1111,20 @@
           ? 'bg-emerald-950/40 text-brand-emerald border-brand-emerald/40' 
           : 'bg-red-950/40 text-brand-red border-brand-red/40'
       }`;
-      claimInput.value = scI18n.prompt || sc.prompt;
+      claimInput.value = sc.prompt;
+
+      if (!isPl && scI18n.prompt && scI18n.prompt !== sc.prompt) {
+        if (promptGlossContainer) {
+          promptGlossContainer.classList.remove('hidden');
+          if (promptGlossText) promptGlossText.textContent = ` “${scI18n.prompt}”`;
+        }
+      } else {
+        if (promptGlossContainer) promptGlossContainer.classList.add('hidden');
+      }
+
+      // Live verification on the engine in current language
+      const liveRes = clientEngine ? clientEngine.verify(sc.prompt) : null;
+      currentExplanation = (liveRes && liveRes.explanation) ? liveRes.explanation : sc.explanation;
 
       // Update LLM Card
       if (scI18n.llmTitle) {
@@ -1147,7 +1178,7 @@
 
         redlineQuoteContainer.className = 'bg-brand-darkCanvas rounded border-l-2 border-brand-emerald border-t border-r border-b border-brand-border p-3 font-mono text-xs text-zinc-200 space-y-2 max-h-56 overflow-y-auto';
         redlineQuoteText.textContent = sc.quote || (isPl ? 'Fragment zweryfikowany w dokumencie.' : 'Passage verified in document.');
-        redlineExplanationText.textContent = sc.explanation + ' ' + (sc.comment || '');
+        redlineExplanationText.textContent = currentExplanation + ' ' + (sc.comment || '');
 
       } else {
         redlineBanner.className = 'bg-red-950/60 border-b border-red-800/50 px-3 py-2 flex items-center justify-between';
@@ -1171,7 +1202,7 @@
           ? (isPl ? `[DOWÓD WYKLUCZAJĄCY ROSZCZENIE]:\n${sc.quote}` : `[EVIDENCE BARRING CLAIM]:\n${sc.quote}`)
           : (isPl ? `[BRAK OPARCIA DOWODOWEGO]:\nŻaden z 7 dokumentów korpusu nie potwierdza podanej tezy lub waluty. Serwer deterministycznie odmawia wygenerowania niezweryfikowanej odpowiedzi.` : `[NO EVIDENTIAL BASIS]:\nNone of the 7 corpus documents support the claim or currency. Server deterministically refuses unverified synthesis.`);
         
-        redlineExplanationText.textContent = sc.explanation + ' ' + (sc.comment || '');
+        redlineExplanationText.textContent = currentExplanation + ' ' + (sc.comment || '');
       }
 
       redlineMetaFile.textContent = sc.file || 'Brak pliku';
@@ -1221,7 +1252,7 @@
       const llmResponse = scI18n.llmResponse || sc.llmResponse;
       const trace = sc.agentTrace || {
         llmDraft: llmResponse,
-        mcpIntercept: sc.explanation,
+        mcpIntercept: currentExplanation || sc.explanation,
         correctedOutput: sc.verdict === 'GROUNDED' ? sc.quote : 'UNSUPPORTED'
       };
       const isPl = currentLang === 'pl';
@@ -1348,7 +1379,7 @@
           redlineTierBadge.className = 'text-brand-emerald font-semibold';
           redlineQuoteContainer.className = 'bg-brand-darkCanvas rounded border-l-2 border-brand-emerald border-t border-r border-b border-brand-border p-3 font-mono text-xs text-zinc-200 space-y-2 max-h-56 overflow-y-auto';
           redlineQuoteText.textContent = sc.quote || (isPl ? 'Fragment zweryfikowany w dokumencie.' : 'Passage verified in document.');
-          redlineExplanationText.textContent = sc.explanation + ' ' + (sc.comment || '');
+          redlineExplanationText.textContent = (currentExplanation || sc.explanation) + ' ' + (sc.comment || '');
         } else {
           redlineBanner.className = 'bg-red-950/60 border-b border-red-800/50 px-3 py-2 flex items-center justify-between';
           redlineBannerIcon.textContent = 'gpp_bad';
@@ -1366,7 +1397,7 @@
           redlineQuoteText.textContent = sc.quote 
             ? (isPl ? `[DOWÓD WYKLUCZAJĄCY ROSZCZENIE]:\n${sc.quote}` : `[EVIDENCE BARRING CLAIM]:\n${sc.quote}`)
             : (isPl ? `[BRAK OPARCIA DOWODOWEGO]:\nŻaden z 7 dokumentów korpusu nie potwierdza podanej tezy lub waluty. Serwer deterministycznie odmawia wygenerowania niezweryfikowanej odpowiedzi.` : `[NO EVIDENTIAL BASIS]:\nNone of the 7 corpus documents support the claim or currency. Server deterministically refuses unverified synthesis.`);
-          redlineExplanationText.textContent = sc.explanation + ' ' + (sc.comment || '');
+          redlineExplanationText.textContent = (currentExplanation || sc.explanation) + ' ' + (sc.comment || '');
         }
 
       } else if (activePerspective === 3) {
@@ -1645,7 +1676,7 @@
                   durationMs: sc.durationMs,
                   file: sc.file,
                   page: sc.page,
-                  explanation: sc.explanation,
+                  explanation: currentExplanation || sc.explanation,
                   quote: sc.quote
                 }, null, 2)
               }
@@ -1664,7 +1695,7 @@
 
         stdioStreamDisplay.innerHTML = `
           <div class="text-zinc-500 font-mono text-[10px] pb-1 border-b border-brand-border/40 flex justify-between">
-            <span>ZDARZENIA STDIN / STDOUT</span>
+            <span>${currentLang === 'pl' ? 'ZDARZENIA STDIN / STDOUT' : 'STDIN / STDOUT EVENTS'}</span>
             <span class="text-brand-emerald">100% AIR-GAPPED</span>
           </div>
           <div class="text-zinc-400"><span class="text-zinc-500">[${timeStr}]</span> <span class="text-brand-cyan">[stdin]</span> JSON-RPC payload received (${BufferByteLength(sc.prompt)} bytes)</div>
@@ -1734,31 +1765,22 @@
     btnCopyRpc.addEventListener('click', () => {
       const sc = SCENARIOS[currentScenarioIndex];
       const payload = activeRpcTab === 'res' 
-        ? { jsonrpc: "2.0", id: `req-${sc.id}`, result: { verdict: sc.verdict, explanation: sc.explanation, quote: sc.quote } }
+        ? { jsonrpc: "2.0", id: `req-${sc.id}`, result: { verdict: sc.verdict, explanation: currentExplanation || sc.explanation, quote: sc.quote } }
         : { jsonrpc: "2.0", method: "tools/call", params: { name: "verify", arguments: { claim: sc.prompt } } };
       
       navigator.clipboard.writeText(JSON.stringify(payload, null, 2)).then(() => {
-        btnCopyRpc.innerHTML = '<span class="material-symbols-outlined text-xs">check</span> Skopiowano!';
+        btnCopyRpc.innerHTML = '<span class="material-symbols-outlined text-xs">check</span> ' + (currentLang === 'pl' ? 'Skopiowano!' : 'Copied!');
         setTimeout(() => {
-          btnCopyRpc.innerHTML = '<span class="material-symbols-outlined text-xs">content_copy</span> Kopiuj';
+          btnCopyRpc.innerHTML = '<span class="material-symbols-outlined text-xs">content_copy</span> ' + (currentLang === 'pl' ? 'Kopiuj' : 'Copy');
         }, 1500);
       });
     });
-
-    // =========================================================================
-    // Genuine Redline Verification Engine (Loaded from dist/engine.bundle.js)
-    // =========================================================================
-    const EngineConstructor = window.RedlineEngine || (window.RedlineBundle && window.RedlineBundle.RedlineEngine);
-    if (!EngineConstructor) {
-      console.error("[mcp-redline] RedlineEngine not found on window. Ensure dist/engine.bundle.js is loaded.");
-    }
-    const clientEngine = new EngineConstructor();
-    clientEngine.loadDocuments(CORPUS_DOCS.map(d => ({ file: d.filename || d.file, content: d.content })));
 
     // Custom Claim / Query Verification & Search
     btnVerify.addEventListener('click', () => {
       const customInput = claimInput.value.trim();
       if (!customInput) return;
+      const isPl = currentLang === 'pl';
 
       // Check if matches known scenario
       const matchedIdx = SCENARIOS.findIndex(s => s.prompt.toLowerCase() === customInput.toLowerCase());
@@ -1769,10 +1791,11 @@
       }
 
       // Detect if user typed a question vs a declarative statement
-      const isQuestion = customInput.endsWith('?') || /^(jakie|ile|czy|jaki|jaka|gdzie|kto|kiedy)\b/i.test(customInput);
+      const isQuestion = customInput.endsWith('?') || /^(jakie|ile|czy|jaki|jaka|gdzie|kto|kiedy|what|is|how|why|when|where|which|can|did)\b/i.test(customInput);
 
-      claimCategoryBadge.textContent = isQuestion ? 'ZAPYTANIE O FAKT' : 'AUDYT TWIERDZENIA';
+      claimCategoryBadge.textContent = isQuestion ? (isPl ? 'ZAPYTANIE O FAKT' : 'FACT QUERY') : (isPl ? 'AUDYT TWIERDZENIA' : 'AUDITED CLAIM');
       claimIdBadge.textContent = 'CUSTOM';
+      if (promptGlossContainer) promptGlossContainer.classList.add('hidden');
 
       const t0 = performance.now();
       const verifyResult = clientEngine.verify(customInput);
@@ -1788,10 +1811,10 @@
         redlineBanner.className = 'bg-emerald-950/50 border-b border-emerald-800/40 px-3 py-2 flex items-center justify-between';
         redlineBannerIcon.textContent = 'verified';
         redlineBannerIcon.className = 'material-symbols-outlined text-brand-emerald text-base font-bold';
-        redlineBannerText.textContent = isQuestion ? 'DOWÓD ZE ŹRÓDŁA // SEARCH & CITATION' : 'DETERMINISTYCZNY DOWÓD // 100% GROUNDED';
+        redlineBannerText.textContent = isQuestion ? (isPl ? 'DOWÓD ZE ŹRÓDŁA // SEARCH & CITATION' : 'SOURCE EVIDENCE // SEARCH & CITATION') : (isPl ? 'DETERMINISTYCZNY DOWÓD // 100% GROUNDED' : 'DETERMINISTIC PROOF // 100% GROUNDED');
         redlineBannerText.className = 'text-xs font-mono font-bold text-brand-emerald tracking-wide';
 
-        redlineStatusBadge.textContent = '100% POTWIERDZONE W ŹRÓDLE';
+        redlineStatusBadge.textContent = isPl ? '100% POTWIERDZONE W ŹRÓDLE' : '100% EVIDENCE MATCH';
         redlineStatusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-900/40 text-emerald-200 border border-emerald-700/50 font-semibold';
 
         redlineVerdictTag.textContent = 'STATUS: GROUNDED';
@@ -1801,93 +1824,107 @@
         const topPage = verifyResult.page || activeMatch?.page || 1;
         const topQuote = verifyResult.quote || activeMatch?.quote || '';
 
-        redlineSourceTitle.textContent = 'ŚCISŁY CYTAT (ODNALEZIONO W KORPUSIE):';
-        redlineTierBadge.textContent = 'Tier 1: Document Authority';
+        redlineSourceTitle.textContent = isPl ? 'ŚCISŁY CYTAT (ODNALEZIONO W KORPUSIE):' : 'STRICT CITATION (FOUND IN CORPUS):';
+        redlineTierBadge.textContent = isPl ? 'Tier 1: Autorytet dokumentu' : 'Tier 1: Document Authority';
         redlineTierBadge.className = 'text-brand-emerald font-semibold';
 
         redlineQuoteContainer.className = 'bg-brand-darkCanvas rounded border-l-2 border-brand-emerald border-t border-r border-b border-brand-border p-3 font-mono text-xs text-zinc-200 space-y-2 max-h-56 overflow-y-auto';
         redlineQuoteText.textContent = topQuote;
 
-        redlineExplanationText.textContent = verifyResult.explanation || `Odnaleziono bezpośrednie odzwierciedlenie zapytania w ${topFile} (sekcja/strona ${topPage}). Odpowiedź oparta wyłącznie na nienaruszonym cytacie.`;
+        redlineExplanationText.textContent = verifyResult.explanation || (isPl ? `Odnaleziono bezpośrednie odzwierciedlenie zapytania w ${topFile} (sekcja/strona ${topPage}). Odpowiedź oparta wyłącznie na nienaruszonym cytacie.` : `Direct representation of the query found in ${topFile} (section/page ${topPage}). Response based solely on verbatim citation.`);
         redlineMetaFile.textContent = topFile;
-        redlineMetaPage.textContent = `Sekcja / Strona ${topPage}`;
+        redlineMetaPage.textContent = isPl ? `Sekcja / Strona ${topPage}` : `Section / Page ${topPage}`;
         statLatency.textContent = durationMs.toFixed(2) + ' ms';
 
         // Update LLM Card
-        llmBannerText.textContent = 'POTENCJALNE ZAOKRĄGLENIE / ROZMYCIE LICZB';
-        llmRiskBadge.textContent = 'RYZYKO: ŚREDNIE / WYSOKIE';
-        llmResponseText.textContent = `„Standardowy model LLM bez bramki mcp-redline syntetyzuje odpowiedź na pytanie '${customInput}': często zaokrągla liczby, spekuluje lub myli pokrewne pozycje finansowe/prawne. mcp-redline odcina syntezę i zwraca ścisły wiersz z dokumentu.”`;
-        llmDefectsList.innerHTML = '<li>Brak gwarancji cytowania nienaruszonego wiersza tabeli</li><li>Ryzyko podania zaokrągleń lub mylenia kategorii bilansowych</li>';
-        llmExposureText.textContent = 'Wymagana precyzja audytowa (zgodność z dokumentacją źródłową)';
+        llmBannerText.textContent = isPl ? 'POTENCJALNE ZAOKRĄGLENIE / ROZMYCIE LICZB' : 'POTENTIAL NUMBER ROUNDING / DILUTION';
+        llmRiskBadge.textContent = isPl ? 'RYZYKO: ŚREDNIE / WYSOKIE' : 'RISK: MEDIUM / HIGH';
+        llmResponseText.textContent = isPl 
+          ? `„Standardowy model LLM bez bramki mcp-redline syntetyzuje odpowiedź na pytanie '${customInput}': często zaokrągla liczby, spekuluje lub myli pokrewne pozycje finansowe/prawne. mcp-redline odcina syntezę i zwraca ścisły wiersz z dokumentu.”`
+          : `“A standard LLM without mcp-redline gate synthesizes an answer for '${customInput}': frequently rounding numbers, speculating, or conflating financial/legal line items. mcp-redline cuts synthesis and returns exact rows from the document.”`;
+        llmDefectsList.innerHTML = isPl 
+          ? '<li>Brak gwarancji cytowania nienaruszonego wiersza tabeli</li><li>Ryzyko podania zaokrągleń lub mylenia kategorii bilansowych</li>'
+          : '<li>No guarantee of citing verbatim table rows</li><li>Risk of rounding or conflating balance sheet items</li>';
+        llmExposureText.textContent = isPl ? 'Wymagana precyzja audytowa (zgodność z dokumentacją źródłową)' : 'Auditing precision required (governing document compliance)';
 
       } else if (isContradicted) {
         redlineBanner.className = 'bg-red-950/60 border-b border-red-800/50 px-3 py-2 flex items-center justify-between';
         redlineBannerIcon.textContent = 'gpp_bad';
         redlineBannerIcon.className = 'material-symbols-outlined text-brand-red text-base font-bold';
-        redlineBannerText.textContent = 'WYKRYTO SPRZECZNOŚĆ // CONTRADICTED';
+        redlineBannerText.textContent = isPl ? 'WYKRYTO SPRZECZNOŚĆ // CONTRADICTED' : 'CONTRADICTION DETECTED // CONTRADICTED';
         redlineBannerText.className = 'text-xs font-mono font-bold text-brand-red tracking-wide';
 
-        redlineStatusBadge.textContent = 'CONTRADICTED (SPRZECZNOŚĆ Z DOKUMENTEM)';
+        redlineStatusBadge.textContent = isPl ? 'CONTRADICTED (SPRZECZNOŚĆ Z DOKUMENTEM)' : 'CONTRADICTED (DOCUMENT CONTRADICTION)';
         redlineStatusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-red-900/60 text-red-100 border border-red-600 font-semibold';
 
         redlineVerdictTag.textContent = 'STATUS: CONTRADICTED';
         redlineVerdictTag.className = 'font-mono text-xs px-2 py-0.5 rounded bg-brand-darkCanvas border border-brand-red/60 text-brand-red font-bold';
 
-        redlineSourceTitle.textContent = 'DOWÓD SPRZECZNOŚCI (ODNALEZIONO W KORPUSIE):';
-        redlineTierBadge.textContent = verifyResult.tier ? `Tier ${verifyResult.tier}: Nadrzędny autorytet dokumentu` : 'Sprzeczność z dokumentem';
+        redlineSourceTitle.textContent = isPl ? 'DOWÓD SPRZECZNOŚCI (ODNALEZIONO W KORPUSIE):' : 'CONTRADICTION EVIDENCE (FOUND IN CORPUS):';
+        redlineTierBadge.textContent = verifyResult.tier ? (isPl ? `Tier ${verifyResult.tier}: Nadrzędny autorytet dokumentu` : `Tier ${verifyResult.tier}: Governing document precedence`) : (isPl ? 'Sprzeczność z dokumentem' : 'Contractual contradiction');
         redlineTierBadge.className = 'text-brand-red font-semibold';
 
         redlineQuoteContainer.className = 'bg-brand-darkCanvas rounded border-l-2 border-brand-red border-t border-r border-b border-brand-border p-3 font-mono text-xs text-red-200 space-y-2 max-h-56 overflow-y-auto';
         redlineQuoteText.textContent = verifyResult.quote
-          ? `[DOWÓD WYKLUCZAJĄCY ROSZCZENIE]:\n${verifyResult.quote}`
-          : `[SPRZECZNOŚĆ WYKRYTA W KORPUSIE]\n${verifyResult.explanation}`;
+          ? (isPl ? `[DOWÓD WYKLUCZAJĄCY ROSZCZENIE]:\n${verifyResult.quote}` : `[EVIDENCE BARRING CLAIM]:\n${verifyResult.quote}`)
+          : (isPl ? `[SPRZECZNOŚĆ WYKRYTA W KORPUSIE]\n${verifyResult.explanation}` : `[CONTRADICTION DETECTED IN CORPUS]\n${verifyResult.explanation}`);
 
         redlineExplanationText.textContent = verifyResult.explanation;
         redlineMetaFile.textContent = verifyResult.file || '01_Apex_VeloNova_MSA_2023.md';
-        redlineMetaPage.textContent = verifyResult.page ? `Sekcja / Strona ${verifyResult.page}` : 'N/A';
+        redlineMetaPage.textContent = verifyResult.page ? (isPl ? `Sekcja / Strona ${verifyResult.page}` : `Section / Page ${verifyResult.page}`) : 'N/A';
         statLatency.textContent = durationMs.toFixed(2) + ' ms';
 
         // Update LLM Card
-        llmBannerText.textContent = 'KRYTYCZNE RYZYKO HALUCYNACJI / BŁĘDU';
-        llmRiskBadge.textContent = 'RYZYKO: WYSOKIE';
-        llmResponseText.textContent = `„Model LLM bez bramki mcp-redline zatwierdziłby lub zinterpretował zapytanie '${customInput}', nie zauważając twardego zakazu lub sprzeczności w umowie nadrzędnej. mcp-redline wykrywa sprzeczność i odrzuca twierdzenie jako CONTRADICTED.”`;
-        llmDefectsList.innerHTML = '<li>Sprzeczność z nadrzędnym dokumentem prawnym/finansowym</li><li>Wysokie ryzyko roszczeń lub nieuprawnionych płatności</li>';
-        llmExposureText.textContent = 'Bezpośrednie ryzyko kontraktowe lub finansowe';
+        llmBannerText.textContent = isPl ? 'KRYTYCZNE RYZYKO HALUCYNACJI / BŁĘDU' : 'CRITICAL RISK OF HALLUCINATION / DEFECT';
+        llmRiskBadge.textContent = isPl ? 'RYZYKO: WYSOKIE' : 'RISK: HIGH';
+        llmResponseText.textContent = isPl
+          ? `„Model LLM bez bramki mcp-redline zatwierdziłby lub zinterpretował zapytanie '${customInput}', nie zauważając twardego zakazu lub sprzeczności w umowie nadrzędnej. mcp-redline wykrywa sprzeczność i odrzuca twierdzenie jako CONTRADICTED.”`
+          : `“An ungated LLM would accept or interpret '${customInput}', missing strict prohibitions or contradictions in governing contracts. mcp-redline detects the contradiction and rejects the claim as CONTRADICTED.”`;
+        llmDefectsList.innerHTML = isPl 
+          ? '<li>Sprzeczność z nadrzędnym dokumentem prawnym/finansowym</li><li>Wysokie ryzyko roszczeń lub nieuprawnionych płatności</li>'
+          : '<li>Contradiction with governing legal/financial document</li><li>High risk of unwarranted payments or disputes</li>';
+        llmExposureText.textContent = isPl ? 'Bezpośrednie ryzyko kontraktowe lub finansowe' : 'Direct contractual or financial liability risk';
 
       } else {
         // UNSUPPORTED
         redlineBanner.className = 'bg-amber-950/40 border-b border-amber-800/40 px-3 py-2 flex items-center justify-between';
         redlineBannerIcon.textContent = 'help_outline';
         redlineBannerIcon.className = 'material-symbols-outlined text-amber-400 text-base font-bold';
-        redlineBannerText.textContent = 'TWARDA ODMOWA // UNSUPPORTED';
+        redlineBannerText.textContent = isPl ? 'TWARDA ODMOWA // UNSUPPORTED' : 'STRICT REFUSAL // UNSUPPORTED';
         redlineBannerText.className = 'text-xs font-mono font-bold text-amber-400 tracking-wide';
 
-        redlineStatusBadge.textContent = 'UNSUPPORTED (BRAK OPARCIA W KORPUSIE)';
+        redlineStatusBadge.textContent = isPl ? 'UNSUPPORTED (BRAK OPARCIA W KORPUSIE)' : 'UNSUPPORTED (NO EVIDENCE IN CORPUS)';
         redlineStatusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-amber-900/50 text-amber-200 border border-amber-700/50 font-semibold';
 
         redlineVerdictTag.textContent = 'STATUS: UNSUPPORTED';
         redlineVerdictTag.className = 'font-mono text-xs px-2 py-0.5 rounded bg-brand-darkCanvas border border-amber-500/40 text-amber-400 font-bold';
 
-        redlineSourceTitle.textContent = 'BRAK WYSTARCZAJĄCEGO OPARCIA:';
-        redlineTierBadge.textContent = (verifyResult.nearest && verifyResult.nearest.tier) ? `Najbliższy fragment: Tier ${verifyResult.nearest.tier}` : 'Brak w korpusie';
+        redlineSourceTitle.textContent = isPl ? 'BRAK WYSTARCZAJĄCEGO OPARCIA:' : 'INSUFFICIENT EVIDENCE:';
+        redlineTierBadge.textContent = (verifyResult.nearest && verifyResult.nearest.tier) 
+          ? (isPl ? `Najbliższy fragment: Tier ${verifyResult.nearest.tier}` : `Nearest fragment: Tier ${verifyResult.nearest.tier}`) 
+          : (isPl ? 'Brak w korpusie' : 'Not in corpus');
         redlineTierBadge.className = 'text-amber-400 font-semibold';
 
         redlineQuoteContainer.className = 'bg-brand-darkCanvas rounded border-l-2 border-amber-500/60 border-t border-r border-b border-brand-border p-3 font-mono text-xs text-amber-200/90 space-y-2 max-h-56 overflow-y-auto';
         redlineQuoteText.textContent = (verifyResult.nearest && verifyResult.nearest.quote)
-          ? `[NAJBLIŻSZY FRAGMENT W KORPUSIE]:\n${verifyResult.nearest.quote}`
-          : `[BRAK OPARCIA DOWODOWEGO]\nPodane zapytanie nie posiada oparcia w żadnym z 7 dokumentów korpusu. Silnik mcp-redline deterministycznie odmawia wygenerowania niezweryfikowanej odpowiedzi.`;
+          ? (isPl ? `[NAJBLIŻSZY FRAGMENT W KORPUSIE]:\n${verifyResult.nearest.quote}` : `[NEAREST FRAGMENT IN CORPUS]:\n${verifyResult.nearest.quote}`)
+          : (isPl ? `[BRAK OPARCIA DOWODOWEGO]\nPodane zapytanie nie posiada oparcia w żadnym z 7 dokumentów korpusu. Silnik mcp-redline deterministycznie odmawia wygenerowania niezweryfikowanej odpowiedzi.` : `[NO EVIDENTIAL BASIS]\nNone of the 7 corpus documents support the query. The mcp-redline engine deterministically refuses unverified synthesis.`);
 
         redlineExplanationText.textContent = verifyResult.explanation;
-        redlineMetaFile.textContent = (verifyResult.nearest && verifyResult.nearest.file) || 'Brak dopasowania';
-        redlineMetaPage.textContent = (verifyResult.nearest && verifyResult.nearest.page) ? `Sekcja / Strona ${verifyResult.nearest.page}` : 'N/A';
+        redlineMetaFile.textContent = (verifyResult.nearest && verifyResult.nearest.file) || (isPl ? 'Brak dopasowania' : 'No match');
+        redlineMetaPage.textContent = (verifyResult.nearest && verifyResult.nearest.page) ? (isPl ? `Sekcja / Strona ${verifyResult.nearest.page}` : `Section / Page ${verifyResult.nearest.page}`) : 'N/A';
         statLatency.textContent = durationMs.toFixed(2) + ' ms';
 
         // Update LLM Card
-        llmBannerText.textContent = 'RYZYKO KONFABULACJI / DOMYSŁÓW';
-        llmRiskBadge.textContent = 'RYZYKO: ŚREDNIE / WYSOKIE';
-        llmResponseText.textContent = `„Model LLM bez bramki mcp-redline spekulowałby na temat zapytania '${customInput}'. mcp-redline zachowuje dyscyplinę dowodową i odmawia odpowiedzi (UNSUPPORTED) przy braku jednoznacznego źródła.”`;
-        llmDefectsList.innerHTML = '<li>Brak jednoznacznego potwierdzenia w korpusie dokumentów</li><li>Dyscyplina milczenia zamiast zmyślania faktów</li>';
-        llmExposureText.textContent = 'Ochrona przed niezweryfikowaną ekstrapolacją danych';
+        llmBannerText.textContent = isPl ? 'RYZYKO KONFABULACJI / DOMYSŁÓW' : 'RISK OF CONFABULATION / SPECULATION';
+        llmRiskBadge.textContent = isPl ? 'RYZYKO: ŚREDNIE / WYSOKIE' : 'RISK: MEDIUM / HIGH';
+        llmResponseText.textContent = isPl 
+          ? `„Model LLM bez bramki mcp-redline spekulowałby na temat zapytania '${customInput}'. mcp-redline zachowuje dyscyplinę dowodową i odmawia odpowiedzi (UNSUPPORTED) przy braku jednoznacznego źródła.”`
+          : `“An ungated LLM would speculate regarding '${customInput}'. mcp-redline maintains evidential discipline and refuses to answer (UNSUPPORTED) when unambiguous sources are lacking.”`;
+        llmDefectsList.innerHTML = isPl 
+          ? '<li>Brak jednoznacznego potwierdzenia w korpusie dokumentów</li><li>Dyscyplina milczenia zamiast zmyślania faktów</li>'
+          : '<li>No definitive corroboration in document corpus</li><li>Discipline of silence over hallucinated facts</li>';
+        llmExposureText.textContent = isPl ? 'Ochrona przed niezweryfikowaną ekstrapolacją danych' : 'Protection against unverified data extrapolation';
       }
 
       // Update Inspector with Custom RPC Payload
@@ -1934,14 +1971,14 @@
         const timeStr = now.toTimeString().split(' ')[0] + '.' + now.getMilliseconds().toString().padStart(3, '0');
         stdioStreamDisplay.innerHTML = `
           <div class="text-zinc-500 font-mono text-[10px] pb-1 border-b border-brand-border/40 flex justify-between">
-            <span>ZDARZENIA STDIN / STDOUT</span>
+            <span>${isPl ? 'ZDARZENIA STDIN / STDOUT' : 'STDIN / STDOUT EVENTS'}</span>
             <span class="text-brand-emerald">100% AIR-GAPPED</span>
           </div>
           <div class="text-zinc-400"><span class="text-zinc-500">[${timeStr}]</span> <span class="text-brand-cyan">[stdin]</span> JSON-RPC ${toolName} payload (${BufferByteLength(customInput)} bytes)</div>
           <div class="text-zinc-400"><span class="text-zinc-500">[${timeStr}]</span> <span class="text-brand-emerald">[engine:tokenize]</span> Tokens: ${clientEngine.tokenize(customInput).join(', ')}</div>
           <div class="text-zinc-400"><span class="text-zinc-500">[${timeStr}]</span> <span class="text-brand-cyan">[engine:match]</span> Top candidate: ${redlineMetaFile.textContent}</div>
           <div class="${isGrounded ? 'text-brand-emerald' : 'text-brand-red'} font-semibold">
-            <span class="text-zinc-500">[${timeStr}]</span> [verdict:${rpcVerdict.toLowerCase()}] Execution time: ${durationMs.toFixed(2)} ms
+            <span class="text-zinc-500">[${timeStr}]</span> [verdict:${rpcVerdict.toLowerCase()}] ${isPl ? 'Czas wykonania' : 'Execution time'}: ${durationMs.toFixed(2)} ms
           </div>
           <div class="text-zinc-400"><span class="text-zinc-500">[${timeStr}]</span> <span class="text-brand-cyan">[stdout]</span> RPC response flushed</div>
         `;
@@ -1954,14 +1991,14 @@
     });
 
     // Architecture Tabs
-    const archFiles = [
-      'assets/01_verify_flow.svg',
-      'assets/02_ciso_data_boundary.svg',
-      'assets/03_rag_vs_redline.svg'
-    ];
-
     function setArchTab(tabIdx) {
       activeArchTab = tabIdx;
+      const langSuffix = currentLang === 'pl' ? 'pl' : 'en';
+      const archFiles = [
+        `assets/01_verify_flow.${langSuffix}.svg`,
+        `assets/02_ciso_data_boundary.${langSuffix}.svg`,
+        `assets/03_rag_vs_redline.${langSuffix}.svg`
+      ];
       archImg.src = archFiles[tabIdx - 1];
       const i18nObj = I18N[currentLang] || I18N.en;
       archDescription.textContent = i18nObj[`arch_desc_${tabIdx}`] || '';
@@ -2066,6 +2103,9 @@
     // Language switcher
     function applyLanguage(lang) {
       currentLang = lang;
+      if (clientEngine && clientEngine.setLanguage) {
+        clientEngine.setLanguage(lang);
+      }
       const dict = I18N[lang] || I18N.en;
 
       // Update html lang attribute
@@ -2131,6 +2171,13 @@
 
     function switchLanguage(lang) {
       localStorage.setItem('redline_lang', lang);
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set('lang', lang);
+        window.history.replaceState(null, '', url.toString());
+      } catch (e) {
+        // Fallback for sandboxed environments
+      }
       applyLanguage(lang);
     }
 
