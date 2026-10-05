@@ -14,7 +14,8 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc && npm run bundle:engine",
+    "build": "tsc && npm run bundle:engine && npm run build:css",
+    "build:css": "tailwindcss -i ./web/src/input.css -o ./web/dist/tailwind.css --minify",
     "bundle:engine": "esbuild src/browser.ts --bundle --format=iife --global-name=RedlineBundle --outfile=web/dist/engine.bundle.js",
     "start": "node dist/src/index.js",
     "test": "tsc && node --test dist/tests/*.test.js",

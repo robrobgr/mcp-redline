@@ -12,6 +12,7 @@ Cel dnia: publiczne repozytorium `robrobgr/mcp-redline` z demo, które nie przec
 - [x] **#4 `package.json`** — `main` i `bin` wskazują na `dist/src/index.js`, dodano pole `files` i skrypt `bundle:engine` w łańcuchu `build`.
 - [x] **#5 Demo offline** — Tailwind CSS prekompilowany lokalnie, fonty Inter, JetBrains Mono i Material Symbols w `web/fonts/`, przetestowano w przeglądarce bez zapytań zewnętrznych.
 - [x] **#6 Publikacja** — czysty klon → `npm test` (14/14 pass) → `npm run eval` (64 twierdzenia, 91%, 0 false GROUNDED) → gałąź `master` → `main` → pomyślny push publicznie do `robrobgr/mcp-redline`. W README zawarto uczciwe liczby z jawną adnotacją o skażonym holdoucie.
+- [x] **#7 Wdrożenie produkcyjne demo na Vercel** — statyczne demo z `web/` podpięte przez Git do projektu Vercel `mcp-redline`, budowane z gałęzi `main` (`npm run build`), wymuszony przeglądarkowo nagłówek CSP `connect-src 'none'`, stopka autora z linkiem do `robertgrabowski.com`, responsywność 375 px bez poziomego paska przewijania, domena `redline.robertgrabowski.com` skonfigurowana w projekcie.
 
 **Po publikacji:** Etap 6 (wideo 90 s) — ma pokazywać wersję, którą widz może sklonować.
 

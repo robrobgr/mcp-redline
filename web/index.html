@@ -60,23 +60,23 @@
   <!-- ========================================================================= -->
   <!-- 1. TOP APP BAR                                                            -->
   <!-- ========================================================================= -->
-  <header class="flex justify-between items-center w-full px-4 h-14 border-b border-brand-border bg-brand-darkCanvas/95 backdrop-blur select-none z-30 shrink-0">
+  <header class="flex justify-between items-center w-full px-2 sm:px-4 h-14 border-b border-brand-border bg-brand-darkCanvas/95 backdrop-blur select-none z-30 shrink-0">
     <!-- Brand Anchor & Product Identity -->
     <div class="flex items-center gap-3">
-      <div class="flex items-center gap-2.5">
-        <div class="w-8 h-8 rounded bg-brand-surface border border-brand-red/40 flex items-center justify-center relative overflow-hidden group shadow-inner">
+      <div class="flex items-center gap-2 sm:gap-2.5">
+        <div class="w-8 h-8 rounded bg-brand-surface border border-brand-red/40 flex items-center justify-center relative overflow-hidden group shadow-inner shrink-0">
           <span class="material-symbols-outlined text-brand-red font-bold">verified_user</span>
           <div class="absolute bottom-0 right-0 w-2 h-2 bg-brand-red"></div>
         </div>
         <div class="flex flex-col">
           <div class="flex items-center gap-2">
             <span class="font-bold text-sm tracking-wider text-white">mcp-redline</span>
-            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-950/40 border border-brand-emerald/40 text-brand-emerald font-semibold">
+            <span class="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-950/40 border border-brand-emerald/40 text-brand-emerald font-semibold">
               <span class="w-1.5 h-1.5 rounded-full bg-brand-emerald animate-pulse"></span>
               Air-Gapped stdio (0 Network)
             </span>
           </div>
-          <span class="text-[11px] font-mono text-zinc-400">Deterministyczny Silnik Weryfikacji i Odmów</span>
+          <span class="hidden sm:block text-[11px] font-mono text-zinc-400">Deterministyczny Silnik Weryfikacji i Odmów</span>
         </div>
       </div>
     </div>
@@ -88,27 +88,28 @@
     </div>
 
     <!-- Action Triggers -->
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-1.5 sm:gap-2">
       <!-- Story Mode Trigger -->
-      <button id="btn-open-story" class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-brand-surface hover:bg-brand-cardElevated border border-brand-red text-xs font-semibold text-brand-red hover:text-white shadow-sm transition-colors">
+      <button id="btn-open-story" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded bg-brand-surface hover:bg-brand-cardElevated border border-brand-red text-xs font-semibold text-brand-red hover:text-white shadow-sm transition-colors whitespace-nowrap">
         <span class="material-symbols-outlined text-sm">menu_book</span>
-        <span>Story Mode (3 Akty)</span>
+        <span class="hidden xs:inline">Story Mode</span>
+        <span class="hidden md:inline">(3 Akty)</span>
       </button>
 
       <!-- Infographic Trigger -->
-      <button id="btn-open-infographic" class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-brand-card hover:bg-brand-cardElevated border border-brand-border hover:border-brand-cyan text-xs font-medium text-zinc-200 transition-colors">
+      <button id="btn-open-infographic" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded bg-brand-card hover:bg-brand-cardElevated border border-brand-border hover:border-brand-cyan text-xs font-medium text-zinc-200 transition-colors whitespace-nowrap">
         <span class="material-symbols-outlined text-brand-cyan text-sm">image</span>
         <span>Infografika</span>
       </button>
 
       <!-- Architecture Trigger -->
-      <button id="btn-open-architecture" class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-brand-card hover:bg-brand-cardElevated border border-brand-border hover:border-brand-emerald text-xs font-medium text-zinc-200 transition-colors">
+      <button id="btn-open-architecture" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded bg-brand-card hover:bg-brand-cardElevated border border-brand-border hover:border-brand-emerald text-xs font-medium text-zinc-200 transition-colors whitespace-nowrap">
         <span class="material-symbols-outlined text-brand-emerald text-sm">account_tree</span>
         <span>Architektura CISO</span>
       </button>
 
       <!-- Quickstart Trigger -->
-      <button id="btn-open-quickstart" class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-brand-red hover:bg-brand-crimson text-white text-xs font-semibold shadow-sm transition-colors">
+      <button id="btn-open-quickstart" class="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded bg-brand-red hover:bg-brand-crimson text-white text-xs font-semibold shadow-sm transition-colors whitespace-nowrap">
         <span class="material-symbols-outlined text-sm">terminal</span>
         <span>Uruchom Serwer</span>
       </button>
@@ -123,7 +124,7 @@
     <!-- --------------------------------------------------------------------- -->
     <!-- ZONE A: CORPUS PROTOCOL HIERARCHY (Sidebar)                           -->
     <!-- --------------------------------------------------------------------- -->
-    <aside class="flex flex-col justify-between w-72 lg:w-80 h-[calc(100vh-3.5rem)] border-r border-brand-border bg-brand-surface/90 shrink-0 select-none">
+    <aside class="hidden lg:flex flex-col justify-between w-72 lg:w-80 h-full border-r border-brand-border bg-brand-surface/90 shrink-0 select-none">
       <!-- Header -->
       <div class="p-3 border-b border-brand-border bg-brand-darkCanvas/60">
         <div class="flex items-center justify-between mb-2">
@@ -163,24 +164,24 @@
     <!-- --------------------------------------------------------------------- -->
     <!-- ZONE B: LIVE INTERACTIVE A/B CLAIM VERIFIER (Center Arena)            -->
     <!-- --------------------------------------------------------------------- -->
-    <section class="flex-1 flex flex-col h-[calc(100vh-3.5rem)] overflow-y-auto bg-brand-darkCanvas/80">
+    <section class="flex-1 min-w-0 flex flex-col h-full overflow-y-auto bg-brand-darkCanvas/80">
       
       <!-- Scenario Selector Toolbar -->
       <div class="p-3 border-b border-brand-border bg-brand-surface/80 flex flex-wrap items-center justify-between gap-3 shrink-0">
-        <div class="flex items-center gap-2 flex-1 min-w-[320px]">
-          <span class="material-symbols-outlined text-brand-cyan text-sm">checklist</span>
-          <label for="scenario-dropdown" class="text-xs font-mono text-zinc-400 uppercase tracking-wider">Scenariusz Testowy:</label>
-          <div class="relative flex-1">
-            <select id="scenario-dropdown" class="w-full appearance-none bg-brand-card border border-brand-border rounded px-3 py-1.5 font-mono text-xs text-zinc-200 focus:outline-none focus:border-brand-emerald pr-8 cursor-pointer">
+        <div class="flex items-center gap-2 flex-1 min-w-0">
+          <span class="material-symbols-outlined text-brand-cyan text-sm shrink-0">checklist</span>
+          <label for="scenario-dropdown" class="text-xs font-mono text-zinc-400 uppercase tracking-wider shrink-0">Scenariusz:</label>
+          <div class="relative flex-1 min-w-0">
+            <select id="scenario-dropdown" class="w-full appearance-none bg-brand-card border border-brand-border rounded px-3 py-1.5 font-mono text-xs text-zinc-200 focus:outline-none focus:border-brand-emerald pr-8 cursor-pointer truncate">
               <!-- Injected via JavaScript from SCENARIOS -->
             </select>
             <span class="material-symbols-outlined absolute right-2 top-2 text-zinc-500 pointer-events-none text-sm">expand_more</span>
           </div>
         </div>
 
-        <div class="flex items-center gap-2">
-          <span class="text-xs font-mono text-zinc-400">Szybki wybór:</span>
-          <div id="quick-scenario-pills" class="flex items-center gap-1 overflow-x-auto">
+        <div class="flex items-center gap-2 max-w-full overflow-hidden">
+          <span class="text-xs font-mono text-zinc-400 shrink-0">Szybki wybór:</span>
+          <div id="quick-scenario-pills" class="flex items-center gap-1 overflow-x-auto max-w-full">
             <!-- Buttons P01-P10 injected by JS -->
           </div>
         </div>
@@ -200,17 +201,17 @@
               Zbadaj dynamikę ryzyka biznesowego w trzech konfiguracjach:
             </span>
           </div>
-          <div class="flex items-center gap-1.5 bg-brand-card p-1 rounded border border-brand-border text-xs font-mono">
-            <button id="btn-persp-1" class="px-3 py-1.5 rounded transition-all flex items-center gap-1.5 text-zinc-400 hover:text-white" title="Perspektywa 1: Samotny model LLM bez zabezpieczeń">
-              <span class="w-2 h-2 rounded-full bg-brand-red"></span>
+          <div class="flex flex-wrap sm:flex-nowrap items-center gap-1.5 bg-brand-card p-1 rounded border border-brand-border text-xs font-mono max-w-full">
+            <button id="btn-persp-1" class="px-2.5 sm:px-3 py-1.5 rounded transition-all flex items-center gap-1.5 text-zinc-400 hover:text-white text-[11px] sm:text-xs" title="Perspektywa 1: Samotny model LLM bez zabezpieczeń">
+              <span class="w-2 h-2 rounded-full bg-brand-red shrink-0"></span>
               <span>1. Tylko LLM (Halucynacja)</span>
             </button>
-            <button id="btn-persp-2" class="px-3 py-1.5 rounded bg-brand-emerald text-zinc-950 font-bold shadow-sm transition-all flex items-center gap-1.5" title="Perspektywa 2: Model chroniony przez deterministyczny serwer mcp-redline">
-              <span class="w-2 h-2 rounded-full bg-zinc-950"></span>
+            <button id="btn-persp-2" class="px-2.5 sm:px-3 py-1.5 rounded bg-brand-emerald text-zinc-950 font-bold shadow-sm transition-all flex items-center gap-1.5 text-[11px] sm:text-xs" title="Perspektywa 2: Model chroniony przez deterministyczny serwer mcp-redline">
+              <span class="w-2 h-2 rounded-full bg-zinc-950 shrink-0"></span>
               <span>2. LLM + Redline (Protected)</span>
             </button>
-            <button id="btn-persp-3" class="px-3 py-1.5 rounded transition-all flex items-center gap-1.5 text-zinc-400 hover:text-white" title="Perspektywa 3: Analiza sytuacji wątpliwości lub błędu serwera mcp-redline (Fail-Safe)">
-              <span class="w-2 h-2 rounded-full bg-brand-cyan"></span>
+            <button id="btn-persp-3" class="px-2.5 sm:px-3 py-1.5 rounded transition-all flex items-center gap-1.5 text-zinc-400 hover:text-white text-[11px] sm:text-xs" title="Perspektywa 3: Analiza sytuacji wątpliwości lub błędu serwera mcp-redline (Fail-Safe)">
+              <span class="w-2 h-2 rounded-full bg-brand-cyan shrink-0"></span>
               <span>3. Wątpliwości Redline (Fail-Safe)</span>
             </button>
           </div>
@@ -218,9 +219,9 @@
 
         <!-- BUSINESS IMPACT & FINANCIAL LIABILITY METER (CFO Executive Board) -->
         <div id="liability-meter-widget" class="bg-gradient-to-r from-red-950/40 via-brand-surface to-emerald-950/40 border border-brand-border rounded-lg p-3.5 shadow-lg space-y-2.5 transition-all">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <span class="material-symbols-outlined text-brand-red text-base">payments</span>
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="material-symbols-outlined text-brand-red text-base shrink-0">payments</span>
               <span class="text-xs font-mono font-bold text-zinc-100 uppercase tracking-wider">
                 Licznik Ryzyka Finansowego & Ekspozycji Zarządczej (CFO Liability Meter)
               </span>
@@ -290,8 +291,8 @@
 
         <!-- Proposition Input Box -->
         <div class="bg-brand-surface border border-brand-border rounded-lg p-3 relative shadow-md">
-          <div class="flex items-center justify-between mb-2">
-            <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <div class="flex flex-wrap items-center gap-2">
               <span id="claim-category-badge" class="px-2 py-0.5 rounded text-[10px] font-mono bg-brand-card text-brand-cyan border border-brand-border font-semibold">
                 AUDYTOWANE TWIERDZENIE
               </span>
@@ -301,7 +302,7 @@
                 <span id="noise-btn-label">Symuluj szum OCR</span>
               </button>
             </div>
-            <span class="text-xs font-mono text-zinc-400 flex items-center gap-1">
+            <span class="text-xs font-mono text-zinc-400 hidden sm:flex items-center gap-1">
               <span class="material-symbols-outlined text-xs text-brand-emerald">fingerprint</span>
               <span>Deterministyczny silnik AST (bez halucynacji)</span>
             </span>
@@ -504,7 +505,7 @@
     <!-- --------------------------------------------------------------------- -->
     <!-- ZONE C: LIVE MCP PROTOCOL INSPECTOR (Right IDE / Terminal Console)     -->
     <!-- --------------------------------------------------------------------- -->
-    <aside class="w-80 xl:w-96 h-[calc(100vh-3.5rem)] border-l border-brand-border bg-brand-surface/90 flex flex-col shrink-0">
+    <aside class="hidden xl:flex w-80 xl:w-96 h-full border-l border-brand-border bg-brand-surface/90 flex flex-col shrink-0">
       <!-- Header -->
       <div class="p-3 border-b border-brand-border bg-brand-darkCanvas/60 flex items-center justify-between">
         <div class="flex items-center gap-2">
@@ -568,6 +569,13 @@
     </aside>
 
   </main>
+
+  <!-- ========================================================================= -->
+  <!-- 3. FOOTER (Author Citation)                                               -->
+  <!-- ========================================================================= -->
+  <footer class="h-8 border-t border-brand-border bg-brand-darkCanvas px-4 flex items-center justify-center text-xs text-zinc-400 shrink-0 font-mono select-none z-20">
+    <span>Zbudował Robert Grabowski — <a href="https://robertgrabowski.com" target="_blank" rel="noopener noreferrer" class="text-zinc-300 hover:text-white underline underline-offset-2 transition-colors">robertgrabowski.com</a></span>
+  </footer>
 
   <!-- ========================================================================= -->
   <!-- MODAL 1: INFOGRAPHIC GUIDE (Gemini Image Creation)                         -->

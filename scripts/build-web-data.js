@@ -156,7 +156,7 @@ const scenarios = evalRaw.results.map((r, idx) => {
       ];
       financialExposure = 'Średnie ryzyko (przeoczenie wyjątków od limitu)';
       financialExposureValue = '£48,000.00 GBP (100% z rocznej opłaty abonamentowej £48 000 GBP z Sec 8.1 i 11.2 MSA)';
-      financialExposureCfo = 'Przeoczenie wyłączeń z art. 10 (poufność / rażące niedbalstwo) mogłoby skłonić firmę do zaniechania uzasadnionych roszczeń odszkodowawczych.';
+      financialExposureCfo = 'Przeoczenie wyłączeń z art. 10 (poufność / wina umyślna) mogłoby skłonić firmę do zaniechania uzasadnionych roszczeń odszkodowawczych.';
       financialFailSafeCost = '~40 PLN (SZACUNEK: 5 min audytu)';
       riskLevel = 'MEDIUM';
       agentTrace = {

@@ -18,6 +18,11 @@ Format oparty na [Keep a Changelog](https://keepachangelog.com/pl/1.0.0/).
 ### Dodano
 - Metodologiczna adnotacja o skażonym holdoucie w `README.md` i pełna tabela wyników ewaluacji (91% 3-klasowej dokładności na 64 twierdzeniach, 0 fałszywych GROUNDED).
 - 3 Perspektywy Decyzyjne (Tylko LLM, LLM + Redline, Wątpliwości Redline) oraz symulator szumu OCR w interfejsie demonstracyjnym.
+- **Wdrożenie produkcyjne Vercel (`redline.robertgrabowski.com`):** statyczne demo podpięte z repozytorium GitHub `robrobgr/mcp-redline` z automatycznym buildem (`npm run build`).
+- **Przeglądarkowa reguła bezpieczeństwa CSP:** wymuszenie nagłówka `Content-Security-Policy` z `connect-src 'none'`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer` gwarantujące 0 połączeń zewnętrznych z poziomu przeglądarki.
+- **Dostosowanie responsywne 375 px:** pełna obsługa małych ekranów bez poziomego paska przewijania.
+- **Stopka autora:** dodano informację „Zbudował Robert Grabowski — robertgrabowski.com” z linkiem do strony autora.
+- **Korekta prawna:** ujednolicono terminologię z umową MSA klauzula 11.2 (*willful misconduct* → „wina umyślna” zamiast „rażące niedbalstwo”) w generatorze `scripts/build-web-data.js` i `web/data.js`.
 
 ---
 

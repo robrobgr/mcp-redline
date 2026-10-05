@@ -2,6 +2,9 @@
 
 > **Deterministyczny serwer MCP do weryfikacji twierdzeń w lokalnym korpusie dokumentów — z dosłownym cytatem albo jawną odmową.**
 
+🌐 **Live Demo:** [redline.robertgrabowski.com](https://redline.robertgrabowski.com)  
+*Demo działa całkowicie w przeglądarce i ma wymuszony nagłówek Content-Security-Policy `connect-src 'none'` (zero połączeń wychodzących — sprawdź sam w DevTools).*
+
 Modele językowe potrafią z pewnością siebie podawać nieprawdziwe liczby, daty i klauzule. `mcp-redline` daje modelowi dostęp do lokalnego korpusu i wymusza, by każde twierdzenie było albo potwierdzone **dosłownym fragmentem źródła**, albo jawnie oznaczone jako **sprzeczne** lub **niepotwierdzone**.
 
 Weryfikator nie używa LLM, sieci ani zewnętrznych usług: ten sam korpus i to samo twierdzenie zawsze dają ten sam wynik z tym samym uzasadnieniem. **W razie wątpliwości nie potwierdza.** To nie znaczy, że się nie myli — patrz [Ograniczenia](#ograniczenia) i [raport ewaluacji](prompts_eval/EVALUATION_REPORT.md).
