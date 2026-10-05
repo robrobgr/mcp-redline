@@ -1,0 +1,22 @@
+flowchart TD
+    classDef badPath fill:#450a0a,stroke:#ef4444,stroke-width:2px,color:#fee2e2;
+    classDef goodPath fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#ecfdf5;
+    classDef common fill:#1e293b,stroke:#64748b,stroke-width:2px,color:#f8fafc;
+
+    Question["Pytanie / Wątpliwość: Czy przysługuje 7.5% podwyżki CPI?"]:::common
+
+    subgraph StandardRAG [" TRADYCYJNY RAG (ILUZJA ZAUFANIA) "]
+        Question --> RAGSearch["Wyszukiwanie wektorowe (Top-K Chunks)"]:::badPath
+        RAGSearch --> FoundMail["Odnaleziono mail handlowca z żądaniem 7.5%"]:::badPath
+        FoundMail --> LLMSynth["Model LLM dokonuje syntezy i streszczenia"]:::badPath
+        LLMSynth --> Hallucination["HALUCYNACJA Z PEWNYM TONEM:\n'Tak, zgodnie z mailem z 12 listopada stawka wzrasta o 7.5%'"]:::badPath
+        Hallucination --> Risk["SKUTEK: Błąd zarządczy, nadpłata, odpowiedzialność prawna"]:::badPath
+    end
+
+    subgraph RedlineFlow [" MCP-REDLINE (DETERMINISTYCZNA WERYFIKACJA) "]
+        Question --> RedlineCall["Wywołanie narzędzia verify(claim) przez stdio"]:::goodPath
+        RedlineCall --> ContractAudit["Deterministyczny audyt hierarchii umów (Tier 1 vs Tier 3)"]:::goodPath
+        ContractAudit --> NegationCatch["Wykrycie wykreślenia klauzuli waloryzacji w Section 8.2 MSA"]:::goodPath
+        NegationCatch --> Refusal["JAWNY WYNIK NEGATYWNY (UNSUPPORTED):\n'Sprzeczność: Section 8.2 MSA zakazuje waloryzacji, pismo jest nieważne ab initio'"]:::goodPath
+        Refusal --> Safety["SKUTEK: Bezpieczeństwo CISO, obrona przed bezpodstawnym roszczeniem"]:::goodPath
+    end

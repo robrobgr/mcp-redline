@@ -144,6 +144,16 @@ Demo produkcyjne: [redline.robertgrabowski.com](https://redline.robertgrabowski.
 ```
 
 ---
+ 
+## Architektura i Diagramy
+
+Wizualizacje algorytmu weryfikacji, granic zaufania CISO oraz porównania z tradycyjnym RAG:
+* **[Przegląd Architektury i Diagramów](diagrams/README.md)**
+* [Diagram 1: Algorytm przepływu `verify`](diagrams/01_verify_flow.pl.svg)
+* [Diagram 2: Granica zaufania i izolacji CISO](diagrams/02_ciso_data_boundary.pl.svg)
+* [Diagram 3: RAG wektorowy vs mcp-redline](diagrams/03_rag_vs_redline.pl.svg)
+
+---
 
 ## Licencja
 

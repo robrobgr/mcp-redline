@@ -16,10 +16,10 @@ Infographic generated using Gemini Image Creation, prepared for executive briefi
 
 Illustrates the end-to-end evaluation pipeline from an input business claim to a deterministic `GROUNDED`, `CONTRADICTED`, or `UNSUPPORTED` verdict, explicitly showing that the verification engine **contains no language model**.
 
-* **Mermaid source:** [`01_verify_flow.mermaid`](01_verify_flow.mermaid)
-* **Vector SVG:** [`01_verify_flow.svg`](01_verify_flow.svg)
+* **English:** [Mermaid source](01_verify_flow.en.mermaid) · [Vector SVG](01_verify_flow.en.svg)
+* **Polski:** [Źródło Mermaid](01_verify_flow.pl.mermaid) · [Wektorowy SVG](01_verify_flow.pl.svg)
 
-![Diagram 1: verify Flow](01_verify_flow.svg)
+![Diagram 1: verify Flow](01_verify_flow.en.svg)
 
 ---
 
@@ -27,10 +27,10 @@ Illustrates the end-to-end evaluation pipeline from an input business claim to a
 
 Audit diagram for CISOs showing what remains on the workstation (100% of files, tokens, and verification processes) and what leaves the host (0 bytes — no network sockets, no external APIs, no telemetry).
 
-* **Mermaid source:** [`02_ciso_data_boundary.mermaid`](02_ciso_data_boundary.mermaid)
-* **Vector SVG:** [`02_ciso_data_boundary.svg`](02_ciso_data_boundary.svg)
+* **English:** [Mermaid source](02_ciso_data_boundary.en.mermaid) · [Vector SVG](02_ciso_data_boundary.en.svg)
+* **Polski:** [Źródło Mermaid](02_ciso_data_boundary.pl.mermaid) · [Wektorowy SVG](02_ciso_data_boundary.pl.svg)
 
-![Diagram 2: CISO Data Boundary](02_ciso_data_boundary.svg)
+![Diagram 2: CISO Data Boundary](02_ciso_data_boundary.en.svg)
 
 ---
 
@@ -38,7 +38,7 @@ Audit diagram for CISOs showing what remains on the workstation (100% of files, 
 
 Side-by-side comparison on a specific contractual question regarding an unagreed 7.5% UK CPI price hike: traditional RAG hallucinates based on a sales email, whereas `mcp-redline` identifies the stricken clause in the master agreement and triggers a hard refusal.
 
-* **Mermaid source:** [`03_rag_vs_redline.mermaid`](03_rag_vs_redline.mermaid)
-* **Vector SVG:** [`03_rag_vs_redline.svg`](03_rag_vs_redline.svg)
+* **English:** [Mermaid source](03_rag_vs_redline.en.mermaid) · [Vector SVG](03_rag_vs_redline.en.svg)
+* **Polski:** [Źródło Mermaid](03_rag_vs_redline.pl.mermaid) · [Wektorowy SVG](03_rag_vs_redline.pl.svg)
 
-![Diagram 3: Traditional RAG vs mcp-redline](03_rag_vs_redline.svg)
+![Diagram 3: Traditional RAG vs mcp-redline](03_rag_vs_redline.en.svg)

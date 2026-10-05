@@ -1,0 +1,29 @@
+flowchart LR
+    classDef safeZone fill:#064e3b,stroke:#059669,stroke-width:3px,color:#ecfdf5;
+    classDef cloudZone fill:#450a0a,stroke:#dc2626,stroke-width:2px,stroke-dasharray: 4 2,color:#fef2f2;
+    classDef nodeSafe fill:#0f172a,stroke:#34d399,stroke-width:2px,color:#f8fafc;
+    classDef forbidden fill:#7f1d1d,stroke:#f87171,stroke-width:2px,color:#fee2e2;
+
+    subgraph HostMachine [" STACJA ROBOCZA UŻYTKOWNIKA / SERWER ON-PREMISE (IZOLACJA CAŁKOWITA) "]
+        CorpusStorage[("Lokalny Korpus Dokumentów\n- Umowy i Aneksy\n- Faktury i Cenniki\n- P&L i Bilans\n- Protokoły Zarządu")]:::nodeSafe
+        
+        ServerProcess["Proces serwera mcp-redline\n(Node.js / binary)\n- 100% kod offline\n- 0 połączeń socket\n- 0 telemetrii"]:::nodeSafe
+        
+        ClientAgent["Klient MCP / Agent\n(Claude Desktop / Cursor / Terminal)"]:::nodeSafe
+        
+        CorpusStorage <--> |Odczyt lokalnego dysku| ServerProcess
+        ServerProcess <--> |Lokalny potok stdio (stdin / stdout)| ClientAgent
+    end
+
+    subgraph ExternalInternet [" ŚRODOWISKO ZEWNĘTRZNE / CHMURA PUBLICZNA "]
+        CloudLLM["Zewnętrzne API / Chmura LLM"]:::forbidden
+        TelemetryServers["Serwery Analityczne / Telemetria"]:::forbidden
+        RemoteDB["Zewnętrzne Bazy Danych / Vector DB"]:::forbidden
+    end
+
+    ServerProcess -.-x |BLOKADA: Zero wywołań HTTP/REST/gRPC| CloudLLM
+    ServerProcess -.-x |BLOKADA: Zero logowania i wysyłki telemetrii| TelemetryServers
+    ServerProcess -.-x |BLOKADA: Zero synchronizacji w chmurze| RemoteDB
+
+    class HostMachine safeZone;
+    class ExternalInternet cloudZone;

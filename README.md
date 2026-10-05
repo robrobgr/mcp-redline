@@ -127,6 +127,16 @@ Set `MCP_REDLINE_LANG=pl` to receive explanations in Polish while preserving ide
 
 ---
 
+## Architecture & Diagrams
+
+Visualizations of the verification mechanism, air-gapped CISO boundary, and deterministic vs probabilistic comparison:
+* **[Architecture Overview](diagrams/README.md)**
+* [Diagram 1: `verify` Algorithmic Flow](diagrams/01_verify_flow.en.svg)
+* [Diagram 2: CISO & Compliance Data Boundary](diagrams/02_ciso_data_boundary.en.svg)
+* [Diagram 3: Traditional RAG vs mcp-redline](diagrams/03_rag_vs_redline.en.svg)
+
+---
+
 ## License
 
 [MIT](LICENSE) · Copyright (c) 2026 Robert Grabowski.
