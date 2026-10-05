@@ -77,17 +77,25 @@ Plik pamięci trwałej projektu, zawierający kluczowe ustalenia architektoniczn
 
 ---
 
-## 6. Kolejny krok: Etap 6 (Wideo 90s i NotebookLM)
+## 6. Ustalenia merytoryczne i dydaktyczne (Determinizm vs LLM)
+
+* **Teza dydaktyczna:** Mechanizm weryfikujący (strażnik halucynacji) **nie może sam halucynować**. Dlatego `mcp-redline` nie używa modelu językowego ani wag probabilistycznych, lecz wielopoziomowy algorytm deterministyczny.
+* **Architektura podziału ról:** LLM dostarcza inteligencję lingwistyczną i syntezę w dialogu; `mcp-redline` stanowi kotwicę prawdy logicznej, chroniąc przed zjawiskiem *Lost in the Middle*, błędami tokenizacji BPE dla liczb i walut oraz fabrykowaniem nieistniejących uprawnień prawnych.
+* **Materiały edukacyjne:** Treści te zostaną zintegrowane w dedykowanej sekcji Landing Page / Web Demo oraz w dokumentacji GitHub (`README.md`, `docs/ARCHITECTURE.md`), aby wspierać rozmowy z CISO, Zarządami i uczestnikami szkoleń.
+
+---
+
+## 7. Kolejny krok: Etap 6 (Wideo 90s i NotebookLM)
 
 * Przygotowanie scenariusza 90-sekundowego nagrania demonstracyjnego (przegląd korpusu -> zapytanie potwierdzone -> zapytanie pułapka ze statusem `UNSUPPORTED` -> dowód działania offline przy wyłączonym Wi-Fi).
 * Przygotowanie materiałów do zasilenia NotebookLM na wypadek awarii na szkoleniu stacjonarnym.
 
-
 ---
 
-## 6. Konwencje i higiena
+## 8. Konwencje i higiena
 
 * W każdej sesji rozpoczynamy od przeczytania: `README.md`, `MEMORY.md`, `BACKLOG.md`, `CHANGELOG.md`.
 * Po każdej zmianie aktualizujemy dokumentację projektową.
 * Nigdy nie umieszczamy kluczy API ani sekretów w repozytorium ani w dokumentacji (`.env` w `.gitignore`, publicznie tylko `.env.example`).
 * Raportowanie zgodne z zasadą: oznaczamy zadanie jako ukończone tylko wtedy, gdy zweryfikowano je w warunkach czystego środowiska (`NIEZWERYFIKOWANE` w przeciwnym razie).
+

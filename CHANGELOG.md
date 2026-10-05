@@ -67,4 +67,9 @@ Format oparty na [Keep a Changelog](https://keepachangelog.com/pl/1.0.0/).
     - Obsługa pytań otwartych (np. *"jakie są przychody operacyjne?"*) przez deterministyczny mechanizm wyszukiwania i cytowania `search & quote`, zamiast naiwnego dopasowywania pełnego podciągu.
     - Weryfikacja: zapytanie o przychody natychmiast odnajduje oficjalny RZiS (`05_Rachunek_Zyskow_i_Strat_2024_PLN.md`) ze statusem `GROUNDED` i dokładną tabelą (Pozycja A: 48 520 000 PLN, Pozycja D: 180 000 PLN).
 
+### 2026-10-05
+- **Planowane / Backlog:**
+  - Dodanie zadań DOC-1 i DOC-2: wzbogacenie Landing Page oraz dokumentacji GitHub (`README.md`, `docs/`) o szczegółowe wyjaśnienie mechanizmu deterministycznego, 5 etapów algorytmu oraz uzasadnienie wyższości twardego kodu nad modelami probabilistycznymi (LLM) w audycie i compliance.
+
+
 

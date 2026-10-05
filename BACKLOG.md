@@ -90,6 +90,17 @@
 - [ ] **P0-6** Web demo offline: Tailwind i fonty lokalnie zamiast CDN; własny serwer statyczny zamiast `npx serve`.
 - [ ] **P0-7** Web demo: oznaczyć odpowiedzi „Standard LLM” jako symulowane albo zastąpić prawdziwymi, zapisanymi odpowiedziami modelu (model + data).
 
+## Dokumentacja i Landing Page (Edukacja Zarządów & CISO)
+
+- [ ] **DOC-1: Landing Page / Web Demo — sekcja „Dlaczego determinizm wygrywa z LLM”**
+  - Dodać do landing page / web demo dedykowaną sekcję lub panel edukacyjny wyjaśniający działanie algorytmu krok po kroku (5 etapów silnika).
+  - Umieścić tabelaryczne porównanie: model probabilistyczny (LLM) vs deterministyczny algorytm weryfikacyjny (`mcp-redline`).
+  - Podkreślić kluczowe argumenty: odporność na zjawisko *Lost in the Middle*, atomowa zgodność liczb i walut (brak zniekształceń tokenizacji BPE), zasada „mechanizm antyhalucynacyjny sam nie może halucynować” oraz 100% audytowalność offline.
+- [ ] **DOC-2: Rozbudowa dokumentacji GitHub (`README.md`, `docs/ARCHITECTURE.md`)**
+  - Wprowadzić do `README.md` oraz dokumentacji repozytorium GitHub szczegółowy opis techniczny algorytmu (Multi-Tier Semantic Fact-Checking & Precedence Resolution).
+  - Opisać 5 etapów potoku weryfikacji (normalizacja, ontologia PL/EN, bramka hierarchii prawnej, dopasowanie liczb i walut, badanie pokrycia predykatu merytorycznego).
+  - Dodać uzasadnienie biznesowe i architektoniczne dla CISO i Zarządów: dlaczego prosty lokalny kod jest skuteczniejszy i bezpieczniejszy w roli cyfrowego rewidenta niż potężny model zewnętrzny.
+
 ## P1 — jakość i utrzymanie
 
 - [ ] `package.json`: `main`/`bin` wskazują nieistniejący `dist/index.js` (jest `dist/src/index.js`); dodać `files`.
@@ -97,4 +108,5 @@
 - [ ] Ranga źródła z nagłówka dokumentu (`tier: 1`) zamiast z nazwy pliku.
 - [ ] Wiązanie wartości z kolumną tabeli (rok 2024 vs 2023 w RZiS).
 - [ ] Rozdzielić build i testy w `tsconfig`.
+
 
