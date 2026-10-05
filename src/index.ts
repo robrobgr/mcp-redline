@@ -8,15 +8,19 @@ import { z } from "zod";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import { RedlineEngineCore } from "./engine.js";
+import { RedlineEngineCore, SupportedLang } from "./engine.js";
 
 export * from "./engine.js";
 
 export class RedlineEngine extends RedlineEngineCore {
   public corpusDir: string = "";
 
-  constructor(corpusDir?: string | Array<{ file: string; content: string }>) {
-    super();
+  constructor(
+    corpusDir?: string | Array<{ file: string; content: string }>,
+    lang?: SupportedLang
+  ) {
+    const defaultLang = (process.env.MCP_REDLINE_LANG === "pl" ? "pl" : "en") as SupportedLang;
+    super(lang || defaultLang);
     if (Array.isArray(corpusDir)) {
       this.loadDocuments(corpusDir);
       return;
