@@ -23,7 +23,7 @@ Gdy zadajesz pytanie modelowi (np. *„Czy dostawca ma prawo żądać 50 000 EUR
 
 1. Upewnij się, że projekt jest skompilowany:
    ```bash
-   cd /Users/robert/Code/1_Projects/mcp-redline
+   cd <path-to-repo>
    npm run build
    ```
 
@@ -38,10 +38,10 @@ Gdy zadajesz pytanie modelowi (np. *„Czy dostawca ma prawo żądać 50 000 EUR
        "redline": {
          "command": "node",
          "args": [
-           "/Users/robert/Code/1_Projects/mcp-redline/dist/src/index.js"
+           "<path-to-repo>/dist/src/index.js"
          ],
          "env": {
-           "CORPUS_DIR": "/Users/robert/Code/1_Projects/mcp-redline/corpus"
+           "CORPUS_DIR": "<path-to-repo>/corpus"
          }
        }
      }
@@ -59,16 +59,16 @@ Gdy zadajesz pytanie modelowi (np. *„Czy dostawca ma prawo żądać 50 000 EUR
 3. Uzupełnij pola:
    - **Name:** `mcp-redline`
    - **Type:** `stdio`
-   - **Command:** `node /Users/robert/Code/1_Projects/mcp-redline/dist/src/index.js`
+   - **Command:** `node <path-to-repo>/dist/src/index.js`
 4. Lub w pliku konfiguracyjnym `.cursor/mcp.json`:
    ```json
    {
      "mcpServers": {
        "mcp-redline": {
          "command": "node",
-         "args": ["/Users/robert/Code/1_Projects/mcp-redline/dist/src/index.js"],
+         "args": ["<path-to-repo>/dist/src/index.js"],
          "env": {
-           "CORPUS_DIR": "/Users/robert/Code/1_Projects/mcp-redline/corpus"
+           "CORPUS_DIR": "<path-to-repo>/corpus"
          }
        }
      }
@@ -84,9 +84,9 @@ W konfiguracji asystenta Antigravity lub w pliku narzędzi MCP dodaj:
 {
   "name": "redline",
   "command": "node",
-  "args": ["/Users/robert/Code/1_Projects/mcp-redline/dist/src/index.js"],
+  "args": ["<path-to-repo>/dist/src/index.js"],
   "env": {
-    "CORPUS_DIR": "/Users/robert/Code/1_Projects/mcp-redline/corpus"
+    "CORPUS_DIR": "<path-to-repo>/corpus"
   }
 }
 ```
