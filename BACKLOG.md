@@ -92,7 +92,7 @@
 
 ## Dokumentacja i Landing Page (Edukacja Zarządów & CISO)
 
-- [x] **UI-STORY: Interaktywny Storytelling UI („Kłamstwo pod presją vs Cyfrowy Rewident”)** (W toku / Wdrożenie)
+- [x] **UI-STORY: Interaktywny Storytelling UI („Kłamstwo pod presją vs Cyfrowy Rewident”)** (Ukończono: 2026-10-05)
   - Zbudować dedykowany tryb narracyjny / interaktywną ścieżkę edukacyjną w UI (na landing page i w konsoli web demo), która krok po kroku opowiada historię i tłumaczy mechanizmy decyzyjne:
     1. **Przełącznik 3 Perspektyw (Triad Switcher):**
        - *Perspektywa 1: Tylko LLM bez MCP Redline* — niekontrolowana generacja, uleganie presji pytającego, gładkie potakiwanie na fałszywe twierdzenia, halucynowanie podstaw prawnych i brak ścisłego cytatu.
@@ -119,6 +119,31 @@
   - Wprowadzić do `README.md` oraz dokumentacji repozytorium GitHub szczegółowy opis techniczny algorytmu (Multi-Tier Semantic Fact-Checking & Precedence Resolution).
   - Opisać 5 etapów potoku weryfikacji (normalizacja, ontologia PL/EN, bramka hierarchii prawnej, dopasowanie liczb i walut, badanie pokrycia predykatu merytorycznego).
   - Dodać uzasadnienie biznesowe i architektoniczne dla CISO i Zarządów: dlaczego prosty lokalny kod jest skuteczniejszy i bezpieczniejszy w roli cyfrowego rewidenta niż potężny model zewnętrzny.
+- [ ] **LIVE-LLM-PLAYGROUND: Podpięcie własnego API (Bring Your Own Key - BYOK) do testowania na żywym modelu LLM**
+  - **Tryb Live w Web Demo:**
+    - Dodanie panelu konfiguracji API w interfejsie (`Ustawienia LLM / Podłącz własny klucz`):
+      - Wybór providera: OpenAI (GPT-4o / GPT-4o-mini), Anthropic (Claude 3.5 Sonnet), Google Gemini (Gemini 2.0 Flash / Pro) oraz lokalny endpoint Ollama (`http://localhost:11434` np. Llama 3 / Mistral / Qwen).
+      - Pole wprowadzania klucza API z bezpiecznym zapisem w `localStorage` przeglądarki (klucz nigdy nie opuszcza maszyny użytkownika).
+      - Przełącznik trybu działania: `Tryb Eval Dataset (symulowany/offline)` vs `Tryb Live API (na żywym modelu)`.
+    - Po wpisaniu pytania w trybie Live: przeglądarka wysyła prompt do wybranego LLM z definicją narzędzia `tools/call: verify`, symuluje/wywołuje silnik Redline i w czasie rzeczywistym rysuje karty A/B oraz ślad pętli myślowej agenta.
+  - **Skrypt CLI do testów na żywo (`scripts/live-agent.ts`):**
+    - Samodzielny skrypt CLI uruchamiany poleceniem np. `OPENAI_API_KEY=... npm run agent:live` lub `GEMINI_API_KEY=... npm run agent:live`.
+    - Uruchamia pętlę agentową z modelem i podpiętym serwerem `mcp-redline` przez standardowy protokół MCP stdio JSON-RPC.
+- [ ] **MCP-GUIDE-VIDEO: Praktyczna instrukcja podłączenia MCP i wideo-przewodnik (Video Guide)**
+  - **Dokumentacja krok po kroku (`docs/INTEGRATION_GUIDE.md`):**
+    - Jak w 2 minuty podpiąć `mcp-redline` do:
+      1. **Claude Desktop** (konfiguracja `claude_desktop_config.json`).
+      2. **Cursor IDE** (konfiguracja `.cursor/mcp.json`).
+      3. **Antigravity / Gemini Code Assist** (konfiguracja `mcp_servers`).
+      4. **VS Code Roo Code / Cline** oraz konsolowych agentów CLI.
+    - Gotowe fragmenty konfiguracji JSON ze ścieżkami do `dist/src/index.js` i katalogu `corpus/`.
+  - **Wideo-przewodnik (90-sekundowy demo walkthrough + 5-minutowy deep dive):**
+    - Nagranie ekranu prezentujące:
+      - Krok 1: Uruchomienie `npm run build` i sprawdzenie testów.
+      - Krok 2: Wklejenie konfiguracji do klienta MCP (np. Claude Desktop lub Cursor).
+      - Krok 3: Zadanie podchwytliwego pytania modelowi (np. *"Czy mamy prawo żądać 50 000 EUR kary za awarię we Frankfurcie?"*).
+      - Krok 4: Porównanie: bez MCP model potwierdza i generuje bzdurny wniosek, z MCP model wywołuje `verify` i stanowczo odmawia cytując protokół zarządu.
+      - Krok 5: Dowód pracy offline (odłączenie sieci Wi-Fi i weryfikacja w 100% lokalna).
 
 ## P1 — jakość i utrzymanie
 
