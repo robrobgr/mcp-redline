@@ -2,6 +2,25 @@
 
 ---
 
+## 🎯 Plan 2026-10-05 — do publikacji na GitHubie (w toku, Antigravity)
+
+Cel dnia: publiczne repozytorium `robrobgr/mcp-redline` z demo, które nie przeczy tezie projektu. Stan wyjściowy (zweryfikowany uruchomieniem 2026-10-05): testy 14/14, ewaluacja 91% na 64 twierdzeniach, **0 fałszywych GROUNDED**, fakty 32/32, nie-fakty 32/32.
+
+- [x] **#1 Demo na prawdziwym silniku** — bundle z `src/` przez esbuild do `web/dist/engine.bundle.js`; usunięto ręczną kopię silnika z `TRAP-01…04` (`web/index.html`).
+- [x] **#2 Oznaczenie odpowiedzi „Standard LLM”** — etykieta „ODPOWIEDŹ ILUSTRACYJNA” i ostrzeżenie o symulacji braku bramki przy każdej karcie.
+- [x] **#3 Licznik ryzyka: każda kwota ze wzorem albo usunięta** — kwoty przeliczone ze wzorów korpusu (`7.5% × £48 000 = £3 600/rok`), koszt audytu oznaczony jako `SZACUNEK`.
+- [x] **#4 `package.json`** — `main` i `bin` wskazują na `dist/src/index.js`, dodano pole `files` i skrypt `bundle:engine` w łańcuchu `build`.
+- [x] **#5 Demo offline** — Tailwind CSS prekompilowany lokalnie, fonty Inter, JetBrains Mono i Material Symbols w `web/fonts/`, przetestowano w przeglądarce bez zapytań zewnętrznych.
+- [ ] **#6 Publikacja** — czysty klon → `npm test` → `npm run eval` → gałąź `master` → `main` → push publicznie jako `robrobgr/mcp-redline`. W README uczciwe liczby z adnotacją o skażonym holdoucie.
+
+**Po publikacji:** Etap 6 (wideo 90 s) — ma pokazywać wersję, którą widz może sklonować.
+
+**Zadanie nie dla agenta — P0-5b przez sieć kontaktów:** dwie osoby, które nie widziały kodu, czytają 7 dokumentów korpusu i piszą po 15 zdań (prawdziwe, fałszywe, podchwytliwe). Daje czysty holdout i jest konkretną prośbą do sieci zamiast ogólnego „podważ moje założenia”.
+
+**Zasada dla agentów pracujących równolegle:** nie uruchamiać poleceń git z dwóch narzędzi naraz — 2026-10-05 `git status` z drugiej sesji zostawił `.git/index.lock` (usunięty).
+
+---
+
 ## Zadania ukończone (Done)
 
 - [x] **Etap 0: Bramka zero — Audyt rynku i rejestrów**
@@ -119,7 +138,8 @@
   - Wprowadzić do `README.md` oraz dokumentacji repozytorium GitHub szczegółowy opis techniczny algorytmu (Multi-Tier Semantic Fact-Checking & Precedence Resolution).
   - Opisać 5 etapów potoku weryfikacji (normalizacja, ontologia PL/EN, bramka hierarchii prawnej, dopasowanie liczb i walut, badanie pokrycia predykatu merytorycznego).
   - Dodać uzasadnienie biznesowe i architektoniczne dla CISO i Zarządów: dlaczego prosty lokalny kod jest skuteczniejszy i bezpieczniejszy w roli cyfrowego rewidenta niż potężny model zewnętrzny.
-- [ ] **LIVE-LLM-PLAYGROUND: Podpięcie własnego API (Bring Your Own Key - BYOK) do testowania na żywym modelu LLM**
+- [ ] ⏸️ **ODŁOŻONE (2026-10-05)** — klucze API w `localStorage` publicznej strony to ekspozycja na XSS, a funkcja dodaje ruch sieciowy do projektu „zero sieci”. Jeśli kiedyś — jako skrypt CLI, nie w przeglądarce.
+  **LIVE-LLM-PLAYGROUND: Podpięcie własnego API (Bring Your Own Key - BYOK) do testowania na żywym modelu LLM**
   - **Tryb Live w Web Demo:**
     - Dodanie panelu konfiguracji API w interfejsie (`Ustawienia LLM / Podłącz własny klucz`):
       - Wybór providera: OpenAI (GPT-4o / GPT-4o-mini), Anthropic (Claude 3.5 Sonnet), Google Gemini (Gemini 2.0 Flash / Pro) oraz lokalny endpoint Ollama (`http://localhost:11434` np. Llama 3 / Mistral / Qwen).

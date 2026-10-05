@@ -5,46 +5,14 @@
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <title>mcp-redline // Deterministyczny Serwer MCP Weryfikacji Dokumentów i Cytowania</title>
   
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <!-- Material Symbols Outlined -->
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <!-- Offline Local Fonts & Material Symbols -->
+  <link rel="stylesheet" href="fonts/fonts.css" />
   
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              red: "#ef4444",
-              crimson: "#dc2626",
-              darkRed: "#991b1b",
-              emerald: "#10b981",
-              darkEmerald: "#059669",
-              cyan: "#06b6d4",
-              darkCanvas: "#09090b",
-              surface: "#121215",
-              card: "#18181b",
-              cardElevated: "#222226",
-              border: "#27272a",
-              borderHighlight: "#3f3f46",
-              mutedText: "#a1a1aa",
-              subtleText: "#71717a"
-            }
-          },
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace']
-          }
-        }
-      }
-    }
-  </script>
+  <!-- Offline Local Pre-compiled Tailwind CSS -->
+  <link rel="stylesheet" href="dist/tailwind.css" />
+
+  <!-- Genuine Deterministic Verification Engine (Bundled directly from src/ via esbuild) -->
+  <script src="dist/engine.bundle.js"></script>
 
   <style>
     .material-symbols-outlined {
@@ -298,14 +266,14 @@
             <!-- Metric 3: Fail-Safe Cost -->
             <div id="meter-col-failsafe" class="p-2.5 rounded bg-cyan-950/40 border border-cyan-800/50 flex flex-col justify-between transition-all">
               <div class="flex items-center justify-between text-[11px] font-mono text-cyan-300">
-                <span>KOSZT AUDYTU (FAIL-SAFE):</span>
+                <span>KOSZT AUDYTU (FAIL-SAFE) [SZACUNEK]:</span>
                 <span class="material-symbols-outlined text-brand-cyan text-xs">schedule</span>
               </div>
               <div id="meter-failsafe-val" class="text-xl lg:text-2xl font-black font-mono text-brand-cyan my-1">
                 ~30 PLN
               </div>
               <div id="meter-failsafe-desc" class="text-[11px] text-zinc-300 font-sans leading-tight">
-                Koszt 5 min weryfikacji przez człowieka w razie wątpliwości/odmowy serwera.
+                Szacunek: 3-5 min weryfikacji przez audytora/prawnika w razie wątpliwości lub odmowy serwera.
               </div>
             </div>
           </div>
@@ -363,17 +331,25 @@
                   HALUCYNACJA LUB BRAK ŚCISŁEGO CYTATU
                 </span>
               </div>
-              <span id="llm-risk-badge" class="px-2 py-0.5 rounded text-[10px] font-mono bg-red-900/40 text-red-200 border border-red-700/50 font-semibold">
-                RYZYKO: WYSOKIE
-              </span>
+              <div class="flex items-center gap-1.5">
+                <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-800 text-amber-300 border border-amber-500/40 font-semibold" title="Odpowiedź ilustracyjna reprezentująca skłonność modeli LLM do uległości i potwierdzania tezy (sycophancy). Prawdziwe zapisane odpowiedzi modeli: w kolejnej wersji.">
+                  ODPOWIEDŹ ILUSTRACYJNA
+                </span>
+                <span id="llm-risk-badge" class="px-2 py-0.5 rounded text-[10px] font-mono bg-red-900/40 text-red-200 border border-red-700/50 font-semibold">
+                  RYZYKO: WYSOKIE
+                </span>
+              </div>
             </div>
 
-            <div class="px-3 py-2 bg-brand-card/70 border-b border-brand-border flex items-center justify-between text-xs text-zinc-400">
-              <span class="flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-xs text-zinc-400">psychology</span>
-                Standardowy LLM (Syntetyzujący na siłę)
+            <div class="px-3 py-1.5 bg-amber-950/20 border-b border-amber-900/40 flex items-center justify-between text-xs text-zinc-400">
+              <span class="flex items-center gap-1.5 text-zinc-300">
+                <span class="material-symbols-outlined text-xs text-amber-400">psychology</span>
+                <span>Standardowy LLM (Syntetyzujący na siłę)</span>
               </span>
-              <span class="font-mono text-zinc-500 text-[11px]">Brak twardej bramki odmowy</span>
+              <span class="font-mono text-amber-400/90 text-[10px] flex items-center gap-1">
+                <span class="material-symbols-outlined text-[11px]">info</span>
+                <span>Symulacja ilustracyjna — brak twardej bramki</span>
+              </span>
             </div>
 
             <!-- Content -->
@@ -803,7 +779,7 @@
 
   <!-- Load bundled dataset -->
   <script type="module">
-    import { CORPUS_DOCS, SECTIONS, BILINGUAL_SYNONYMS, SCENARIOS } from './data.js';
+    import { CORPUS_DOCS, SCENARIOS } from './data.js';
 
     // State
     let currentScenarioIndex = 0;
@@ -1671,231 +1647,14 @@
     });
 
     // =========================================================================
-    // Client-side Redline Engine (Identical logic to src/index.ts)
+    // Genuine Redline Verification Engine (Loaded from dist/engine.bundle.js)
     // =========================================================================
-    class ClientRedlineEngine {
-      constructor() {
-        this.sections = SECTIONS;
-        this.synonyms = BILINGUAL_SYNONYMS;
-      }
-
-      isStopword(token) {
-        const stops = new Set([
-          "oraz", "przez", "jako", "jest", "są", "tylko", "the", "and", "that", "this", "with", "from", "dla", "wynosi",
-          "między", "została", "dnia", "opiewa", "kwotę", "płatną", "sp", "sp.", "o.o", "o.o.", "w", "na", "za", "do",
-          "się", "pod", "nad", "or", "by", "at", "an", "of", "in", "to", "rok", "roku", "r.", "jakie", "jaki", "jakim",
-          "ile", "czy", "kto", "gdzie", "kiedy", "jaka", "jakich"
-        ]);
-        return stops.has(token);
-      }
-
-      tokenize(text) {
-        return text
-          .toLowerCase()
-          .replace(/[^\p{L}\p{N}\s.,%£€-]/gu, " ")
-          .split(/\s+/)
-          .map((t) => t.replace(/^[.,:;!?"'()\[\]]+|[.,:;!?"'()\[\]]+$/g, "").trim())
-          .filter((t) => t.length > 1 && !this.isStopword(t));
-      }
-
-      expandTokens(tokens) {
-        const result = new Set(tokens);
-        for (const token of tokens) {
-          if (this.synonyms[token]) {
-            for (const syn of this.synonyms[token]) {
-              result.add(syn);
-            }
-          }
-        }
-        return Array.from(result);
-      }
-
-      cleanNum(s) {
-        let norm = s.replace(/\s+/g, "");
-        if (/\d+,\d{3}/.test(norm)) {
-          norm = norm.replace(/,/g, "");
-        } else {
-          norm = norm.replace(/,/g, ".");
-        }
-        return norm.replace(/[^\d.]/g, "").replace(/\.+$/, "");
-      }
-
-      search(query, limit = 5) {
-        const tokens = this.expandTokens(this.tokenize(query));
-        if (tokens.length === 0) return [];
-
-        const results = [];
-        const cleanQuery = query.toLowerCase().trim().replace(/[?!.,]+$/, "");
-
-        for (const sec of this.sections) {
-          const text = `${sec.title} ${sec.content}`.toLowerCase();
-          let score = 0;
-
-          for (const token of tokens) {
-            if (text.includes(token)) {
-              score += token.length > 4 ? 2 : 1;
-            }
-          }
-
-          if (text.includes(cleanQuery)) {
-            score += 15;
-          }
-
-          if (score > 0) {
-            if (sec.tier === 1) score += 3;
-            else if (sec.tier === 2) score += 1;
-
-            results.push({
-              file: sec.file,
-              page: sec.page,
-              title: sec.title,
-              tier: sec.tier,
-              quote: sec.content,
-              score,
-            });
-          }
-        }
-
-        return results.sort((a, b) => b.score - a.score).slice(0, limit);
-      }
-
-      verify(claim) {
-        const normClaim = claim.trim().toLowerCase();
-        const numbersInClaim = claim.match(/(\d+[\d\s.,]*\s*(?:%|gbp|eur|pln|zł|miesięcy|pojazdów|aut)?)/gi) || [];
-
-        // TRAP-01: Claim of right to unilateral indexation / 7.5% UK CPI
-        if ((normClaim.includes("prawo") || normClaim.includes("uprawnion") || normClaim.includes("jednostronn")) &&
-            (normClaim.includes("indeksacj") || normClaim.includes("cpi") || normClaim.includes("7.5") || normClaim.includes("7,5") || normClaim.includes("podniesieni"))) {
-          const msaClause = this.sections.find((s) => s.file.includes("MSA") && s.content.includes("Neither Party shall have the right to unilaterally adjust"));
-          return {
-            status: "UNSUPPORTED",
-            claim,
-            file: msaClause?.file || "01_Apex_VeloNova_MSA_2023.md",
-            page: msaClause?.page || 6,
-            quote: msaClause?.content,
-            explanation: "Sprzeczność z umową ramową: Section 8.2 Master Services Agreement wprost zakazuje jednostronnej waloryzacji cen. Zapis o automatycznej indeksacji CPI został wykreślony, a wszelkie jednostronne pisma są z mocy prawa nieważne (null and void ab initio).",
-          };
-        }
-
-        // TRAP-02: Claim of 50k EUR penalty or 50k EUR Service Credit
-        if ((normClaim.includes("50 000") || normClaim.includes("50000")) &&
-            (normClaim.includes("kar") || normClaim.includes("odszkodowani") || normClaim.includes("service credit") || normClaim.includes("rabat") || normClaim.includes("przyzna"))) {
-          const boardMin = this.sections.find((s) => s.file.includes("Protokol") && s.content.includes("jednogłośnie odrzucił propozycję"));
-          return {
-            status: "UNSUPPORTED",
-            claim,
-            file: boardMin?.file || "06_Protokol_Zarzadu_VeloNova_11_2024.md",
-            page: boardMin?.page || 4,
-            quote: boardMin?.content,
-            explanation: "Brak oparcia w faktach: Kwota 50 000 EUR dotyczyła odrzuconej przez Zarząd propozycji kary umownej. Zgodnie z umową MSA i protokołem z posiedzenia Zarządu, faktyczny rabat Service Credit wyniósł wyłącznie £600.00 GBP (5% opłaty kwartalnej), a nie 50 000 EUR.",
-          };
-        }
-
-        // TRAP-03: Claim of fleet expansion annex signed for 300 vehicles / 95k EUR
-        if ((normClaim.includes("aneks") || normClaim.includes("podpisano")) &&
-            (normClaim.includes("300") || normClaim.includes("95 000") || normClaim.includes("95000"))) {
-          const crmOpp = this.sections.find((s) => s.file.includes("CRM") && s.content.includes("STALLED / REJECTED"));
-          return {
-            status: "UNSUPPORTED",
-            claim,
-            file: crmOpp?.file || "07_CRM_Export_Enterprise_Contracts_2024.md",
-            page: crmOpp?.page || 3,
-            quote: crmOpp?.content,
-            explanation: "Brak oparcia w faktach: Wniosek o rozszerzenie floty do 300 aut (OPP-2024-089) został formalnie odrzucony (STALLED / REJECTED). Aneks nigdy nie został podpisany, obowiązuje pierwotna umowa na 180 pojazdów.",
-          };
-        }
-
-        // TRAP-04: Claim of exclusive German telemetry hosting
-        if ((normClaim.includes("wyłączn") || normClaim.includes("jedynie") || normClaim.includes("wyłącznie")) &&
-            (normClaim.includes("niem") || normClaim.includes("frankfurt") || normClaim.includes("germany"))) {
-          const schedB = this.sections.find((s) => s.file.includes("Schedule_B") && s.content.includes("does not maintain dedicated compute"));
-          return {
-            status: "UNSUPPORTED",
-            claim,
-            file: schedB?.file || "02_Schedule_B_Service_Levels_and_Credits.md",
-            page: schedB?.page || 4,
-            quote: schedB?.content,
-            explanation: "Sprzeczność z architekturą kontraktową (Schedule B, Section 3.2): Dostawca nie posiada klastrów przetwarzania w Niemczech. Dane są przetwarzane w AWS Dublin (Irlandia) oraz archiwizowane w AWS Londyn (UK).",
-          };
-        }
-
-        // Generic search and grounding
-        const matches = this.search(claim, 6);
-        if (matches.length === 0 || matches[0].score < 3) {
-          return {
-            status: "UNSUPPORTED",
-            claim,
-            explanation: "Brak oparcia w korpusie: wskazane zagadnienie nie występuje w żadnym z 7 dokumentów źródłowych.",
-          };
-        }
-
-        const best = matches[0];
-        const bestLower = best.quote.toLowerCase();
-
-        // Number check
-        const rawMatches = best.quote.match(/(?:\d[\d\s.,]*\d|\d+)/g) || [];
-        const quoteNumbers = new Set();
-        for (const m of rawMatches) {
-          const c = this.cleanNum(m);
-          if (c) {
-            quoteNumbers.add(c);
-            if (c.endsWith(".00")) quoteNumbers.add(c.replace(/\.00$/, ""));
-          }
-        }
-
-        let numbersSupported = true;
-        for (const num of numbersInClaim) {
-          const clean = this.cleanNum(num);
-          if (clean && clean.length >= 1) {
-            const matchesExact = quoteNumbers.has(clean) ||
-              quoteNumbers.has(`${clean}.00`) ||
-              Array.from(quoteNumbers).some((qn) => qn.startsWith(`${clean}.`) || qn === clean);
-            if (!matchesExact) {
-              numbersSupported = false;
-              break;
-            }
-          }
-        }
-
-        // Substantive token coverage
-        const claimTokens = this.tokenize(claim);
-        const genericEntities = new Set(["velonova", "apex", "meridian", "technologies", "logistics", "spółka", "ltd", "dostawca", "klient"]);
-        const substantiveTokens = claimTokens.filter((t) => !genericEntities.has(t) && isNaN(Number(t)));
-
-        let matchedSubstantiveCount = 0;
-        const expandedQuoteTokens = new Set(this.expandTokens(this.tokenize(best.quote)));
-        for (const sub of substantiveTokens) {
-          const expandedSub = this.expandTokens([sub]);
-          if (expandedSub.some((s) => expandedQuoteTokens.has(s) || bestLower.includes(s))) {
-            matchedSubstantiveCount++;
-          }
-        }
-
-        const substantiveCoverage = substantiveTokens.length > 0 ? matchedSubstantiveCount / substantiveTokens.length : 1;
-
-        if (best.score >= 4 && numbersSupported && substantiveCoverage >= 0.40) {
-          return {
-            status: "GROUNDED",
-            claim,
-            file: best.file,
-            page: best.page,
-            quote: best.quote,
-            explanation: `Twierdzenie w pełni potwierdzone w źródle: ${best.file} (sekcja/strona ${best.page}).`,
-          };
-        }
-
-        return {
-          status: "UNSUPPORTED",
-          claim,
-          file: best.file,
-          page: best.page,
-          quote: best.quote,
-          explanation: `Brak wystarczającego potwierdzenia: odnaleziono powiązany fragment w ${best.file}, lecz nie zawiera on jednoznacznego dowodu dla podanego twierdzenia.`,
-        };
-      }
+    const EngineConstructor = window.RedlineEngine || (window.RedlineBundle && window.RedlineBundle.RedlineEngine);
+    if (!EngineConstructor) {
+      console.error("[mcp-redline] RedlineEngine not found on window. Ensure dist/engine.bundle.js is loaded.");
     }
-
-    const clientEngine = new ClientRedlineEngine();
+    const clientEngine = new EngineConstructor();
+    clientEngine.loadDocuments(CORPUS_DOCS.map(d => ({ file: d.filename || d.file, content: d.content })));
 
     // Custom Claim / Query Verification & Search
     btnVerify.addEventListener('click', () => {
@@ -1923,6 +1682,7 @@
       const durationMs = Math.max(0.6, t1 - t0);
 
       const isGrounded = verifyResult.status === 'GROUNDED' || (isQuestion && searchMatches.length > 0 && searchMatches[0].score >= 4);
+      const isContradicted = verifyResult.status === 'CONTRADICTED';
       const activeMatch = (searchMatches.length > 0) ? searchMatches[0] : null;
 
       if (isGrounded) {
@@ -1961,39 +1721,74 @@
         llmDefectsList.innerHTML = '<li>Brak gwarancji cytowania nienaruszonego wiersza tabeli</li><li>Ryzyko podania zaokrągleń lub mylenia kategorii bilansowych</li>';
         llmExposureText.textContent = 'Wymagana precyzja audytowa (zgodność z dokumentacją źródłową)';
 
-      } else {
+      } else if (isContradicted) {
         redlineBanner.className = 'bg-red-950/60 border-b border-red-800/50 px-3 py-2 flex items-center justify-between';
         redlineBannerIcon.textContent = 'gpp_bad';
         redlineBannerIcon.className = 'material-symbols-outlined text-brand-red text-base font-bold';
-        redlineBannerText.textContent = 'TWARDA ODMOWA // UNSUPPORTED';
+        redlineBannerText.textContent = 'WYKRYTO SPRZECZNOŚĆ // CONTRADICTED';
         redlineBannerText.className = 'text-xs font-mono font-bold text-brand-red tracking-wide';
 
-        redlineStatusBadge.textContent = 'UNSUPPORTED (BEZWZGLĘDNA ODMOWA)';
+        redlineStatusBadge.textContent = 'CONTRADICTED (SPRZECZNOŚĆ Z DOKUMENTEM)';
         redlineStatusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-red-900/60 text-red-100 border border-red-600 font-semibold';
 
-        redlineVerdictTag.textContent = 'STATUS: UNSUPPORTED';
+        redlineVerdictTag.textContent = 'STATUS: CONTRADICTED';
         redlineVerdictTag.className = 'font-mono text-xs px-2 py-0.5 rounded bg-brand-darkCanvas border border-brand-red/60 text-brand-red font-bold';
 
-        redlineSourceTitle.textContent = 'ROZSTRZYGNIĘCIE SPRZECZNOŚCI / BRAK DOWODU:';
-        redlineTierBadge.textContent = verifyResult.file ? 'Sprzeczność z nadrzędnym dokumentem' : 'Brak w korpusie';
+        redlineSourceTitle.textContent = 'DOWÓD SPRZECZNOŚCI (ODNALEZIONO W KORPUSIE):';
+        redlineTierBadge.textContent = verifyResult.tier ? `Tier ${verifyResult.tier}: Nadrzędny autorytet dokumentu` : 'Sprzeczność z dokumentem';
         redlineTierBadge.className = 'text-brand-red font-semibold';
 
         redlineQuoteContainer.className = 'bg-brand-darkCanvas rounded border-l-2 border-brand-red border-t border-r border-b border-brand-border p-3 font-mono text-xs text-red-200 space-y-2 max-h-56 overflow-y-auto';
         redlineQuoteText.textContent = verifyResult.quote
           ? `[DOWÓD WYKLUCZAJĄCY ROSZCZENIE]:\n${verifyResult.quote}`
-          : `[BRAK OPARCIA DOWODOWEGO]\nPodane zapytanie nie posiada oparcia w żadnym z 7 dokumentów korpusu. Silnik mcp-redline deterministycznie odmawia wygenerowania niezweryfikowanej odpowiedzi.`;
+          : `[SPRZECZNOŚĆ WYKRYTA W KORPUSIE]\n${verifyResult.explanation}`;
 
         redlineExplanationText.textContent = verifyResult.explanation;
-        redlineMetaFile.textContent = verifyResult.file || 'Brak dopasowania';
+        redlineMetaFile.textContent = verifyResult.file || '01_Apex_VeloNova_MSA_2023.md';
         redlineMetaPage.textContent = verifyResult.page ? `Sekcja / Strona ${verifyResult.page}` : 'N/A';
         statLatency.textContent = durationMs.toFixed(2) + ' ms';
 
         // Update LLM Card
-        llmBannerText.textContent = 'KRYTYCZNE RYZYKO HALUCYNACJI';
+        llmBannerText.textContent = 'KRYTYCZNE RYZYKO HALUCYNACJI / BŁĘDU';
         llmRiskBadge.textContent = 'RYZYKO: WYSOKIE';
-        llmResponseText.textContent = `„Model LLM bez bramki mcp-redline miałby tendencję do rozwinięcia odpowiedzi i domniemywania szczegółów dla zapytania: '${customInput}'. mcp-redline odciął to zapytanie deterministycznie odmową UNSUPPORTED.”`;
-        llmDefectsList.innerHTML = '<li>Brak oparcia w korpusie lub sprzeczność z nadrzędną umową</li><li>Zmyślenie danych przez standardowy model stwarza bezpośrednie ryzyko decyzyjne</li>';
-        llmExposureText.textContent = 'Brak zweryfikowanej podstawy w umowach spółki';
+        llmResponseText.textContent = `„Model LLM bez bramki mcp-redline zatwierdziłby lub zinterpretował zapytanie '${customInput}', nie zauważając twardego zakazu lub sprzeczności w umowie nadrzędnej. mcp-redline wykrywa sprzeczność i odrzuca twierdzenie jako CONTRADICTED.”`;
+        llmDefectsList.innerHTML = '<li>Sprzeczność z nadrzędnym dokumentem prawnym/finansowym</li><li>Wysokie ryzyko roszczeń lub nieuprawnionych płatności</li>';
+        llmExposureText.textContent = 'Bezpośrednie ryzyko kontraktowe lub finansowe';
+
+      } else {
+        // UNSUPPORTED
+        redlineBanner.className = 'bg-amber-950/40 border-b border-amber-800/40 px-3 py-2 flex items-center justify-between';
+        redlineBannerIcon.textContent = 'help_outline';
+        redlineBannerIcon.className = 'material-symbols-outlined text-amber-400 text-base font-bold';
+        redlineBannerText.textContent = 'TWARDA ODMOWA // UNSUPPORTED';
+        redlineBannerText.className = 'text-xs font-mono font-bold text-amber-400 tracking-wide';
+
+        redlineStatusBadge.textContent = 'UNSUPPORTED (BRAK OPARCIA W KORPUSIE)';
+        redlineStatusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-amber-900/50 text-amber-200 border border-amber-700/50 font-semibold';
+
+        redlineVerdictTag.textContent = 'STATUS: UNSUPPORTED';
+        redlineVerdictTag.className = 'font-mono text-xs px-2 py-0.5 rounded bg-brand-darkCanvas border border-amber-500/40 text-amber-400 font-bold';
+
+        redlineSourceTitle.textContent = 'BRAK WYSTARCZAJĄCEGO OPARCIA:';
+        redlineTierBadge.textContent = (verifyResult.nearest && verifyResult.nearest.tier) ? `Najbliższy fragment: Tier ${verifyResult.nearest.tier}` : 'Brak w korpusie';
+        redlineTierBadge.className = 'text-amber-400 font-semibold';
+
+        redlineQuoteContainer.className = 'bg-brand-darkCanvas rounded border-l-2 border-amber-500/60 border-t border-r border-b border-brand-border p-3 font-mono text-xs text-amber-200/90 space-y-2 max-h-56 overflow-y-auto';
+        redlineQuoteText.textContent = (verifyResult.nearest && verifyResult.nearest.quote)
+          ? `[NAJBLIŻSZY FRAGMENT W KORPUSIE]:\n${verifyResult.nearest.quote}`
+          : `[BRAK OPARCIA DOWODOWEGO]\nPodane zapytanie nie posiada oparcia w żadnym z 7 dokumentów korpusu. Silnik mcp-redline deterministycznie odmawia wygenerowania niezweryfikowanej odpowiedzi.`;
+
+        redlineExplanationText.textContent = verifyResult.explanation;
+        redlineMetaFile.textContent = (verifyResult.nearest && verifyResult.nearest.file) || 'Brak dopasowania';
+        redlineMetaPage.textContent = (verifyResult.nearest && verifyResult.nearest.page) ? `Sekcja / Strona ${verifyResult.nearest.page}` : 'N/A';
+        statLatency.textContent = durationMs.toFixed(2) + ' ms';
+
+        // Update LLM Card
+        llmBannerText.textContent = 'RYZYKO KONFABULACJI / DOMYSŁÓW';
+        llmRiskBadge.textContent = 'RYZYKO: ŚREDNIE / WYSOKIE';
+        llmResponseText.textContent = `„Model LLM bez bramki mcp-redline spekulowałby na temat zapytania '${customInput}'. mcp-redline zachowuje dyscyplinę dowodową i odmawia odpowiedzi (UNSUPPORTED) przy braku jednoznacznego źródła.”`;
+        llmDefectsList.innerHTML = '<li>Brak jednoznacznego potwierdzenia w korpusie dokumentów</li><li>Dyscyplina milczenia zamiast zmyślania faktów</li>';
+        llmExposureText.textContent = 'Ochrona przed niezweryfikowaną ekstrapolacją danych';
       }
 
       // Update Inspector with Custom RPC Payload
@@ -2008,6 +1803,7 @@
         }
       };
 
+      const rpcVerdict = verifyResult.status;
       const rpcResPayload = {
         jsonrpc: "2.0",
         id: rpcReqPayload.id,
@@ -2017,7 +1813,7 @@
               type: "text",
               text: JSON.stringify({
                 query: customInput,
-                verdict: isGrounded ? "GROUNDED" : "UNSUPPORTED",
+                verdict: rpcVerdict,
                 file: redlineMetaFile.textContent,
                 page: redlineMetaPage.textContent,
                 explanation: redlineExplanationText.textContent,
@@ -2046,7 +1842,7 @@
           <div class="text-zinc-400"><span class="text-zinc-500">[${timeStr}]</span> <span class="text-brand-emerald">[engine:tokenize]</span> Tokens: ${clientEngine.tokenize(customInput).join(', ')}</div>
           <div class="text-zinc-400"><span class="text-zinc-500">[${timeStr}]</span> <span class="text-brand-cyan">[engine:match]</span> Top candidate: ${redlineMetaFile.textContent}</div>
           <div class="${isGrounded ? 'text-brand-emerald' : 'text-brand-red'} font-semibold">
-            <span class="text-zinc-500">[${timeStr}]</span> [verdict:${isGrounded ? 'grounded' : 'unsupported'}] Execution time: ${durationMs.toFixed(2)} ms
+            <span class="text-zinc-500">[${timeStr}]</span> [verdict:${rpcVerdict.toLowerCase()}] Execution time: ${durationMs.toFixed(2)} ms
           </div>
           <div class="text-zinc-400"><span class="text-zinc-500">[${timeStr}]</span> <span class="text-brand-cyan">[stdout]</span> RPC response flushed</div>
         `;

@@ -1,19 +1,26 @@
 {
   "name": "mcp-redline",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Deterministic local document citation and claim verification MCP server with explicit refusal",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "type": "module",
   "bin": {
-    "mcp-redline": "./dist/index.js"
+    "mcp-redline": "./dist/src/index.js"
   },
+  "files": [
+    "dist/src",
+    "corpus",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run bundle:engine",
+    "bundle:engine": "esbuild src/browser.ts --bundle --format=iife --global-name=RedlineBundle --outfile=web/dist/engine.bundle.js",
     "start": "node dist/src/index.js",
     "test": "tsc && node --test dist/tests/*.test.js",
     "eval": "tsc && node scripts/eval.js",
     "bundle:web": "node scripts/build-web-data.js",
-    "demo": "npx --yes serve web"
+    "demo": "python3 -m http.server 3333 --directory web"
   },
   "keywords": [
     "mcp",
@@ -32,6 +39,8 @@
   },
   "devDependencies": {
     "@types/node": "^22.13.0",
+    "esbuild": "^0.28.2",
+    "tailwindcss": "^3.4.19",
     "typescript": "^5.7.3"
   }
 }

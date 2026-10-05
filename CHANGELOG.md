@@ -6,6 +6,21 @@ Format oparty na [Keep a Changelog](https://keepachangelog.com/pl/1.0.0/).
 
 ---
 
+## [1.2.0] — 2026-10-05
+
+### Zmieniono
+- **Demo web zasilane prawdziwym silnikiem:** wyodrębniono `RedlineEngineCore` do `src/engine.ts` i zbudowano bundle przeglądarkowy `web/dist/engine.bundle.js` za pomocą `esbuild`. Całkowicie usunięto ręczną kopię silnika z `web/index.html` oraz sztywne reguły `TRAP-01…04`.
+- **100% tryb offline:** skompilowano dedykowany lokalny Tailwind CSS (`web/dist/tailwind.css`), pobrano fonty Inter, JetBrains Mono oraz Material Symbols do `web/fonts/` (zero zapytań do zewnętrznych CDN, możliwość uruchomienia przy odłączonym Wi-Fi).
+- **Rygor finansowy w Liczniku Ryzyka:** każda kwota w CFO Liability Meter posiada jawny wzór wynikający wprost z korpusu (np. `7.5% × £48 000 GBP = £3,600 GBP/rok`), a koszt audytu fail-safe oznaczono jako szacunek.
+- **Oznaczenie odpowiedzi „Standard LLM”:** każda karta symulowanej odpowiedzi modelu otrzymała jawne oznaczenie `ODPOWIEDŹ ILUSTRACYJNA` oraz ostrzeżenie o symulacji braku bramki.
+- **Konfiguracja `package.json`:** `main` i `bin` wskazują na `dist/src/index.js`, dodano pole `files` (`dist/src`, `corpus`, `README.md`, `LICENSE`), skrypt `bundle:engine` spięto z `build`.
+
+### Dodano
+- Metodologiczna adnotacja o skażonym holdoucie w `README.md` i pełna tabela wyników ewaluacji (91% 3-klasowej dokładności na 64 twierdzeniach, 0 fałszywych GROUNDED).
+- 3 Perspektywy Decyzyjne (Tylko LLM, LLM + Redline, Wątpliwości Redline) oraz symulator szumu OCR w interfejsie demonstracyjnym.
+
+---
+
 ## [1.1.0] — 2026-09-24
 
 ### Zmieniono

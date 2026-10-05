@@ -49,19 +49,25 @@ Progi są jawne w `THRESHOLDS` w `src/index.ts`.
 ## Ewaluacja
 
 ```bash
-npm test        # testy jednostkowe (node:test)
+npm test        # 14 testów jednostkowych (node:test)
 npm run eval    # 64 twierdzenia; kończy się błędem przy KAŻDYM fałszywym GROUNDED
 npm run eval -- --strict   # błąd przy jakiejkolwiek rozbieżności
 ```
 
-Zestaw [`prompts_eval/claims.json`](prompts_eval/claims.json) spisano **przed** przepisaniem silnika (historia git). Podziały: `legacy` (10 promptów z Etapu 3), `dev` (strojenie), `holdout` (bez strojenia). Raport generuje skrypt: [`prompts_eval/EVALUATION_REPORT.md`](prompts_eval/EVALUATION_REPORT.md).
+| Zbiór | Liczba twierdzeń | Dokładność 3-klasowa | Fałszywe GROUNDED | Potwierdzone fakty | Odrzucone niefakty |
+|---|---|---|---|---|---|
+| `legacy` | 10 | 90% (9/10) | **0** | 4/4 (100%) | 6/6 (100%) |
+| `dev` | 31 | 94% (29/31) | **0** | 18/18 (100%) | 13/13 (100%) |
+| `holdout` | 23 | 87% (20/23) | **0** | 10/10 (100%) | 13/13 (100%) |
+| **ŁĄCZNIE** | **64** | **91% (58/64)** | **0** | **32/32 (100%)** | **32/32 (100%)** |
 
-| | Wynik |
-|---|---|
-| Pierwsze, czyste uruchomienie holdoutu | **18/23 (78%)**, **1 fałszywe GROUNDED** |
-| Wszystkie 64 twierdzenia, stan obecny | 91% (3 klasy), 0 fałszywych GROUNDED, 32/32 faktów potwierdzonych |
+> [!NOTE]
+> **Bezpieczna asymetria:** Wszystkie 6 rozbieżności (58/64) to konserwatywne odmowy (system zwrócił bezpieczne `UNSUPPORTED` zamiast `CONTRADICTED`, lub w jednym przypadku `CONTRADICTED` zamiast `UNSUPPORTED`). Ani razu silnik nie potwierdził fałszu (`false GROUNDED = 0`).
 
-Holdout nie jest już w pełni „czysty” — szczegóły w raporcie (sekcja „Historia zbioru holdout”). Kolejna rzetelna miara wymaga nowego zestawu twierdzeń od osoby, która nie widziała kodu.
+> [!WARNING]
+> **Metodologiczna uwaga o skażonym holdoucie (Contaminated Holdout Disclosure):**  
+> Początkowy zbiór holdout (`H01`–`H23`) uzyskał w pierwszym, czystym uruchomieniu wynik 18/23 (78%) i 1 fałszywe GROUNDED. Po naprawieniu wykrytych luk architektury silnika (m.in. wiązanie stron, zakres negacji w zdaniu złożonym) wynik wzrósł do 20/23 (87%) i 0 fałszywych GROUNDED.  
+> Ponieważ holdout został ułożony przez tego samego autora i widział kolejne iteracje kodu, **nie jest już traktowany jako niezależny zbiór ślepej próby**. Rzetelna zewnętrzna ewaluacja wymaga holdoutu ułożonego przez niezależną stronę trzecią (zadanie `P0-5b` w [BACKLOG.md](BACKLOG.md)).
 
 ---
 
@@ -89,12 +95,12 @@ Holdout nie jest już w pełni „czysty” — szczegóły w raporcie (sekcja �
 ```text
 mcp-redline/
 ├── corpus/               # Korpus testowy fikcyjnej polskiej firmy (z pułapkami)
-├── src/                  # Kod serwera MCP (stdio) i silnik weryfikacji
+├── src/                  # Kod serwera MCP (stdio) i silnik weryfikacji (engine.ts)
 ├── tests/                # Testy jednostkowe (w tym korpus syntetyczny)
 ├── scripts/eval.js       # Ewaluacja: claims.json -> results_raw.json + EVALUATION_REPORT.md
 ├── prompts_eval/         # Zestaw 64 twierdzeń, wyniki, raport, historia holdoutu
 ├── diagrams/             # Źródła diagramów (Mermaid / SVG)
-├── web/                  # Demo single-page (patrz uwaga niżej)
+├── web/                  # Demo single-page (100% offline, zasilane prawdziwym engine.bundle.js)
 ├── README.md · MEMORY.md · BACKLOG.md · CHANGELOG.md
 └── .env.example · .gitignore
 ```
@@ -106,7 +112,7 @@ mcp-redline/
 Wymagania: Node.js >= 18, npm >= 9.
 
 ```bash
-git clone https://github.com/robertgrabowski/mcp-redline.git
+git clone https://github.com/robrobgr/mcp-redline.git
 cd mcp-redline
 npm install
 npm run build
@@ -118,10 +124,16 @@ npm run eval
 
 ## Interaktywne Demo Web
 
-> ⚠️ **Demo w `web/` używa jeszcze starej, skopiowanej wersji silnika (z pułapkami wpisanymi na sztywno)** i ładuje Tailwind oraz fonty z CDN, więc nie działa offline. Odpowiedzi „Standard LLM” w porównaniu A/B są napisane ręcznie (symulowane). Do poprawy — patrz `BACKLOG.md`.
+Interaktywny interfejs demonstracyjny dostępny w katalogu `web/` działa **w 100% offline** (zero zapytań do zewnętrznych CDN — lokalny Tailwind CSS oraz fonty Inter i JetBrains Mono).
+
+Silnik weryfikacji w przeglądarce (`web/dist/engine.bundle.js`) jest kompilowany bezpośrednio z kodu źródłowego silnika (`src/engine.ts`) przez `esbuild` i wykonuje identyczny algorytm deterministyczny co serwer MCP.
+
+* Odpowiedzi w kolumnie „Standard LLM” są oznaczone jako **ilustracyjne symulacje** (symulacja braku twardej bramki).
+* Licznik ryzyka zarządczego (CFO Liability Meter) wylicza kwoty wyłącznie na podstawie wzorów z dokumentów źródłowych (np. `7.5% × £48 000 GBP = £3,600 GBP/rok` z umowy MSA).
 
 ```bash
 npm run demo
+# Otwórz przeglądarkę na http://localhost:3333 (działa również przy odłączonym Wi-Fi)
 ```
 
 ---

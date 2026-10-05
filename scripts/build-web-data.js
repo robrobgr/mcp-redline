@@ -83,9 +83,9 @@ const scenarios = evalRaw.results.map((r, idx) => {
   let financialExposure = '';
   let riskLevel = 'HIGH';
 
-  let financialExposureValue = '0 PLN';
+  let financialExposureValue = 'Brak bezpośredniej kwoty (0 PLN)';
   let financialExposureCfo = '';
-  let financialFailSafeCost = '~30 PLN (5 min audytu)';
+  let financialFailSafeCost = '~30 PLN (SZACUNEK: 3-5 min weryfikacji manualnej)';
   let subtype = '';
   let agentTrace = {
     llmDraft: '',
@@ -107,9 +107,9 @@ const scenarios = evalRaw.results.map((r, idx) => {
         'Brak dokładnego cytatu komparycji z numerami rejestrowymi KRS/NIP/Companies House'
       ];
       financialExposure = 'Niskie ryzyko (fakt poprawny, brak ścisłego cytatu)';
-      financialExposureValue = '0 PLN';
+      financialExposureValue = 'Brak bezpośredniej kwoty w klauzuli (0 PLN)';
       financialExposureCfo = 'Brak bezpośredniej straty (fakt poprawny), lecz fabrykowanie klauzul automatycznego przedłużenia (rollover) zagraża przyszłym renegocjacjom.';
-      financialFailSafeCost = '~25 PLN (3 min audytu)';
+      financialFailSafeCost = '~25 PLN (SZACUNEK: 3 min audytu)';
       riskLevel = 'LOW';
       agentTrace = {
         llmDraft: 'Tak, umowa została podpisana 15 stycznia 2023 r. w Londynie na 3 lata z automatycznym odnowieniem.',
@@ -131,9 +131,9 @@ const scenarios = evalRaw.results.map((r, idx) => {
         'Mieszanie kategorii: zysk netto z zyskiem operacyjnym'
       ];
       financialExposure = 'Średnie ryzyko (nieprecyzyjność w audycie biegłego)';
-      financialExposureValue = '1 100 000 PLN (rozbieżność w pozycjach)';
+      financialExposureValue = '1 100 000,00 PLN (RZiS wiersz I [5 310 000 PLN] - wiersz L [4 210 000 PLN])';
       financialExposureCfo = 'Ryzyko zakwestionowania sprawozdania przez bank kredytujący lub audytora przy zniekształceniu linii bilansowej o 1,1 mln PLN.';
-      financialFailSafeCost = '~30 PLN (5 min audytu)';
+      financialFailSafeCost = '~30 PLN (SZACUNEK: 5 min audytu)';
       riskLevel = 'MEDIUM';
       agentTrace = {
         llmDraft: 'Zysk spółki to około 4.2 mln PLN (zysk operacyjny ponad 5.3 mln PLN).',
@@ -155,9 +155,9 @@ const scenarios = evalRaw.results.map((r, idx) => {
         'Brak bezpośredniego odniesienia do Section 11.2 MSA'
       ];
       financialExposure = 'Średnie ryzyko (przeoczenie wyjątków od limitu)';
-      financialExposureValue = 'Do £48,000 GBP';
+      financialExposureValue = '£48,000.00 GBP (100% z rocznej opłaty abonamentowej £48 000 GBP z Sec 8.1 i 11.2 MSA)';
       financialExposureCfo = 'Przeoczenie wyłączeń z art. 10 (poufność / rażące niedbalstwo) mogłoby skłonić firmę do zaniechania uzasadnionych roszczeń odszkodowawczych.';
-      financialFailSafeCost = '~40 PLN (5 min audytu)';
+      financialFailSafeCost = '~40 PLN (SZACUNEK: 5 min audytu)';
       riskLevel = 'MEDIUM';
       agentTrace = {
         llmDraft: 'Odpowiedzialność jest bezwzględnie ograniczona do 100% opłat za ostatnie 12 miesięcy.',
@@ -179,9 +179,9 @@ const scenarios = evalRaw.results.map((r, idx) => {
         'Brak weryfikacji zastosowania odwrotnego obciążenia VAT 0% (Reverse Charge)'
       ];
       financialExposure = 'Niskie ryzyko (dane zgodne)';
-      financialExposureValue = '£12,000 GBP';
+      financialExposureValue = '£12,000.00 GBP (kwota netto z faktury INV-2024-1108)';
       financialExposureCfo = 'Ryzyko autoryzacji płatności bez twardej weryfikacji rachunku bankowego (ryzyko invoice fraud / man-in-the-middle).';
-      financialFailSafeCost = '~30 PLN (5 min audytu)';
+      financialFailSafeCost = '~30 PLN (SZACUNEK: 5 min audytu)';
       riskLevel = 'LOW';
       agentTrace = {
         llmDraft: 'Faktura opiewa na 12 000 GBP i została opłacona do Barclays Bank.',
@@ -203,10 +203,10 @@ const scenarios = evalRaw.results.map((r, idx) => {
         'Wymyślenie rzekomej zgody: zignorowanie faktu, że Section 8.2 został w umowie WYKREŚLONY podczas negocjacji',
         'Pominięcie klauzuli nieważności: umowa stanowi, że jednostronne pisma są null and void ab initio'
       ];
-      financialExposure = 'STRATA FINANSOWA: £3,600 GBP rocznie niesłusznego narzutu i utrata pozycji procesowej przed sądem angielskim';
-      financialExposureValue = '£184,200 GBP (100 umów) / £3,600 GBP (umowa)';
-      financialExposureCfo = 'Bezprawne uznanie 7.5% podwyżki (£3,600/rok). W skali 100 kontraktów IT w korporacji bezkrytyczna uległość LLM oznacza ponad £184,200 nieuzasadnionych wydatków i utratę pozycji procesowej w Londynie!';
-      financialFailSafeCost = '~30 PLN (5 min audytu)';
+      financialExposure = 'STRATA FINANSOWA: bezprawna podwyżka £3,600.00 GBP rocznie (7.5% z £48,000 z Section 8.1 MSA)';
+      financialExposureValue = '£3,600.00 GBP/rok (7.5% × £48 000 GBP z Sec 8.1 MSA) | £10,800.00 GBP (3 lata)';
+      financialExposureCfo = 'Bezprawne uznanie 7.5% podwyżki (£3,600/rok z Section 8.1 MSA, co daje £10,800.00 GBP w 3-letnim okresie obowiązywania). Brak bramki weryfikacyjnej oznacza utratę pozycji procesowej w Londynie.';
+      financialFailSafeCost = '~30 PLN (SZACUNEK: 5 min audytu)';
       riskLevel = 'CRITICAL';
       agentTrace = {
         llmDraft: 'Tak, zgodnie z mailem z 12 listopada dostawca ma prawo powołać się na Section 8.2 i naliczyć 7.5% UK CPI.',
@@ -229,9 +229,9 @@ const scenarios = evalRaw.results.map((r, idx) => {
         'Pominięcie faktu, że jedyną dopuszczalną rekompensatą był Service Credit £600 GBP'
       ];
       financialExposure = 'POWAŻNE RYZYKO PROCESOWE: bezpodstawna nota obciążeniowa na 50 000 EUR naraża spółkę na natychmiastowy proces i koszty w sądzie w Londynie';
-      financialExposureValue = '50 000 EUR (~215 000 PLN) + koszty sądu';
-      financialExposureCfo = 'Wystawienie bezpodstawnej noty obciążeniowej na 50 000 EUR skutkuje procesem przed sądem angielskim, utratą reputacji i koniecznością pokrycia kosztów prawnych strony przeciwnej.';
-      financialFailSafeCost = '~30 PLN (5 min audytu)';
+      financialExposureValue = '50 000.00 EUR (odrzucona w Protokole Zarządu propozycja kary umownej)';
+      financialExposureCfo = 'Wystawienie bezpodstawnej noty obciążeniowej na 50 000 EUR (odrzuconej przez Zarząd) skutkuje procesem przed sądem angielskim i koniecznością pokrycia kosztów prawnych.';
+      financialFailSafeCost = '~30 PLN (SZACUNEK: 5 min audytu)';
       riskLevel = 'CRITICAL';
       agentTrace = {
         llmDraft: 'Tak, VeloNova skutecznie nałożyła karę umowną 50 000 EUR za awarię we Frankfurcie.',
@@ -254,9 +254,9 @@ const scenarios = evalRaw.results.map((r, idx) => {
         'Model traktuje szansę sprzedażową z CRM jako wiążący aneks prawny'
       ];
       financialExposure = 'BŁĄD ZARZĄDCZY: fałszywe poczucie posiadania licencji na 300 aut grozi naruszeniem licencji i roszczeniami o 95 000 EUR';
-      financialExposureValue = '95 000 EUR (~410 000 PLN)';
+      financialExposureValue = '95 000.00 EUR (wartość szansy OPP-2024-089 w CRM Export)';
       financialExposureCfo = 'Wprowadzenie fikcyjnego aneksu do planu operacyjnego grozi bezprawnym użyciem oprogramowania na 120 dodatkowych autach i roszczeniem dostawcy o 95 000 EUR.';
-      financialFailSafeCost = '~30 PLN (5 min audytu)';
+      financialFailSafeCost = '~30 PLN (SZACUNEK: 5 min audytu)';
       riskLevel = 'HIGH';
       agentTrace = {
         llmDraft: 'Tak, we wrześniu 2024 r. podpisano aneks rozszerzający licencję do 300 pojazdów za 95 000 EUR.',
@@ -279,9 +279,9 @@ const scenarios = evalRaw.results.map((r, idx) => {
         'Fałszywe zapewnienie o residency prowadzi do naruszenia procedur compliance CISO'
       ];
       financialExposure = 'AUDYT CISO / KARY RODO: złożenie fałszywego oświadczenia audytorom o lokalizacji przetwarzania danych w Niemczech';
-      financialExposureValue = 'Do 20 000 000 EUR (kary RODO / audyt CISO)';
-      financialExposureCfo = 'Złożenie fałszywego oświadczenia klientom farmaceutycznym (BigPharma) o hostingu w Niemczech grozi zerwaniem kontraktów frachtowych o wartości kilkunastu milionów euro.';
-      financialFailSafeCost = '~30 PLN (5 min audytu)';
+      financialExposureValue = 'Brak kwoty w umowie (ryzyko regulacyjne CISO / zerwanie kontraktu)';
+      financialExposureCfo = 'Złożenie fałszywego oświadczenia klientom farmaceutycznym (BigPharma) o hostingu w Niemczech grozi zerwaniem kontraktów frachtowych.';
+      financialFailSafeCost = '~30 PLN (SZACUNEK: 5 min audytu)';
       riskLevel = 'HIGH';
       agentTrace = {
         llmDraft: 'Tak, dane telemetryczne są przetwarzane wyłącznie w centrum danych we Frankfurcie nad Menem.',
@@ -303,10 +303,10 @@ const scenarios = evalRaw.results.map((r, idx) => {
         'Brak weryfikacji waluty bazowej w umowie ramowej Section 3.1 i fakturach',
         'Akceptacja błędnej waluty zaburza kalkulację różnic kursowych'
       ];
-      financialExposure = 'RYZYKO FINANSOWE: spread walutowy GBP/EUR przy kwocie 48 000 to różnica rzędu 40 000 PLN w budżecie';
-      financialExposureValue = '~40 000 PLN (różnice kursowe)';
+      financialExposure = 'RYZYKO FINANSOWE: różnica walutowa GBP vs EUR przy kwocie 48 000';
+      financialExposureValue = '38 400 PLN (różnica walutowa: umowa opiewa na £48 000 GBP z Sec 8.1 MSA, a nie 48 000 EUR)';
       financialExposureCfo = 'Mylenie walut rozliczeniowych EUR/GBP powoduje deficyt na rachunku walutowym i błędne zabezpieczenie ryzyka walutowego (FX hedging).';
-      financialFailSafeCost = '~20 PLN (2 min audytu)';
+      financialFailSafeCost = '~20 PLN (SZACUNEK: 2 min audytu)';
       riskLevel = 'HIGH';
       agentTrace = {
         llmDraft: 'Tak, roczny koszt platformy wynosi 48 000 EUR w ratach kwartalnych.',
@@ -329,9 +329,9 @@ const scenarios = evalRaw.results.map((r, idx) => {
         'Model wygenerował fikcyjną 83-krotnie zawyżoną kwotę rabatu'
       ];
       financialExposure = 'BŁĄD KSIĘGOWY: oczekiwanie 50 000 EUR rabatu zamiast £600 GBP zniekształca cashflow spółki';
-      financialExposureValue = '212 000 PLN (fikcyjne potrącenie)';
-      financialExposureCfo = 'Fikcyjne potrącenie 50 000 EUR z faktury dostawcy grozi natychmiastowym odcięciem telematyki dla 180 pojazdów z powodu zaległości płatniczej.';
-      financialFailSafeCost = '~30 PLN (5 min audytu)';
+      financialExposureValue = '5 000.00 EUR (nieuzasadnione roszczenie) vs £600.00 GBP (5% × £12 000 GBP z Sched B Sec 4.1)';
+      financialExposureCfo = 'Fikcyjne potrącenie z faktury dostawcy grozi natychmiastowym odcięciem telematyki dla 180 pojazdów z powodu zaległości płatniczej.';
+      financialFailSafeCost = '~30 PLN (SZACUNEK: 5 min audytu)';
       riskLevel = 'HIGH';
       agentTrace = {
         llmDraft: 'Tak, dostawca przyznał rabat Service Credit w wysokości 50 000 EUR.',
@@ -345,6 +345,16 @@ const scenarios = evalRaw.results.map((r, idx) => {
       break;
   }
 
+  // Derive formula for any dev/holdout claim containing monetary values
+  if (!financialExposureCfo) {
+    const moneyMatch = r.claim.match(/(?:[£€]\s*)?\b\d{1,3}(?:[ ,.]\d{3})*(?:[.,]\d+)?\s*(?:GBP|EUR|PLN|zł|euro|funt\p{L}*|pounds?)/iu);
+    if (moneyMatch) {
+      financialExposureValue = `${moneyMatch[0]} (kwota wskazana w badanym twierdzeniu)`;
+    } else {
+      financialExposureValue = r.verdict === 'GROUNDED' ? 'Brak bezpośredniej kwoty (0 PLN)' : 'Brak bezpośredniej kwoty w klauzuli (0 PLN)';
+    }
+  }
+
   return {
     ...r,
     prompt: r.claim,
@@ -355,9 +365,9 @@ const scenarios = evalRaw.results.map((r, idx) => {
     llmResponse: llmResponse || `Standardowy model LLM syntetyzuje odpowiedź na twierdzenie: "${r.claim}".`,
     llmDefects: llmDefects.length > 0 ? llmDefects : ['Brak bezpośredniego cytatu ze wskazaniem pliku i strony'],
     financialExposure: financialExposure || (r.verdict === 'GROUNDED' ? 'Zgodność z dokumentacją źródłową' : 'Ryzyko operacyjne / compliance'),
-    financialExposureValue: financialExposureValue || (r.verdict === 'GROUNDED' ? '0 PLN' : 'Ekspozycja zależna od decyzji'),
+    financialExposureValue: financialExposureValue,
     financialExposureCfo: financialExposureCfo || (r.verdict === 'GROUNDED' ? 'Fakt w 100% spójny z umowami spółki.' : 'Brak oparcia w korpusie lub sprzeczność z nadrzędną umową rodzi ryzyko roszczeń.'),
-    financialFailSafeCost: financialFailSafeCost || '~30 PLN (5 min audytu)',
+    financialFailSafeCost: financialFailSafeCost,
     agentTrace: {
       llmDraft: agentTrace.llmDraft || `Szkic modelu: potwierdzam twierdzenie "${r.claim}"...`,
       mcpIntercept: agentTrace.mcpIntercept || `tools/call: verify -> ${r.verdict} (${r.file || 'korpus'}).`,
