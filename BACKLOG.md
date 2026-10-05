@@ -92,6 +92,12 @@
 
 ## Dokumentacja i Landing Page (Edukacja Zarządów & CISO)
 
+- [ ] **UI-STORY: Interaktywny Storytelling UI („Kłamstwo pod presją vs Cyfrowy Rewident”)**
+  - Zbudować dedykowany tryb narracyjny / interaktywną ścieżkę edukacyjną w UI (na landing page lub jako Guided Story Mode), która krok po kroku opowiada historię i tłumaczy mechanizmy decyzyjne:
+    1. *Akt 1: Pułapka modelu językowego* — Dlaczego LLM pod presją fabrykuje gładkie kłamstwo (mechanizm probabilistyczny, *Lost in the Middle*, zniekształcenia tokenizacji BPE dla liczb i walut).
+    2. *Akt 2: Anatomia deterministycznego silnika* — Jak działa 5-etapowy potok weryfikacji w `mcp-redline` (normalizacja, ontologia dwujęzyczna PL/EN, bramka hierarchii umów Tier 1 > Tier 3, atomowa weryfikacja kwot, pokrycie predykatu).
+    3. *Akt 3: Co jeśli serwer się pomyli? (Asymetria ryzyka)* — Wyjaśnienie różnicy między błędem I rodzaju (*False Positive* — katastrofalne potakiwanie LLM) a błędem II rodzaju (*False Negative* — bezpieczny hamulec konserwatywnego rewidenta). Prezentacja 3 bezpieczników (wymóg cytatu dowodowego, brak czarnej skrzynki, 100% odtwarzalności).
+  - Wbudowany poligon danych testowych (Curated Test Playground): zestaw klikalnych scenariuszy demonstracyjnych (trap inflacyjny 7.5% CPI, pułapka odrzuconej kary 50k EUR vs £600 kredytu, błąd walutowy GBP/EUR, halucynacja floty statków, poprawne liczby z bilansu) z natychmiastowym porównaniem A/B i inspekcją protokołu.
 - [ ] **DOC-1: Landing Page / Web Demo — sekcja „Dlaczego determinizm wygrywa z LLM”**
   - Dodać do landing page / web demo dedykowaną sekcję lub panel edukacyjny wyjaśniający działanie algorytmu krok po kroku (5 etapów silnika).
   - Umieścić tabelaryczne porównanie: model probabilistyczny (LLM) vs deterministyczny algorytm weryfikacyjny (`mcp-redline`).

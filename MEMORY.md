@@ -81,7 +81,8 @@ Plik pamięci trwałej projektu, zawierający kluczowe ustalenia architektoniczn
 
 * **Teza dydaktyczna:** Mechanizm weryfikujący (strażnik halucynacji) **nie może sam halucynować**. Dlatego `mcp-redline` nie używa modelu językowego ani wag probabilistycznych, lecz wielopoziomowy algorytm deterministyczny.
 * **Architektura podziału ról:** LLM dostarcza inteligencję lingwistyczną i syntezę w dialogu; `mcp-redline` stanowi kotwicę prawdy logicznej, chroniąc przed zjawiskiem *Lost in the Middle*, błędami tokenizacji BPE dla liczb i walut oraz fabrykowaniem nieistniejących uprawnień prawnych.
-* **Materiały edukacyjne:** Treści te zostaną zintegrowane w dedykowanej sekcji Landing Page / Web Demo oraz w dokumentacji GitHub (`README.md`, `docs/ARCHITECTURE.md`), aby wspierać rozmowy z CISO, Zarządami i uczestnikami szkoleń.
+* **Materiały edukacyjne i Storytelling UI:** Treści te zostaną zintegrowane w dedykowanej sekcji Landing Page / Web Demo (tryb Guided Story Mode z żywym poligonem danych testowych) oraz w dokumentacji GitHub (`README.md`, `docs/ARCHITECTURE.md`), aby wspierać rozmowy z CISO, Zarządami i uczestnikami szkoleń.
+* **Format poligonu testowego:** Zestaw gotowych, wyselekcjonowanych scenariuszy (trap CPI, odrzucona kara 50k EUR, pomyłka walutowa, halucynacja floty) z możliwością natychmiastowego przełączania między halucynacją standardowego LLM a twardą odmową `mcp-redline`.
 
 ---
 

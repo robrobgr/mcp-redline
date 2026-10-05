@@ -69,6 +69,7 @@ Format oparty na [Keep a Changelog](https://keepachangelog.com/pl/1.0.0/).
 
 ### 2026-10-05
 - **Planowane / Backlog:**
+  - Dodanie zadania UI-STORY: opracowanie interaktywnego trybu narracyjnego w UI (Storytelling Guided Mode) wyjaśniającego na żywych danych testowych pułapkę konfabulacji LLM, 5 etapów deterministycznego silnika oraz asymetrię ryzyka (False Negative jako bezpieczny hamulec vs False Positive jako katastrofa decyzyjna).
   - Dodanie zadań DOC-1 i DOC-2: wzbogacenie Landing Page oraz dokumentacji GitHub (`README.md`, `docs/`) o szczegółowe wyjaśnienie mechanizmu deterministycznego, 5 etapów algorytmu oraz uzasadnienie wyższości twardego kodu nad modelami probabilistycznymi (LLM) w audycie i compliance.
 
 
