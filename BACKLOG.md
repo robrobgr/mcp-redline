@@ -138,17 +138,13 @@ Cel dnia: publiczne repozytorium `robrobgr/mcp-redline` z demo, które nie przec
   - Wprowadzić do `README.md` oraz dokumentacji repozytorium GitHub szczegółowy opis techniczny algorytmu (Multi-Tier Semantic Fact-Checking & Precedence Resolution).
   - Opisać 5 etapów potoku weryfikacji (normalizacja, ontologia PL/EN, bramka hierarchii prawnej, dopasowanie liczb i walut, badanie pokrycia predykatu merytorycznego).
   - Dodać uzasadnienie biznesowe i architektoniczne dla CISO i Zarządów: dlaczego prosty lokalny kod jest skuteczniejszy i bezpieczniejszy w roli cyfrowego rewidenta niż potężny model zewnętrzny.
-- [ ] ⏸️ **ODŁOŻONE (2026-10-05)** — klucze API w `localStorage` publicznej strony to ekspozycja na XSS, a funkcja dodaje ruch sieciowy do projektu „zero sieci”. Jeśli kiedyś — jako skrypt CLI, nie w przeglądarce.
-  **LIVE-LLM-PLAYGROUND: Podpięcie własnego API (Bring Your Own Key - BYOK) do testowania na żywym modelu LLM**
-  - **Tryb Live w Web Demo:**
-    - Dodanie panelu konfiguracji API w interfejsie (`Ustawienia LLM / Podłącz własny klucz`):
-      - Wybór providera: OpenAI (GPT-4o / GPT-4o-mini), Anthropic (Claude 3.5 Sonnet), Google Gemini (Gemini 2.0 Flash / Pro) oraz lokalny endpoint Ollama (`http://localhost:11434` np. Llama 3 / Mistral / Qwen).
-      - Pole wprowadzania klucza API z bezpiecznym zapisem w `localStorage` przeglądarki (klucz nigdy nie opuszcza maszyny użytkownika).
-      - Przełącznik trybu działania: `Tryb Eval Dataset (symulowany/offline)` vs `Tryb Live API (na żywym modelu)`.
-    - Po wpisaniu pytania w trybie Live: przeglądarka wysyła prompt do wybranego LLM z definicją narzędzia `tools/call: verify`, symuluje/wywołuje silnik Redline i w czasie rzeczywistym rysuje karty A/B oraz ślad pętli myślowej agenta.
-  - **Skrypt CLI do testów na żywo (`scripts/live-agent.ts`):**
-    - Samodzielny skrypt CLI uruchamiany poleceniem np. `OPENAI_API_KEY=... npm run agent:live` lub `GEMINI_API_KEY=... npm run agent:live`.
-    - Uruchamia pętlę agentową z modelem i podpiętym serwerem `mcp-redline` przez standardowy protokół MCP stdio JSON-RPC.
+- [x] 🚫 **ODRZUCONE ZE WZGLĘDÓW BEZPIECZEŃSTWA (2026-10-05): Web Live LLM Playground**
+  - **Decyzja architektoniczna:** Pomysł wprowadzania i przechowywania kluczy API w `localStorage` przeglądarki został bezwzględnie wycięty.
+  - **Uzasadnienie:**
+    1. *Ekspozycja na XSS:* Przechowywanie kluczy API w `localStorage` naraża użytkowników na kradzież tokenów przy jakimkolwiek wektorze XSS.
+    2. *Naruszenie tezy projektu:* Istotą i tezą `mcp-redline` jest **100% air-gapped / zero ruchu sieciowego**. Dodawanie zewnętrznych wywołań HTTP w przeglądarce podważa integralność projektu.
+  - **Alternatywa:** Testy na żywych modelach realizowane są wyłącznie przez oficjalnych klientów MCP (`Claude Desktop`, `Cursor`, `Antigravity`) przez lokalny strumień `stdio`, lub opcjonalny lokalny skrypt CLI terminala (`scripts/live-agent.ts`).
+- [ ] **CLI-LIVE-AGENT (opcjonalny skrypt terminala):** Samodzielny skrypt Node/TS uruchamiany z CLI (`OPENAI_API_KEY=... node scripts/live-agent.js`), testujący pętlę MCP stdio na żywym modelu w bezpiecznym procesie terminalowym bez udziału przeglądarki.
 - [ ] **MCP-GUIDE-VIDEO: Praktyczna instrukcja podłączenia MCP i wideo-przewodnik (Video Guide)**
   - **Dokumentacja krok po kroku (`docs/INTEGRATION_GUIDE.md`):**
     - Jak w 2 minuty podpiąć `mcp-redline` do:

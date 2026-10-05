@@ -160,11 +160,9 @@ async function runAudit(userQuestion: string) {
 
 ---
 
-## 7. Status wdrożenia w Web Demo (W toku — zobacz BACKLOG)
+## 7. Architektura Web Demo vs Żywe Modele (Zero Sieci / Bezpieczeństwo)
 
-Obecnie Web Demo (`web/index.html`) działa w trybie **offline / static dataset** (prezentuje 64 przetestowane scenariusze holdout & dev z zapisanymi odpowiedziami).
-
-W zadaniu **`LIVE-LLM-PLAYGROUND`** (zapisanym w `BACKLOG.md`) powstaje moduł:
-- **Bring Your Own Key (BYOK):** Bezpośrednie pole w interfejsie graficznym na Twój klucz API (OpenAI / Claude / Gemini / Ollama).
-- Klucz zapisywany jest lokalnie w `localStorage` Twojej przeglądarki.
-- Interfejs wykonuje połączenie na żywo z modelem i w czasie rzeczywistym rysuje pętlę myślową oraz intercepcję `mcp-redline`.
+Web Demo (`web/index.html`) działa w **100% offline (air-gapped)**:
+- Prezentuje 64 przetestowane scenariusze z bazy ewaluacyjnej oraz umożliwia audyt dowolnych własnych twierdzeń za pomocą skompilowanego lokalnego silnika deterministycznego (`engine.bundle.js`).
+- **Brak kluczy w przeglądarce:** Web Demo celowo nie przyjmuje żadnych kluczy API, nie zapisuje wrażliwych tokenów w `localStorage` (ochrona przed XSS) i nie wykonuje żadnych zapytań sieciowych.
+- Testowanie na żywym modelu LLM (np. Claude 3.5 Sonnet, GPT-4o) odbywa się wyłącznie za pośrednictwem lokalnego klienta MCP (`Claude Desktop`, `Cursor`, `Antigravity`) lub opcjonalnego skryptu CLI — z pełną separacją procesu w standardowym protokole `stdio`.
