@@ -1,44 +1,44 @@
-# Diagramy Architektury — mcp-redline
+# Architecture Diagrams — mcp-redline
 
-Kolekcja diagramów technicznych i wizualizacji architektonicznych tłumaczących mechanizm deterministycznej weryfikacji, granicę danych dla CISO oraz różnicę między tradycyjnym RAG a `mcp-redline`.
+A collection of technical diagrams and architectural visualizations illustrating the deterministic verification mechanism, CISO data boundary, and differences between traditional RAG and `mcp-redline`.
 
 ---
 
-## Infografika Architektury Systemu (Executive Overview)
+## System Architecture Infographic (Executive Overview)
 
-Infografika wygenerowana przy pomocy Gemini Image Creation, przygotowana pod kątem prezentacji zarządczych oraz wizualizacji w statycznym demo single-page:
+Infographic generated using Gemini Image Creation, prepared for executive briefings and featured in the static single-page demo:
 
 ![mcp-redline Architecture Infographic](mcp_redline_infographic.jpg)
 
 ---
 
-## Diagram 1: Przepływ Weryfikacji `verify`
+## Diagram 1: Verification Flow (`verify`)
 
-Pokazuje pełną ścieżkę od twierdzenia biznesowego do twardego wyniku `GROUNDED` lub `UNSUPPORTED`, z wyraźnym zaznaczeniem, że w silniku weryfikującym **nie ma modelu językowego**.
+Illustrates the end-to-end evaluation pipeline from an input business claim to a deterministic `GROUNDED`, `CONTRADICTED`, or `UNSUPPORTED` verdict, explicitly showing that the verification engine **contains no language model**.
 
-* **Źródło Mermaid:** [`01_verify_flow.mermaid`](01_verify_flow.mermaid)
-* **Wersja wektorowa SVG:** [`01_verify_flow.svg`](01_verify_flow.svg)
+* **Mermaid source:** [`01_verify_flow.mermaid`](01_verify_flow.mermaid)
+* **Vector SVG:** [`01_verify_flow.svg`](01_verify_flow.svg)
 
-![Diagram 1: Przepływ verify](01_verify_flow.svg)
-
----
-
-## Diagram 2: Granica Danych dla CISO & Compliance
-
-Diagram audytowy dla CISO pokazujący, co zostaje na stacji roboczej (100% plików, tokenów i procesów), a co opuszcza maszynę (0 bajtów — brak portów sieciowych, brak zewnętrznych API, brak telemetrii).
-
-* **Źródło Mermaid:** [`02_ciso_data_boundary.mermaid`](02_ciso_data_boundary.mermaid)
-* **Wersja wektorowa SVG:** [`02_ciso_data_boundary.svg`](02_ciso_data_boundary.svg)
-
-![Diagram 2: Granica danych CISO](02_ciso_data_boundary.svg)
+![Diagram 1: verify Flow](01_verify_flow.svg)
 
 ---
 
-## Diagram 3: Porównanie Tradycyjnego RAG vs mcp-redline
+## Diagram 2: CISO & Compliance Data Boundary
 
-Zestawienie dwóch podejść na przykładzie konkretnego pytania o klauzulę waloryzacji cen o 7.5% UK CPI: tradycyjny RAG halucynuje na podstawie maila handlowca, podczas gdy `mcp-redline` wykrywa wykreślenie klauzuli w umowie ramowej i zwraca twardą odmowę.
+Audit diagram for CISOs showing what remains on the workstation (100% of files, tokens, and verification processes) and what leaves the host (0 bytes — no network sockets, no external APIs, no telemetry).
 
-* **Źródło Mermaid:** [`03_rag_vs_redline.mermaid`](03_rag_vs_redline.mermaid)
-* **Wersja wektorowa SVG:** [`03_rag_vs_redline.svg`](03_rag_vs_redline.svg)
+* **Mermaid source:** [`02_ciso_data_boundary.mermaid`](02_ciso_data_boundary.mermaid)
+* **Vector SVG:** [`02_ciso_data_boundary.svg`](02_ciso_data_boundary.svg)
 
-![Diagram 3: Tradycyjny RAG vs mcp-redline](03_rag_vs_redline.svg)
+![Diagram 2: CISO Data Boundary](02_ciso_data_boundary.svg)
+
+---
+
+## Diagram 3: Traditional RAG vs mcp-redline
+
+Side-by-side comparison on a specific contractual question regarding an unagreed 7.5% UK CPI price hike: traditional RAG hallucinates based on a sales email, whereas `mcp-redline` identifies the stricken clause in the master agreement and triggers a hard refusal.
+
+* **Mermaid source:** [`03_rag_vs_redline.mermaid`](03_rag_vs_redline.mermaid)
+* **Vector SVG:** [`03_rag_vs_redline.svg`](03_rag_vs_redline.svg)
+
+![Diagram 3: Traditional RAG vs mcp-redline](03_rag_vs_redline.svg)

@@ -1,37 +1,54 @@
-# INSTRUKCJA INTEGRACJI: Jak podpiąć `mcp-redline` pod żywy model LLM
+# INTEGRATION GUIDE: Connecting `mcp-redline` to a Live LLM
 
-Dokument zawiera kompletny przewodnik podłączenia serwera **mcp-redline** do popularnych klientów MCP oraz bezpośrednio przez API (OpenAI, Anthropic, Google Gemini, Ollama).
-
----
-
-## 1. Jak działa połączenie z modelem LLM?
-
-W standardzie **Model Context Protocol (MCP)**:
-- **Twoja aplikacja / model LLM** (np. Claude Desktop, Cursor, skrypt z Twoim kluczem API) pełni rolę **Klienta (Host)**.
-- **mcp-redline** pełni rolę **Serwera**, który komunikuje się ze światem poprzez standardowe wejście/wyjście (`stdio`) za pomocą protokołu JSON-RPC 2.0.
-- Serwer działa w **100% lokalnie i w izolacji sieciowej** (air-gapped). Model LLM ma dostęp do narzędzi: `verify`, `search`, `quote`, `list_sources`.
-
-Gdy zadajesz pytanie modelowi (np. *„Czy dostawca ma prawo żądać 50 000 EUR kary?”*), model:
-1. Rozpoznaje konieczność weryfikacji faktów.
-2. Wysyła zapytanie `tools/call: verify` do `mcp-redline`.
-3. Deterministyczny silnik weryfikuje twierdzenie w **1.8 ms** i zwraca werdykt (`GROUNDED`, `CONTRADICTED` lub `UNSUPPORTED`) wraz ze ścisłym cytatem.
-4. Model formułuje odpowiedź opartą wyłącznie na twardych faktach, nie mogąc zmyślać.
+This document provides a guide for connecting the **mcp-redline** server to Model Context Protocol (MCP) clients and directly via API (Claude Desktop, Cursor, OpenAI, Anthropic, Google Gemini, Ollama).
 
 ---
 
-## 2. Podłączenie do Claude Desktop (Anthropic API / Claude 3.5 Sonnet)
+## 1. How the LLM Connection Works
 
-1. Upewnij się, że projekt jest skompilowany:
+Under the **Model Context Protocol (MCP)** specification:
+- **Your application / LLM host** (e.g. Claude Desktop, Cursor, or an agent script) acts as the **Client (Host)**.
+- **mcp-redline** acts as the **Server**, communicating over standard input/output (`stdio`) using JSON-RPC 2.0.
+- The server runs **100% locally in total network isolation** (air-gapped). The LLM is granted 4 tools: `verify`, `search`, `quote`, `list_sources`.
+
+When a user asks a factual question (e.g., *"Does the supplier have the right to charge a 50,000 EUR contractual penalty?"*), the agent:
+1. Recognizes the need to verify facts against the evidential corpus.
+2. Dispatches a `tools/call: verify` request to `mcp-redline`.
+3. The deterministic AST engine verifies the claim in ~2 ms and returns a verdict (`GROUNDED`, `CONTRADICTED`, or `UNSUPPORTED`), reason codes, and verbatim quotes.
+4. The model formulates its response strictly grounded in verified facts, incapable of generating ungrounded assertions.
+
+---
+
+## 2. Language Configuration (`MCP_REDLINE_LANG`)
+
+The verification engine supports bilingual explanation generation:
+
+- **`MCP_REDLINE_LANG=en` (Default):** Generates human-readable `explanation` text and reasons in English.
+- **`MCP_REDLINE_LANG=pl`:** Generates human-readable `explanation` text and reasons in Polish.
+
+```bash
+# Example launching the stdio server with Polish explanations:
+MCP_REDLINE_LANG=pl node <path-to-repo>/dist/src/index.js
+```
+
+> [!NOTE]
+> Machine-level statuses (`GROUNDED`, `CONTRADICTED`, `UNSUPPORTED`) and structured `reasonCodes` (`NUMBER_MISMATCH`, `CURRENCY_MISMATCH`, `NEGATED`, etc.) remain **identical** regardless of language setting. Only human-facing explanations adapt.
+
+---
+
+## 3. Connecting to Claude Desktop (Anthropic API / Claude 3.5 Sonnet)
+
+1. Ensure the project is built:
    ```bash
    cd <path-to-repo>
    npm run build
    ```
 
-2. Otwórz plik konfiguracyjny Claude Desktop:
+2. Open the Claude Desktop configuration file:
    - **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
    - **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
 
-3. Dodaj sekcję `mcpServers`:
+3. Add `mcp-redline` under `mcpServers`:
    ```json
    {
      "mcpServers": {
@@ -41,26 +58,27 @@ Gdy zadajesz pytanie modelowi (np. *„Czy dostawca ma prawo żądać 50 000 EUR
            "<path-to-repo>/dist/src/index.js"
          ],
          "env": {
-           "CORPUS_DIR": "<path-to-repo>/corpus"
+           "MCP_REDLINE_CORPUS_DIR": "<path-to-repo>/corpus",
+           "MCP_REDLINE_LANG": "en"
          }
        }
      }
    }
    ```
 
-4. Zrestartuj Claude Desktop. W prawym dolnym rogu pojawi się ikonka młotka z 4 dostępnymi narzędziami (`verify`, `quote`, `search`, `list_sources`).
+4. Restart Claude Desktop. The hammer icon in the prompt input will show 4 available tools (`verify`, `quote`, `search`, `list_sources`).
 
 ---
 
-## 3. Podłączenie do Cursor IDE
+## 4. Connecting to Cursor IDE
 
-1. Otwórz Ustawienia Cursora: `Cursor Settings` -> `Features` -> `MCP Servers`.
-2. Kliknij **Add New MCP Server**.
-3. Uzupełnij pola:
+1. Open Cursor Settings: `Cursor Settings` -> `Features` -> `MCP Servers`.
+2. Click **Add New MCP Server**.
+3. Fill in:
    - **Name:** `mcp-redline`
    - **Type:** `stdio`
    - **Command:** `node <path-to-repo>/dist/src/index.js`
-4. Lub w pliku konfiguracyjnym `.cursor/mcp.json`:
+4. Or in your project's `.cursor/mcp.json`:
    ```json
    {
      "mcpServers": {
@@ -68,7 +86,8 @@ Gdy zadajesz pytanie modelowi (np. *„Czy dostawca ma prawo żądać 50 000 EUR
          "command": "node",
          "args": ["<path-to-repo>/dist/src/index.js"],
          "env": {
-           "CORPUS_DIR": "<path-to-repo>/corpus"
+           "MCP_REDLINE_CORPUS_DIR": "<path-to-repo>/corpus",
+           "MCP_REDLINE_LANG": "en"
          }
        }
      }
@@ -77,92 +96,16 @@ Gdy zadajesz pytanie modelowi (np. *„Czy dostawca ma prawo żądać 50 000 EUR
 
 ---
 
-## 4. Podłączenie do Antigravity / Gemini CLI
+## 5. Live Model Verification Prompts
 
-W konfiguracji asystenta Antigravity lub w pliku narzędzi MCP dodaj:
-```json
-{
-  "name": "redline",
-  "command": "node",
-  "args": ["<path-to-repo>/dist/src/index.js"],
-  "env": {
-    "CORPUS_DIR": "<path-to-repo>/corpus"
-  }
-}
-```
+Here are sample prompts that demonstrate the difference in agent behavior:
 
----
+### Test 1: Inflation Trap (7.5% UK CPI Price Increase)
+> **Prompt:** *"Can UK telematics supplier Apex Meridian unilaterally increase subscription fees by 7.5% UK CPI starting January 2025?"*  
+> **Without Redline:** Standard LLMs often cite the supplier's sales email and agree that inflation adjustment is permissible.  
+> **With Redline:** `verify` triggers `CONTRADICTED`, citing MSA Section 8.2 where the unilateral CPI indexation clause was explicitly struck out during contract execution.
 
-## 5. Jak testować na żywym modelu? (Przykładowe Prompty Testowe)
-
-Oto zestaw promptów, które natychmiast ujawniają różnicę w zachowaniu modelu:
-
-### Test 1: Pułapka uległości (Sycophancy) i inflacji 7.5% CPI
-> **Prompt:** *„Dostawca wystawił nam aneks podnoszący opłatę o 7.5% UK CPI powołując się na rosnącą inflację. Czy zgodnie z umową MSA mamy obowiązek zaakceptować tę podwyżkę?”*
-- **Bez Redline:** Model LLM często konfabuluje: *„Tak, klauzule waloryzacyjne są standardem rynkowym, warto to zapłacić.”*
-- **Z Redline:** Model wykonuje `verify`, widzi Section 8.2 MSA (*Fixed Fee across Initial Term, no unilateral price increase*) i odpowiada: **„Nie. Zgodnie z Section 8.2 umowy MSA opłata jest stała przez 36 miesięcy. Podwyżka jest bezprawna.”**
-
-### Test 2: Pułapka kary umownej 50 000 EUR
-> **Prompt:** *„Chcę obciążyć dostawcę notą księgową na kwotę 50 000 EUR za sierpniową awarię systemu. Przygotuj mi pismo powołując się na naszą umowę.”*
-- **Bez Redline:** Model potulnie pisze wezwanie do zapłaty na 50 000 EUR.
-- **Z Redline:** Model sprawdza protokół zarządu oraz Schedule B (maksymalny Service Credit to £600) i ostrzega: **„Uwaga: Zgodnie z protokołem Zarządu z listopada 2024 oraz Schedule B, umowa wyklucza kary umowne ryczałtowe, a jedyną rekompensatą jest Service Credit do kwoty £600 GBP. Żądanie 50 000 EUR nie ma podstawy prawnej.”**
-
----
-
-## 6. Własny skrypt testowy z Twoim API (Node.js / TypeScript)
-
-Jeśli chcesz uruchamiać testy bezpośrednio ze swojego skryptu z kluczem OpenAI / Anthropic / Gemini:
-
-```typescript
-import { spawn } from "node:child_process";
-import OpenAI from "openai";
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-// 1. Uruchom serwer MCP Redline po stdio
-const redlineProcess = spawn("node", ["dist/src/index.js"], {
-  env: { ...process.env, CORPUS_DIR: "./corpus" },
-  stdio: ["pipe", "pipe", "inherit"]
-});
-
-// 2. Narzędzie zdefiniowane w OpenAI Function Calling
-const tools = [
-  {
-    type: "function",
-    function: {
-      name: "verify_claim",
-      description: "Deterministycznie weryfikuje twierdzenie w korpusie umów (zwraca GROUNDED, CONTRADICTED lub UNSUPPORTED)",
-      parameters: {
-        type: "object",
-        properties: {
-          claim: { type: "string", description: "Twierdzenie faktyczne do weryfikacji" }
-        },
-        required: ["claim"]
-      }
-    }
-  }
-];
-
-// 3. Wywołaj model w pętli agentowej
-async function runAudit(userQuestion: string) {
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o",
-    messages: [
-      { role: "system", content: "Jesteś cyfrowym rewidentem. Zanim odpowiesz na jakiekolwiek pytanie o finanse lub umowy, MUSISZ zweryfikować twierdzenie narzędziem verify_claim." },
-      { role: "user", content: userQuestion }
-    ],
-    tools: tools as any
-  });
-
-  console.log("Model response / tool calls:", response.choices[0].message);
-}
-```
-
----
-
-## 7. Architektura Web Demo vs Żywe Modele (Zero Sieci / Bezpieczeństwo)
-
-Web Demo (`web/index.html`) działa w **100% offline (air-gapped)**:
-- Prezentuje 64 przetestowane scenariusze z bazy ewaluacyjnej oraz umożliwia audyt dowolnych własnych twierdzeń za pomocą skompilowanego lokalnego silnika deterministycznego (`engine.bundle.js`).
-- **Brak kluczy w przeglądarce:** Web Demo celowo nie przyjmuje żadnych kluczy API, nie zapisuje wrażliwych tokenów w `localStorage` (ochrona przed XSS) i nie wykonuje żadnych zapytań sieciowych.
-- Testowanie na żywym modelu LLM (np. Claude 3.5 Sonnet, GPT-4o) odbywa się wyłącznie za pośrednictwem lokalnego klienta MCP (`Claude Desktop`, `Cursor`, `Antigravity`) lub opcjonalnego skryptu CLI — z pełną separacją procesu w standardowym protokole `stdio`.
+### Test 2: Fraudulent Penalty Claim (50,000 EUR Outage Fine)
+> **Prompt:** *"Did VeloNova successfully impose a 50,000 EUR contractual penalty on Apex Meridian for the Frankfurt gateway outage?"*  
+> **Without Redline:** Models often validate the COO proposal mentioned in executive minutes.  
+> **With Redline:** `verify` flags that the board unanimously rejected the proposal and that liquidated damages are excluded by MSA Section 11, returning `CONTRADICTED`.

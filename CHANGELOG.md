@@ -1,101 +1,70 @@
-# CHANGELOG — mcp-redline
+# Changelog — mcp-redline
 
-Wszystkie istotne zmiany w projekcie są dokumentowane w tym pliku.
+All notable changes to this project will be documented in this file.
 
-Format oparty na [Keep a Changelog](https://keepachangelog.com/pl/1.0.0/).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
+
+## [1.3.0] — 2026-10-05
+
+### Changed
+- **Default verification language:** Default language for verification explanations (`explanation`) and reasons switched from Polish to English. Polish explanations remain available on demand via `MCP_REDLINE_LANG=pl` environment variable or engine parameter `lang: "pl"`.
+- **Reason codes in `VerifyResult`:** Added structured `reasonCodes: string[]` (e.g. `NUMBER_MISMATCH`, `CURRENCY_MISMATCH`, `NEGATED`, `PARTY_MISMATCH`, `NO_CHECKABLE_TERMS`, `HIGHER_TIER_CONFLICT`) enabling programmatic assertions independent of language-specific explanation strings.
+- **Message catalog extraction:** Extracted all ~55 lines of verification message templates into a structured dictionary (`src/messages.ts`) with typed parameterization for `en` and `pl`.
+- **English primary documentation:** Repository documentation rewritten in English (`README.md`, `CHANGELOG.md`, `ROADMAP.md`, `docs/INTEGRATION_GUIDE.md`, `docs/00_Master_Fact_Sheet.md`, `diagrams/README.md`), with `README.pl.md` maintained as the official Polish reference.
+- **Evaluation report template:** Automated evaluation runner (`scripts/eval.js`) now generates English evaluation reports (`prompts_eval/EVALUATION_REPORT.md`).
+
+### Added
+- **MCP server language selection:** Stdio server accepts `MCP_REDLINE_LANG=en|pl` (documented in `.env.example`).
+- **Web demo language persistence & URL parameter:** Supported `?lang=pl|en` URL parameter with precedence over `localStorage`, header language toggle (`EN` / `PL`), and synchronized engine explanation language.
+- **Bilingual parity test:** Added unit test in `tests/server.test.ts` verifying identical status, reasonCodes, and verbatim quotes between English and Polish engine modes.
+- **Fictional data disclosure:** Explicit notification across documentation that all entities, individuals, registration numbers, and financial values are entirely fictional.
 
 ---
 
 ## [1.2.0] — 2026-10-05
 
-### Zmieniono
-- **Demo web zasilane prawdziwym silnikiem:** wyodrębniono `RedlineEngineCore` do `src/engine.ts` i zbudowano bundle przeglądarkowy `web/dist/engine.bundle.js` za pomocą `esbuild`. Całkowicie usunięto ręczną kopię silnika z `web/index.html` oraz sztywne reguły `TRAP-01…04`.
-- **100% tryb offline:** skompilowano dedykowany lokalny Tailwind CSS (`web/dist/tailwind.css`), pobrano fonty Inter, JetBrains Mono oraz Material Symbols do `web/fonts/` (zero zapytań do zewnętrznych CDN, możliwość uruchomienia przy odłączonym Wi-Fi).
-- **Rygor finansowy w Liczniku Ryzyka:** każda kwota w CFO Liability Meter posiada jawny wzór wynikający wprost z korpusu (np. `7.5% × £48 000 GBP = £3,600 GBP/rok`), a koszt audytu fail-safe oznaczono jako szacunek.
-- **Oznaczenie odpowiedzi „Standard LLM”:** każda karta symulowanej odpowiedzi modelu otrzymała jawne oznaczenie `ODPOWIEDŹ ILUSTRACYJNA` oraz ostrzeżenie o symulacji braku bramki.
-- **Konfiguracja `package.json`:** `main` i `bin` wskazują na `dist/src/index.js`, dodano pole `files` (`dist/src`, `corpus`, `README.md`, `LICENSE`), skrypt `bundle:engine` spięto z `build`.
+### Changed
+- **Browser demo powered by genuine engine:** Extracted `RedlineEngineCore` into `src/engine.ts` and compiled browser bundle `web/dist/engine.bundle.js` via `esbuild`. Replaced manual duplicated logic in `web/index.html` and deleted hardcoded trap handlers (`TRAP-01…04`).
+- **100% offline workbench:** Built dedicated local Tailwind CSS (`web/dist/tailwind.css`), bundled local Inter, JetBrains Mono, and Material Symbols fonts (zero outbound network requests, functions with Wi-Fi disabled).
+- **Financial rigor in Risk Meter:** Added explicit formulas derived directly from corpus contracts for all CFO Liability Meter figures (e.g., `7.5% × £48,000 GBP = £3,600 GBP/yr`), marking fail-safe audit costs as estimates.
+- **Illustrative simulation badge:** Added explicit `ILLUSTRATIVE RESPONSE` labels and warning banners to simulated standard LLM responses.
+- **Package exports:** Updated `main` and `bin` to point to `dist/src/index.js`, configured `files` array, and bound `bundle:engine` to build lifecycle.
 
-### Dodano
-- Metodologiczna adnotacja o skażonym holdoucie w `README.md` i pełna tabela wyników ewaluacji (91% 3-klasowej dokładności na 64 twierdzeniach, 0 fałszywych GROUNDED).
-- 3 Perspektywy Decyzyjne (Tylko LLM, LLM + Redline, Wątpliwości Redline) oraz symulator szumu OCR w interfejsie demonstracyjnym.
-- **Wdrożenie produkcyjne Vercel (`redline.robertgrabowski.com`):** statyczne demo podpięte z repozytorium GitHub `robrobgr/mcp-redline` z automatycznym buildem (`npm run build`).
-- **Przeglądarkowa reguła bezpieczeństwa CSP:** wymuszenie nagłówka `Content-Security-Policy` z `connect-src 'none'`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer` gwarantujące 0 połączeń zewnętrznych z poziomu przeglądarki.
-- **Dostosowanie responsywne 375 px:** pełna obsługa małych ekranów bez poziomego paska przewijania.
-- **Stopka autora:** dodano informację „Zbudował Robert Grabowski — robertgrabowski.com” z linkiem do strony autora.
-- **Korekta prawna:** ujednolicono terminologię z umową MSA klauzula 11.2 (*willful misconduct* → „wina umyślna” zamiast „rażące niedbalstwo”) w generatorze `scripts/build-web-data.js` i `web/data.js`.
+### Added
+- **Contaminated holdout disclosure:** Documented holdout tuning history and published complete evaluation matrix (91% 3-class accuracy across 64 assertions, 0 false GROUNDED).
+- **Three decision perspectives:** Added comparison perspectives (Lonely LLM, LLM + Redline, Redline Doubt) and OCR noise simulator in web interface.
+- **Production Vercel deployment:** Configured continuous git deployment for `redline.robertgrabowski.com` via push to `main`.
+- **Enforced Content-Security-Policy:** Implemented browser-enforced header `connect-src 'none'`, `X-Content-Type-Options: nosniff`, and `Referrer-Policy: no-referrer`.
+- **Mobile responsiveness:** Fixed layout scaling for 375 px viewport with no horizontal overflow.
+- **Legal precision:** Aligned terminology with MSA Clause 11.2 (*willful misconduct* → "wina umyślna").
 
 ---
 
 ## [1.1.0] — 2026-09-24
 
-### Zmieniono
-- **`verify` przepisany od zera — bez reguł pod konkretny korpus.** Usunięto 4 gałęzie `TRAP-01…04`, które rozpoznawały przygotowane pułapki po słowach kluczowych i zwracały wpisane na sztywno odpowiedzi. Stary silnik na 15 nowych twierdzeniach dawał 6/15 poprawnych, w tym 4 fałszywe GROUNDED (np. angielska parafraza pułapki CPI była potwierdzana cytatem z maila).
-- Trzy statusy: `GROUNDED` / `CONTRADICTED` / `UNSUPPORTED` (wcześniej dwa — nie dało się potwierdzić prawdziwego „nie”).
-- Cytaty na poziomie zdania / pola / wiersza tabeli zamiast całych sekcji; każdy cytat jest dosłownym podciągiem pliku (test).
-- `search` zwraca fragmenty zdaniowe; `list_sources` zwraca rangę źródła (Tier).
-- Odpowiedź `verify` zawiera `evidence` (pokrycie, dopasowane / brakujące pojęcia, powody) i `conflicting` (np. mail sprzeczny z umową).
+### Changed
+- **Engine rewrite from first principles:** Replaced hardcoded keyword branches (`TRAP-01…04`) with general deterministic AST parsing and verification logic. The legacy engine previously misclassified 9 out of 15 new assertions, producing 4 false GROUNDED verdicts.
+- **Three-state verification:** Introduced `GROUNDED`, `CONTRADICTED`, and `UNSUPPORTED` statuses (replacing two-state logic to support verified negative claims).
+- **Granular verbatim citations:** Replaced whole-section quotes with sentence-, key-value-, and table-row-level verbatim substrings.
+- **Source precedence:** Implemented tier rankings: Tier 1 (contracts, invoices, financial statements) > Tier 2 (CRM) > Tier 3 (correspondence).
+- **Evidence structures:** Expanded `verify` output to include `evidence` (coverage, matched/missing concepts, reasons) and `conflicting` sources.
 
-### Dodano
-- `prompts_eval/claims.json`: 64 twierdzenia (legacy / dev / holdout), spisane przed zmianą silnika.
-- `scripts/eval.js`: porównanie z oczekiwanym wynikiem, metryki per podział, macierz pomyłek, generowany raport; kod wyjścia 1 przy fałszywym GROUNDED (wcześniej zawsze wypisywał „10/10” bez sprawdzania).
-- `prompts_eval/HOLDOUT_LOG.md`: historia uruchomień holdoutu, w tym pierwszy wynik (78%, 1 fałszywe GROUNDED).
-- Testy: dosłowność cytatów, parafrazy pułapek po angielsku, ranga źródeł, mowa zależna, wiązanie stron, zasięg przeczenia, korpus syntetyczny (umowa najmu).
-
-### Znane braki
-- Demo `web/` nadal używa starej kopii silnika z pułapkami na sztywno (BACKLOG).
+### Added
+- **Evaluation dataset:** Added `prompts_eval/claims.json` containing 64 assertions across `legacy`, `dev`, and `holdout` splits.
+- **Evaluation runner:** Added `scripts/eval.js` with per-split metrics, confusion matrices, and hard exit-code failure on any false GROUNDED.
+- **Holdout log:** Added `prompts_eval/HOLDOUT_LOG.md` recording historical evaluation runs.
+- **Comprehensive test suite:** Added tests for verbatim quotes, English paraphrases, source hierarchy, reported speech, party binding, and an independent synthetic lease agreement corpus.
 
 ---
 
-## [Unreleased]
+## [1.0.0] — 2026-09-23
 
-### 2026-09-23
-- **Dodano:**
-  - Utworzenie dedykowanego katalogu projektu `1_Projects/mcp-redline`.
-  - Inicjalizacja bazowych plików higieny projektu: `README.md`, `MEMORY.md`, `BACKLOG.md`, `CHANGELOG.md`, `.env.example`, `.gitignore`.
-  - Przeprowadzenie analizy Etapu 0 (Bramka zero): audyt rejestrów MCP, repozytoriów GitHub, paczek npm/PyPI pod kątem serwerów weryfikacji i cytowania.
-  - Sprawdzenie dostępności nazwy: zatwierdzenie nazwy `mcp-redline` (dostępna w npm i PyPI).
-  - Werdykt Bramki Zero: **BUDUJEMY** (zaakceptowany).
-  - Wpisanie do `BACKLOG.md` i `MEMORY.md` decyzji o wykorzystaniu oddzielnego silnika, modelu GEMINI lub nowego NotebookLM do generowania fikcyjnego korpusu w Etapie 1.
-  - **Etap 2: Implementacja serwera MCP (`mcp-redline` w Node.js + TypeScript):**
-    - Konfiguracja środowiska: `package.json`, `tsconfig.json`, licencja MIT w pliku `LICENSE`.
-    - Implementacja silnika `src/index.ts` z obsługą protokołu MCP przez `StdioServerTransport` i 4 narzędziami: `list_sources`, `search`, `quote`, `verify`.
-    - Deterministyczny algorytm weryfikacji bez LLM z hierarchią dowodów kontraktowych, wykrywaniem sprzeczności/odmów i badaniem pokrycia pojęciowego.
-    - Opracowanie i przejście testów automatycznych w `tests/server.test.ts` (100% pass) z twardą weryfikacją wyniku `UNSUPPORTED`.
-    - Potwierdzenie działania protokołu JSON-RPC na stdin/stdout bez wywołań sieciowych.
-    - Aktualizacja `README.md` z instrukcją czystego klona, konfiguracją klienta MCP i zapisem sesji z wynikiem `UNSUPPORTED`.
-  - **Etap 3: Zestaw 10 promptów ewaluacyjnych z surowymi wynikami:**
-    - Zdefiniowanie 10 twierdzeń testowych (4x GROUNDED, 4x UNSUPPORTED, 2x graniczne).
-    - Implementacja narzędzia ewaluacyjnego `scripts/eval.js` i komendy `npm run eval`.
-    - Uruchomienie na żywo na serwerze i wygenerowanie surowego raportu maszynowego `prompts_eval/results_raw.json` z czasem wykonania poniżej 3 ms na zapytanie.
-  - **Etap 4: Trzy diagramy architektury i infografika instruktażowa:**
-    - Wygenerowanie i wyrenderowanie 3 diagramów w formacie Mermaid i SVG w katalogu `diagrams/`:
-      - `01_verify_flow` (algorytm verify bez LLM, deterministyczna ścieżka do UNSUPPORTED/GROUNDED).
-      - `02_ciso_data_boundary` (granica bezpieczeństwa CISO: zero wycieku danych, 100% lokalny obieg w stdio).
-      - `03_rag_vs_redline` (porównanie tradycyjnego podejścia RAG z deterministycznym mcp-redline).
-    - Opracowanie `diagrams/README.md` z opisem technicznym każdego przepływu.
-    - Wygenerowanie autorskiej, wysokiej jakości infografiki instruktażowej `diagrams/mcp_redline_infographic.jpg` przy użyciu Gemini Image Creation, przedstawiającej krok po kroku uruchomienie serwera offline.
-  - **Etap 5: Wizualne demo single-page HTML (Web / Vercel):**
-    - Projekt UX/UI opracowany za pomocą **Stitch UX/UI MCP** (projekt `mcp-redline-demo`, dark mode enterprise console).
-    - Implementacja kompletnej, w 100% statycznej aplikacji single-page w `web/index.html` z dynamicznym datasetem w `web/data.js`.
-    - Moduł porównawczy A/B: Standardowy model (syntetyzujący/halucynujący, analiza ryzyka i ekspozycji prawnej/finansowej) vs `mcp-redline` (ścisły cytat lub twarda odmowa `UNSUPPORTED`).
-    - Eksplorator korpusu z oznaczaniem Tierów prawnych oraz oknem podglądu pełnej zawartości dokumentów i sum kontrolnych SHA-256.
-    - Inspektor protokołu JSON-RPC 2.0 (żądania, odpowiedzi, ślad stdio z mikrosekundową precyzją).
-    - Zintegrowana przeglądarka infografiki instruktażowej i 3 diagramów architektury CISO.
-    - Konfiguracja `vercel.json` i skrypt `npm run demo` do uruchamiania w trybie zerowego backendu.
-  - **Poprawka silnika Web SPA:**
-    - Przeniesienie pełnego algorytmu `RedlineEngine` (tokenizacja, stopwordy, synonimy dwujęzyczne, scoring sekcji, ekstrakcja liczb) do kodu klienta w `web/index.html`.
-    - Obsługa pytań otwartych (np. *"jakie są przychody operacyjne?"*) przez deterministyczny mechanizm wyszukiwania i cytowania `search & quote`, zamiast naiwnego dopasowywania pełnego podciągu.
-    - Weryfikacja: zapytanie o przychody natychmiast odnajduje oficjalny RZiS (`05_Rachunek_Zyskow_i_Strat_2024_PLN.md`) ze statusem `GROUNDED` i dokładną tabelą (Pozycja A: 48 520 000 PLN, Pozycja D: 180 000 PLN).
-
-### 2026-10-05
-- **Wdrożenie / UI-STORY (Interaktywny Storytelling i Licznik Ryzyka Finansowego):**
-  - Opracowanie koncepcji 3 Perspektyw Decyzyjnych w UI:
-    1. *Tylko LLM*: Niekontrolowana generacja, bezkrytyczne uleganie presji użytkownika, akceptacja fałszywych roszczeń.
-    2. *LLM + MCP Redline*: Deterministyczny rewident odcinający halucynację w locie i wymuszający ścisłe cytaty Tier 1.
-    3. *Gdy Redline ma wątpliwości (Fail-Safe)*: Asymetria ryzyka biznesowego (False Negative = 5 min audytu człowieka za ~30 PLN vs False Positive LLM = katastrofa finansowa i procesowa na 50 000 EUR / £184 200).
-  - Wdrożenie Licznika Ryzyka Finansowego (Financial Liability Meter) z estymacją ekspozycji bilansowej i prawnej dla każdego scenariusza.
-  - Wdrożenie Agent Thought Interception Trace (wizualizacja pętli narzędziowej agenta).
-  - Wdrożenie Symulatora Szumu OCR (Dirty Data) i Przewodnika Narracyjnego (Guided Story Walkthrough).
-
-
-
+### Added
+- Initial implementation of `mcp-redline` in Node.js and TypeScript.
+- MCP stdio transport implementation supporting `list_sources`, `search`, `quote`, and `verify`.
+- Synthetic corpus representing a UK-Polish commercial logistics dispute.
+- Architecture diagrams: verification flow, CISO data boundary, and RAG vs Redline comparison.
+- Web demonstration interface with JSON-RPC protocol inspector.

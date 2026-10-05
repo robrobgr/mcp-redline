@@ -1,5 +1,5 @@
 {
-  "executedAt": "2026-10-05T21:15:35.739Z",
+  "executedAt": "2026-10-05T21:28:31.018Z",
   "node": "v26.0.0",
   "metrics": {
     "bySplit": {
@@ -115,12 +115,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 7.01225,
+      "durationMs": 7.226709,
       "file": "01_Apex_VeloNova_MSA_2023.md",
       "page": 1,
       "tier": 1,
       "quote": "This Master Services Agreement (\"Agreement\") is entered into on the **15th day of January, 2023** (the \"Effective Date\"), by and between:",
-      "explanation": "Potwierdzone dosłownym fragmentem: 01_Apex_VeloNova_MSA_2023.md (sekcja 1, Tier 1); pokrycie pojęć 100%, liczby zgodne (15, 2023). Uwaga: źródło o niższej randze (04_Email_Thread_Inflation_Dispute_Nov2024.md, Tier 3) twierdzi inaczej."
+      "explanation": "Grounded by verbatim fragment: 01_Apex_VeloNova_MSA_2023.md (section 1, Tier 1); concept coverage 100%, numbers match (15, 2023). Note: lower tier source (04_Email_Thread_Inflation_Dispute_Nov2024.md, Tier 3) claims otherwise."
     },
     {
       "id": "P02",
@@ -131,12 +131,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 2.805708,
+      "durationMs": 2.566958,
       "file": "05_Rachunek_Zyskow_i_Strat_2024_PLN.md",
       "page": 1,
       "tier": 1,
       "quote": "| **L.** | **ZYSK NETTO (I - J)** | **4 210 000,00** | **3 223 800,00** |",
-      "explanation": "Potwierdzone dosłownym fragmentem: 05_Rachunek_Zyskow_i_Strat_2024_PLN.md (sekcja 1, Tier 1); pokrycie pojęć 100%, liczby zgodne (2024, 4 210 000,00)."
+      "explanation": "Grounded by verbatim fragment: 05_Rachunek_Zyskow_i_Strat_2024_PLN.md (section 1, Tier 1); concept coverage 100%, numbers match (2024, 4 210 000,00)."
     },
     {
       "id": "P03",
@@ -147,12 +147,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 8.418291,
+      "durationMs": 8.484459,
       "file": "01_Apex_VeloNova_MSA_2023.md",
       "page": 7,
       "tier": 1,
       "quote": "11.2 **Aggregate Liability Cap:** Except for breaches of Section 10 (Confidentiality) or willful misconduct, Supplier's total aggregate liability arising out of or related to this Agreement, whether in contract, tort (including negligence), or otherwise, shall be strictly limited to **one hundred percent (100%) of the total fees actually paid by Customer to Supplier in the twelve (12) months immediately preceding the event giving rise to liability**.",
-      "explanation": "Potwierdzone dosłownym fragmentem: 01_Apex_VeloNova_MSA_2023.md (sekcja 7, Tier 1); pokrycie pojęć 80%, liczby zgodne (100%, 12)."
+      "explanation": "Grounded by verbatim fragment: 01_Apex_VeloNova_MSA_2023.md (section 7, Tier 1); concept coverage 80%, numbers match (100%, 12)."
     },
     {
       "id": "P04",
@@ -163,12 +163,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 9.870375,
+      "durationMs": 9.927208,
       "file": "03_Invoice_INV-2024-1108.md",
       "page": 1,
       "tier": 1,
       "quote": "**Invoice Number: INV-2024-1108** […] | 01 | Apex Meridian Fleet Engine Platform — Enterprise Telematics Subscription (Tier 1: Up to 180 vehicles) | Q4 2024 (01.10.2024 – 31.12.2024) | 1 Quarter | £12,000.00 | £12,000.00 | 0% (Reverse Charge) | £0.00 | £12,000.00 | […] * **Bank Name:** Barclays Bank UK PLC",
-      "explanation": "Potwierdzone 3 dosłownymi fragmentami: 03_Invoice_INV-2024-1108.md (sekcja 1, Tier 1); pokrycie 64%, liczby zgodne (2024, £12,000.00)."
+      "explanation": "Grounded by 3 verbatim fragments: 03_Invoice_INV-2024-1108.md (section 1, Tier 1); coverage 64%, numbers match (2024, £12,000.00)."
     },
     {
       "id": "P05",
@@ -179,12 +179,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 6.584542,
+      "durationMs": 6.84025,
       "file": "01_Apex_VeloNova_MSA_2023.md",
       "page": 6,
       "tier": 1,
       "quote": "> *[NEGOTIATION RECORD NOTE: Initial draft clause permitting unilateral price indexing linked to UK CPI or Polish GUS inflation was deleted and rejected by Customer during contract execution.]*",
-      "explanation": "Sprzeczne ze źródłem 01_Apex_VeloNova_MSA_2023.md (sekcja 6, Tier 1): polaryzacja: źródło zaprzecza/odrzuca (deleted, rejected). Zgodny fragment istnieje w 04_Email_Thread_Inflation_Dispute_Nov2024.md (Tier 3), ale źródło o wyższej lub równej randze mu przeczy."
+      "explanation": "Contradicted by source 01_Apex_VeloNova_MSA_2023.md (section 6, Tier 1): polarity: source denies/rejects (deleted, rejected). A matching fragment exists in 04_Email_Thread_Inflation_Dispute_Nov2024.md (Tier 3), but an equal or higher tier source contradicts it."
     },
     {
       "id": "P06",
@@ -195,12 +195,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 4.637375,
+      "durationMs": 4.416583,
       "file": "06_Protokol_Zarzadu_VeloNova_11_2024.md",
       "page": 4,
       "tier": 1,
       "quote": "Zarząd **jednogłośnie odrzucił propozycję nałożenia kary umownej 50 000 EUR**.",
-      "explanation": "Sprzeczne ze źródłem 06_Protokol_Zarzadu_VeloNova_11_2024.md (sekcja 4, Tier 1): polaryzacja: źródło zaprzecza/odrzuca (odrzucił)."
+      "explanation": "Contradicted by source 06_Protokol_Zarzadu_VeloNova_11_2024.md (section 4, Tier 1): polarity: source denies/rejects (odrzucił)."
     },
     {
       "id": "P07",
@@ -211,12 +211,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 5.885959,
+      "durationMs": 5.800792,
       "file": "03_Invoice_INV-2024-1108.md",
       "page": 1,
       "tier": 1,
       "quote": "| 01 | Apex Meridian Fleet Engine Platform — Enterprise Telematics Subscription (Tier 1: Up to 180 vehicles) | Q4 2024 (01.10.2024 – 31.12.2024) | 1 Quarter | £12,000.00 | £12,000.00 | 0% (Reverse Charge) | £0.00 | £12,000.00 |",
-      "explanation": "Sprzeczne ze źródłem 03_Invoice_INV-2024-1108.md (sekcja 1, Tier 1): wartość: twierdzenie 300, źródło 180; wartość: twierdzenie 95 000 EUR, źródło £12,000.00 / £12,000.00 / £0.00 / £12,000.00."
+      "explanation": "Contradicted by source 03_Invoice_INV-2024-1108.md (section 1, Tier 1): value: claim 300, source 180; value: claim 95 000 EUR, source £12,000.00 / £12,000.00 / £0.00 / £12,000.00."
     },
     {
       "id": "P08",
@@ -227,12 +227,12 @@
       "correct": false,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 6.34325,
+      "durationMs": 6.4075,
       "file": null,
       "page": null,
       "tier": null,
       "quote": null,
-      "explanation": "Brak wystarczającego oparcia. Najbliższy fragment (02_Schedule_B_Service_Levels_and_Credits.md, sekcja 4) nie rozstrzyga: za niskie pokrycie pojęć (43%, brakuje: lokalizacyjne); niezgodna polaryzacja."
+      "explanation": "Insufficient evidential support. The nearest fragment (02_Schedule_B_Service_Levels_and_Credits.md, section 4) is inconclusive: concept coverage too low (43%, missing: lokalizacyjne); polarity mismatch."
     },
     {
       "id": "P09",
@@ -243,12 +243,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 3.729958,
+      "durationMs": 3.559792,
       "file": "03_Invoice_INV-2024-1108.md",
       "page": 1,
       "tier": 1,
       "quote": "| 01 | Apex Meridian Fleet Engine Platform — Enterprise Telematics Subscription (Tier 1: Up to 180 vehicles) | Q4 2024 (01.10.2024 – 31.12.2024) | 1 Quarter | £12,000.00 | £12,000.00 | 0% (Reverse Charge) | £0.00 | £12,000.00 |",
-      "explanation": "Sprzeczne ze źródłem 03_Invoice_INV-2024-1108.md (sekcja 1, Tier 1): wartość: twierdzenie 48 000,00 EUR, źródło £12,000.00 / £12,000.00 / £0.00 / £12,000.00."
+      "explanation": "Contradicted by source 03_Invoice_INV-2024-1108.md (section 1, Tier 1): value: claim 48 000,00 EUR, source £12,000.00 / £12,000.00 / £0.00 / £12,000.00."
     },
     {
       "id": "P10",
@@ -259,12 +259,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 4.545042,
+      "durationMs": 4.828958,
       "file": "06_Protokol_Zarzadu_VeloNova_11_2024.md",
       "page": 4,
       "tier": 1,
       "quote": "Zobowiązano Dział Prawny do formalnego wystąpienia do Apex Meridian o przyznanie Service Credit w wysokości **£600.00 GBP** przy rozliczeniu faktury za I kwartał 2025 r.",
-      "explanation": "Sprzeczne ze źródłem 06_Protokol_Zarzadu_VeloNova_11_2024.md (sekcja 4, Tier 1): wartość: twierdzenie 50 000,00 EUR, źródło £600.00."
+      "explanation": "Contradicted by source 06_Protokol_Zarzadu_VeloNova_11_2024.md (section 4, Tier 1): value: claim 50 000,00 EUR, source £600.00."
     },
     {
       "id": "D01",
@@ -275,12 +275,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 3.596208,
+      "durationMs": 3.896833,
       "file": "01_Apex_VeloNova_MSA_2023.md",
       "page": 1,
       "tier": 1,
       "quote": "This Master Services Agreement (\"Agreement\") is entered into on the **15th day of January, 2023** (the \"Effective Date\"), by and between:",
-      "explanation": "Potwierdzone dosłownym fragmentem: 01_Apex_VeloNova_MSA_2023.md (sekcja 1, Tier 1); pokrycie pojęć 100%, liczby zgodne (15, 2023). Uwaga: źródło o niższej randze (04_Email_Thread_Inflation_Dispute_Nov2024.md, Tier 3) twierdzi inaczej."
+      "explanation": "Grounded by verbatim fragment: 01_Apex_VeloNova_MSA_2023.md (section 1, Tier 1); concept coverage 100%, numbers match (15, 2023). Note: lower tier source (04_Email_Thread_Inflation_Dispute_Nov2024.md, Tier 3) claims otherwise."
     },
     {
       "id": "D02",
@@ -291,12 +291,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 2.651958,
+      "durationMs": 3.011709,
       "file": "01_Apex_VeloNova_MSA_2023.md",
       "page": 5,
       "tier": 1,
       "quote": "3.1 **Annual Subscription Fee:** Customer shall pay Supplier an annual base platform fee of **£48,000.00 GBP (forty-eight thousand British Pounds Sterling) net**, exclusive of applicable Value Added Tax.",
-      "explanation": "Potwierdzone dosłownym fragmentem: 01_Apex_VeloNova_MSA_2023.md (sekcja 5, Tier 1); pokrycie pojęć 100%, liczby zgodne (£48,000.00). Uwaga: źródło o niższej randze (04_Email_Thread_Inflation_Dispute_Nov2024.md, Tier 3) twierdzi inaczej."
+      "explanation": "Grounded by verbatim fragment: 01_Apex_VeloNova_MSA_2023.md (section 5, Tier 1); concept coverage 100%, numbers match (£48,000.00). Note: lower tier source (04_Email_Thread_Inflation_Dispute_Nov2024.md, Tier 3) claims otherwise."
     },
     {
       "id": "D03",
@@ -307,12 +307,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 3.370709,
+      "durationMs": 3.676792,
       "file": "01_Apex_VeloNova_MSA_2023.md",
       "page": 5,
       "tier": 1,
       "quote": "3.2 **Invoicing Schedule:** The Annual Subscription Fee shall be billed quarterly in advance in four (4) equal installments of **£12,000.00 GBP net** on the first business day of January, April, July, and October.",
-      "explanation": "Potwierdzone dosłownym fragmentem: 01_Apex_VeloNova_MSA_2023.md (sekcja 5, Tier 1); pokrycie pojęć 66%, liczby zgodne (£12,000.00). Uwaga: źródło o niższej randze (04_Email_Thread_Inflation_Dispute_Nov2024.md, Tier 3) twierdzi inaczej."
+      "explanation": "Grounded by verbatim fragment: 01_Apex_VeloNova_MSA_2023.md (section 5, Tier 1); concept coverage 66%, numbers match (£12,000.00). Note: lower tier source (04_Email_Thread_Inflation_Dispute_Nov2024.md, Tier 3) claims otherwise."
     },
     {
       "id": "D04",
@@ -323,12 +323,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 4.691625,
+      "durationMs": 4.876584,
       "file": "01_Apex_VeloNova_MSA_2023.md",
       "page": 4,
       "tier": 1,
       "quote": "2.1 **Initial Term:** This Agreement commences on the Effective Date (15 January 2023) and shall remain in full force and effect for an initial term of **thirty-six (36) months** ending on 14 January 2026, unless terminated earlier in accordance with Section 12.",
-      "explanation": "Potwierdzone dosłownym fragmentem: 01_Apex_VeloNova_MSA_2023.md (sekcja 4, Tier 1); pokrycie pojęć 100%, liczby zgodne (36, 14, 2026). Uwaga: źródło o niższej randze (04_Email_Thread_Inflation_Dispute_Nov2024.md, Tier 3) twierdzi inaczej."
+      "explanation": "Grounded by verbatim fragment: 01_Apex_VeloNova_MSA_2023.md (section 4, Tier 1); concept coverage 100%, numbers match (36, 14, 2026). Note: lower tier source (04_Email_Thread_Inflation_Dispute_Nov2024.md, Tier 3) claims otherwise."
     },
     {
       "id": "D05",
@@ -339,12 +339,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 2.076,
+      "durationMs": 2.2965,
       "file": "01_Apex_VeloNova_MSA_2023.md",
       "page": 4,
       "tier": 1,
       "quote": "Automatic rollover renewal is explicitly excluded.",
-      "explanation": "Potwierdzone dosłownym fragmentem: 01_Apex_VeloNova_MSA_2023.md (sekcja 4, Tier 1); pokrycie pojęć 100%."
+      "explanation": "Grounded by verbatim fragment: 01_Apex_VeloNova_MSA_2023.md (section 4, Tier 1); concept coverage 100%."
     },
     {
       "id": "D06",
@@ -355,12 +355,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 3.365125,
+      "durationMs": 3.787458,
       "file": "01_Apex_VeloNova_MSA_2023.md",
       "page": 8,
       "tier": 1,
       "quote": "14.1 This Agreement, and any dispute or claim arising out of or in connection with it or its subject matter or formation (including non-contractual disputes or claims), shall be governed by and construed in accordance with the **laws of England and Wales**.",
-      "explanation": "Potwierdzone dosłownym fragmentem: 01_Apex_VeloNova_MSA_2023.md (sekcja 8, Tier 1); pokrycie pojęć 100%."
+      "explanation": "Grounded by verbatim fragment: 01_Apex_VeloNova_MSA_2023.md (section 8, Tier 1); concept coverage 100%."
     },
     {
       "id": "D07",
@@ -371,12 +371,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 2.681292,
+      "durationMs": 2.881875,
       "file": "02_Schedule_B_Service_Levels_and_Credits.md",
       "page": 2,
       "tier": 1,
       "quote": "1.2 **Availability Target:** Supplier guarantees that the Services shall maintain a Monthly Uptime Percentage of not less than **99.8% (ninety-nine point eight percent)** during each calendar month of the Term.",
-      "explanation": "Potwierdzone dosłownym fragmentem: 02_Schedule_B_Service_Levels_and_Credits.md (sekcja 2, Tier 1); pokrycie pojęć 100%, liczby zgodne (99.8%)."
+      "explanation": "Grounded by verbatim fragment: 02_Schedule_B_Service_Levels_and_Credits.md (section 2, Tier 1); concept coverage 100%, numbers match (99.8%)."
     },
     {
       "id": "D08",
@@ -387,12 +387,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 3.52125,
+      "durationMs": 3.587125,
       "file": "02_Schedule_B_Service_Levels_and_Credits.md",
       "page": 4,
       "tier": 1,
       "quote": "Supplier does not maintain dedicated compute or storage clusters in the Federal Republic of Germany (Frankfurt).",
-      "explanation": "Potwierdzone dosłownym fragmentem: 02_Schedule_B_Service_Levels_and_Credits.md (sekcja 4, Tier 1); pokrycie pojęć 64%."
+      "explanation": "Grounded by verbatim fragment: 02_Schedule_B_Service_Levels_and_Credits.md (section 4, Tier 1); concept coverage 64%."
     },
     {
       "id": "D09",
@@ -403,12 +403,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 2.852875,
+      "durationMs": 3.313208,
       "file": "01_Apex_VeloNova_MSA_2023.md",
       "page": 6,
       "tier": 1,
       "quote": "> Neither Party shall have the right to unilaterally adjust subscription fees, rates, or surcharges.",
-      "explanation": "Potwierdzone dosłownym fragmentem: 01_Apex_VeloNova_MSA_2023.md (sekcja 6, Tier 1); pokrycie pojęć 100%. Uwaga: źródło o niższej randze (04_Email_Thread_Inflation_Dispute_Nov2024.md, Tier 3) twierdzi inaczej."
+      "explanation": "Grounded by verbatim fragment: 01_Apex_VeloNova_MSA_2023.md (section 6, Tier 1); concept coverage 100%. Note: lower tier source (04_Email_Thread_Inflation_Dispute_Nov2024.md, Tier 3) claims otherwise."
     },
     {
       "id": "D10",
@@ -419,12 +419,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 3.128458,
+      "durationMs": 4.207458,
       "file": "01_Apex_VeloNova_MSA_2023.md",
       "page": 6,
       "tier": 1,
       "quote": "> Neither Party shall have the right to unilaterally adjust subscription fees, rates, or surcharges.",
-      "explanation": "Potwierdzone dosłownym fragmentem: 01_Apex_VeloNova_MSA_2023.md (sekcja 6, Tier 1); pokrycie pojęć 100%. Uwaga: źródło o niższej randze (04_Email_Thread_Inflation_Dispute_Nov2024.md, Tier 3) twierdzi inaczej."
+      "explanation": "Grounded by verbatim fragment: 01_Apex_VeloNova_MSA_2023.md (section 6, Tier 1); concept coverage 100%. Note: lower tier source (04_Email_Thread_Inflation_Dispute_Nov2024.md, Tier 3) claims otherwise."
     },
     {
       "id": "D11",
@@ -435,12 +435,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 3.98325,
+      "durationMs": 3.370334,
       "file": "06_Protokol_Zarzadu_VeloNova_11_2024.md",
       "page": 4,
       "tier": 1,
       "quote": "Zarząd **jednogłośnie odrzucił propozycję nałożenia kary umownej 50 000 EUR**.",
-      "explanation": "Potwierdzone dosłownym fragmentem: 06_Protokol_Zarzadu_VeloNova_11_2024.md (sekcja 4, Tier 1); pokrycie pojęć 100%, liczby zgodne (50 000)."
+      "explanation": "Grounded by verbatim fragment: 06_Protokol_Zarzadu_VeloNova_11_2024.md (section 4, Tier 1); concept coverage 100%, numbers match (50 000)."
     },
     {
       "id": "D12",
@@ -451,12 +451,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 3.135542,
+      "durationMs": 3.151333,
       "file": "06_Protokol_Zarzadu_VeloNova_11_2024.md",
       "page": 4,
       "tier": 1,
       "quote": "Zobowiązano Dział Prawny do formalnego wystąpienia do Apex Meridian o przyznanie Service Credit w wysokości **£600.00 GBP** przy rozliczeniu faktury za I kwartał 2025 r.",
-      "explanation": "Potwierdzone dosłownym fragmentem: 06_Protokol_Zarzadu_VeloNova_11_2024.md (sekcja 4, Tier 1); pokrycie pojęć 44%, liczby zgodne (2024, £600.00)."
+      "explanation": "Grounded by verbatim fragment: 06_Protokol_Zarzadu_VeloNova_11_2024.md (section 4, Tier 1); concept coverage 44%, numbers match (2024, £600.00)."
     },
     {
       "id": "D13",
@@ -467,12 +467,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 4.667875,
+      "durationMs": 4.072458,
       "file": "07_CRM_Export_Enterprise_Contracts_2024.md",
       "page": 3,
       "tier": 2,
       "quote": "| **OPP-2024-089** | **Apex Meridian Technologies Ltd** | **Fleet Expansion to 300 vehicles (Annex 2 Proposal)** | **95 000,00** | **EUR** | 18.09.2024 | Closed Lost / Abandoned | **STALLED / REJECTED** | **Oferta rozszerzenia odrzucona przez Zarząd w Q3 2024.** Dostawca żądał rozliczenia w EUR po niekorzystnym kursie i próbował narzucić klauzulę CPI. Aneks nigdy nie został podpisany. Obowiązuje wyłącznie pierwotny limit 180 pojazdów. |",
-      "explanation": "Potwierdzone dosłownym fragmentem: 07_CRM_Export_Enterprise_Contracts_2024.md (sekcja 3, Tier 2); pokrycie pojęć 100%, liczby zgodne (300)."
+      "explanation": "Grounded by verbatim fragment: 07_CRM_Export_Enterprise_Contracts_2024.md (section 3, Tier 2); concept coverage 100%, numbers match (300)."
     },
     {
       "id": "D14",
@@ -483,12 +483,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 2.006,
+      "durationMs": 1.710042,
       "file": "05_Rachunek_Zyskow_i_Strat_2024_PLN.md",
       "page": 1,
       "tier": 1,
       "quote": "| **A.** | **Przychody netto ze sprzedaży i zrównane z nimi** | **48 520 000,00** | **41 200 000,00** |",
-      "explanation": "Potwierdzone dosłownym fragmentem: 05_Rachunek_Zyskow_i_Strat_2024_PLN.md (sekcja 1, Tier 1); pokrycie pojęć 100%, liczby zgodne (2024, 48 520 000). Uwaga: źródło o niższej randze (07_CRM_Export_Enterprise_Contracts_2024.md, Tier 2) twierdzi inaczej."
+      "explanation": "Grounded by verbatim fragment: 05_Rachunek_Zyskow_i_Strat_2024_PLN.md (section 1, Tier 1); concept coverage 100%, numbers match (2024, 48 520 000). Note: lower tier source (07_CRM_Export_Enterprise_Contracts_2024.md, Tier 2) claims otherwise."
     },
     {
       "id": "D15",
@@ -499,12 +499,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 4.777041,
+      "durationMs": 3.945417,
       "file": "03_Invoice_INV-2024-1108.md",
       "page": 1,
       "tier": 1,
       "quote": "* **Due Date:** 01 November 2024",
-      "explanation": "Potwierdzone dosłownym fragmentem: 03_Invoice_INV-2024-1108.md (sekcja 1, Tier 1); pokrycie pojęć 72%, liczby zgodne (01, 2024)."
+      "explanation": "Grounded by verbatim fragment: 03_Invoice_INV-2024-1108.md (section 1, Tier 1); concept coverage 72%, numbers match (01, 2024)."
     },
     {
       "id": "D16",
@@ -515,12 +515,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 2.587375,
+      "durationMs": 2.414,
       "file": "02_Schedule_B_Service_Levels_and_Credits.md",
       "page": 3,
       "tier": 1,
       "quote": "* Total Service Credits in any single calendar quarter shall not exceed 15% of the quarterly fee payable for that quarter (i.e. £1,800.00 GBP maximum).",
-      "explanation": "Potwierdzone dosłownym fragmentem: 02_Schedule_B_Service_Levels_and_Credits.md (sekcja 3, Tier 1); pokrycie pojęć 100%, liczby zgodne (£1,800.00)."
+      "explanation": "Grounded by verbatim fragment: 02_Schedule_B_Service_Levels_and_Credits.md (section 3, Tier 1); concept coverage 100%, numbers match (£1,800.00)."
     },
     {
       "id": "D17",
@@ -531,12 +531,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 2.707833,
+      "durationMs": 2.556708,
       "file": "01_Apex_VeloNova_MSA_2023.md",
       "page": 3,
       "tier": 1,
       "quote": "1.1 Supplier grants to Customer a non-exclusive, non-transferable subscription license to access and use the Apex Meridian Fleet Engine for up to 180 commercial fleet vehicles operated by Customer across the European Union.",
-      "explanation": "Potwierdzone dosłownym fragmentem: 01_Apex_VeloNova_MSA_2023.md (sekcja 3, Tier 1); pokrycie pojęć 67%, liczby zgodne (180). Uwaga: źródło o niższej randze (07_CRM_Export_Enterprise_Contracts_2024.md, Tier 2) twierdzi inaczej."
+      "explanation": "Grounded by verbatim fragment: 01_Apex_VeloNova_MSA_2023.md (section 3, Tier 1); concept coverage 67%, numbers match (180). Note: lower tier source (07_CRM_Export_Enterprise_Contracts_2024.md, Tier 2) claims otherwise."
     },
     {
       "id": "D18",
@@ -547,12 +547,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 4.687291,
+      "durationMs": 4.509875,
       "file": "06_Protokol_Zarzadu_VeloNova_11_2024.md",
       "page": 4,
       "tier": 1,
       "quote": "W dniu 14 listopada 2024 r. w godzinach 08:30–12:30 wystąpiła niedostępność bramki telemetrycznej Apex Meridian, co zablokowało dyspozycję 32 naczep chłodniczych z ładunkiem farmaceutycznym na trasie Frankfurt–Rotterdam.",
-      "explanation": "Potwierdzone dosłownym fragmentem: 06_Protokol_Zarzadu_VeloNova_11_2024.md (sekcja 4, Tier 1); pokrycie pojęć 100%, liczby zgodne (32)."
+      "explanation": "Grounded by verbatim fragment: 06_Protokol_Zarzadu_VeloNova_11_2024.md (section 4, Tier 1); concept coverage 100%, numbers match (32)."
     },
     {
       "id": "D19",
@@ -563,12 +563,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 3.579125,
+      "durationMs": 3.23,
       "file": "01_Apex_VeloNova_MSA_2023.md",
       "page": 6,
       "tier": 1,
       "quote": "> *[NEGOTIATION RECORD NOTE: Initial draft clause permitting unilateral price indexing linked to UK CPI or Polish GUS inflation was deleted and rejected by Customer during contract execution.]*",
-      "explanation": "Sprzeczne ze źródłem 01_Apex_VeloNova_MSA_2023.md (sekcja 6, Tier 1): polaryzacja: źródło zaprzecza/odrzuca (deleted, rejected). Zgodny fragment istnieje w 04_Email_Thread_Inflation_Dispute_Nov2024.md (Tier 3), ale źródło o wyższej lub równej randze mu przeczy."
+      "explanation": "Contradicted by source 01_Apex_VeloNova_MSA_2023.md (section 6, Tier 1): polarity: source denies/rejects (deleted, rejected). A matching fragment exists in 04_Email_Thread_Inflation_Dispute_Nov2024.md (Tier 3), but an equal or higher tier source contradicts it."
     },
     {
       "id": "D20",
@@ -579,12 +579,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 1.664666,
+      "durationMs": 1.594083,
       "file": "01_Apex_VeloNova_MSA_2023.md",
       "page": 5,
       "tier": 1,
       "quote": "3.1 **Annual Subscription Fee:** Customer shall pay Supplier an annual base platform fee of **£48,000.00 GBP (forty-eight thousand British Pounds Sterling) net**, exclusive of applicable Value Added Tax.",
-      "explanation": "Sprzeczne ze źródłem 01_Apex_VeloNova_MSA_2023.md (sekcja 5, Tier 1): waluta: twierdzenie £48,000.00, źródło £48,000.00."
+      "explanation": "Contradicted by source 01_Apex_VeloNova_MSA_2023.md (section 5, Tier 1): currency: claim £48,000.00, source £48,000.00."
     },
     {
       "id": "D21",
@@ -595,12 +595,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 1.333417,
+      "durationMs": 1.299875,
       "file": "02_Schedule_B_Service_Levels_and_Credits.md",
       "page": 2,
       "tier": 1,
       "quote": "1.2 **Availability Target:** Supplier guarantees that the Services shall maintain a Monthly Uptime Percentage of not less than **99.8% (ninety-nine point eight percent)** during each calendar month of the Term.",
-      "explanation": "Sprzeczne ze źródłem 02_Schedule_B_Service_Levels_and_Credits.md (sekcja 2, Tier 1): wartość: twierdzenie 99.9%, źródło 99.8%."
+      "explanation": "Contradicted by source 02_Schedule_B_Service_Levels_and_Credits.md (section 2, Tier 1): value: claim 99.9%, source 99.8%."
     },
     {
       "id": "D22",
@@ -611,12 +611,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 2.763166,
+      "durationMs": 2.757167,
       "file": "01_Apex_VeloNova_MSA_2023.md",
       "page": 1,
       "tier": 1,
       "quote": "This Master Services Agreement (\"Agreement\") is entered into on the **15th day of January, 2023** (the \"Effective Date\"), by and between:",
-      "explanation": "Sprzeczne ze źródłem 01_Apex_VeloNova_MSA_2023.md (sekcja 1, Tier 1): wartość: twierdzenie 2021, źródło 2023."
+      "explanation": "Contradicted by source 01_Apex_VeloNova_MSA_2023.md (section 1, Tier 1): value: claim 2021, source 2023."
     },
     {
       "id": "D23",
@@ -627,12 +627,12 @@
       "correct": false,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 2.906833,
+      "durationMs": 2.8785,
       "file": null,
       "page": null,
       "tier": null,
       "quote": null,
-      "explanation": "Brak wystarczającego oparcia. Najbliższy fragment (01_Apex_VeloNova_MSA_2023.md, sekcja 8) nie rozstrzyga: ."
+      "explanation": "Insufficient evidential support. The nearest fragment (01_Apex_VeloNova_MSA_2023.md, section 8) is inconclusive: ."
     },
     {
       "id": "D24",
@@ -643,12 +643,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 3.311167,
+      "durationMs": 3.633458,
       "file": "02_Schedule_B_Service_Levels_and_Credits.md",
       "page": 4,
       "tier": 1,
       "quote": "Supplier does not maintain dedicated compute or storage clusters in the Federal Republic of Germany (Frankfurt).",
-      "explanation": "Sprzeczne ze źródłem 02_Schedule_B_Service_Levels_and_Credits.md (sekcja 4, Tier 1): polaryzacja: źródło zaprzecza/odrzuca (not)."
+      "explanation": "Contradicted by source 02_Schedule_B_Service_Levels_and_Credits.md (section 4, Tier 1): polarity: source denies/rejects (not)."
     },
     {
       "id": "D25",
@@ -659,12 +659,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 1.349833,
+      "durationMs": 1.179541,
       "file": "05_Rachunek_Zyskow_i_Strat_2024_PLN.md",
       "page": 1,
       "tier": 1,
       "quote": "| **L.** | **ZYSK NETTO (I - J)** | **4 210 000,00** | **3 223 800,00** |",
-      "explanation": "Sprzeczne ze źródłem 05_Rachunek_Zyskow_i_Strat_2024_PLN.md (sekcja 1, Tier 1): wartość: twierdzenie 4 310 000,00 PLN, źródło 4 210 000,00 PLN / 3 223 800,00 PLN."
+      "explanation": "Contradicted by source 05_Rachunek_Zyskow_i_Strat_2024_PLN.md (section 1, Tier 1): value: claim 4 310 000,00 PLN, source 4 210 000,00 PLN / 3 223 800,00 PLN."
     },
     {
       "id": "D26",
@@ -675,12 +675,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 4.066375,
+      "durationMs": 4.347625,
       "file": "01_Apex_VeloNova_MSA_2023.md",
       "page": 6,
       "tier": 1,
       "quote": "> *[NEGOTIATION RECORD NOTE: Initial draft clause permitting unilateral price indexing linked to UK CPI or Polish GUS inflation was deleted and rejected by Customer during contract execution.]*",
-      "explanation": "Sprzeczne ze źródłem 01_Apex_VeloNova_MSA_2023.md (sekcja 6, Tier 1): polaryzacja: źródło zaprzecza/odrzuca (deleted, rejected). Zgodny fragment istnieje w 06_Protokol_Zarzadu_VeloNova_11_2024.md (Tier 1), ale źródło o wyższej lub równej randze mu przeczy."
+      "explanation": "Contradicted by source 01_Apex_VeloNova_MSA_2023.md (section 6, Tier 1): polarity: source denies/rejects (deleted, rejected). A matching fragment exists in 06_Protokol_Zarzadu_VeloNova_11_2024.md (Tier 1), but an equal or higher tier source contradicts it."
     },
     {
       "id": "D27",
@@ -691,12 +691,12 @@
       "correct": false,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 4.317084,
+      "durationMs": 4.220833,
       "file": null,
       "page": null,
       "tier": null,
       "quote": null,
-      "explanation": "Brak wystarczającego oparcia. Najbliższy fragment (01_Apex_VeloNova_MSA_2023.md, sekcja 7) nie rozstrzyga: za niskie pokrycie pojęć (42%, brakuje: dzień, opóźnienia); niezgodna polaryzacja."
+      "explanation": "Insufficient evidential support. The nearest fragment (01_Apex_VeloNova_MSA_2023.md, section 7) is inconclusive: concept coverage too low (42%, missing: dzień, opóźnienia); polarity mismatch."
     },
     {
       "id": "D28",
@@ -707,12 +707,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 2.417083,
+      "durationMs": 2.611708,
       "file": null,
       "page": null,
       "tier": null,
       "quote": null,
-      "explanation": "Brak wystarczającego oparcia. Najbliższy fragment (01_Apex_VeloNova_MSA_2023.md, sekcja 2) nie rozstrzyga: za niskie pokrycie pojęć (16%, brakuje: posiada, statków, morskich); liczby z twierdzenia nie występują w tym fragmencie."
+      "explanation": "Insufficient evidential support. The nearest fragment (01_Apex_VeloNova_MSA_2023.md, section 2) is inconclusive: concept coverage too low (16%, missing: posiada, statków, morskich); numbers from claim do not appear in this fragment."
     },
     {
       "id": "D29",
@@ -723,12 +723,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 1.275334,
+      "durationMs": 1.385416,
       "file": null,
       "page": null,
       "tier": null,
       "quote": null,
-      "explanation": "Brak oparcia w korpusie: żaden dokument nie odnosi się do tego twierdzenia."
+      "explanation": "Unsupported by corpus: no document refers to this claim."
     },
     {
       "id": "D30",
@@ -739,12 +739,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 2.097459,
+      "durationMs": 2.502417,
       "file": null,
       "page": null,
       "tier": null,
       "quote": null,
-      "explanation": "Brak wystarczającego oparcia. Najbliższy fragment (01_Apex_VeloNova_MSA_2023.md, sekcja 7) nie rozstrzyga: za niskie pokrycie pojęć (16%, brakuje: ciso, nazywa, dr, thorne)."
+      "explanation": "Insufficient evidential support. The nearest fragment (01_Apex_VeloNova_MSA_2023.md, section 7) is inconclusive: concept coverage too low (16%, missing: ciso, nazywa, dr, thorne)."
     },
     {
       "id": "D31",
@@ -755,12 +755,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 2.233375,
+      "durationMs": 2.221875,
       "file": null,
       "page": null,
       "tier": null,
       "quote": null,
-      "explanation": "Brak wystarczającego oparcia. Najbliższy fragment (01_Apex_VeloNova_MSA_2023.md, sekcja 3) nie rozstrzyga: za niskie pokrycie pojęć (25%, brakuje: zapewnia, języku, polskim)."
+      "explanation": "Insufficient evidential support. The nearest fragment (01_Apex_VeloNova_MSA_2023.md, section 3) is inconclusive: concept coverage too low (25%, missing: zapewnia, języku, polskim)."
     },
     {
       "id": "H01",
@@ -771,12 +771,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 4.312791,
+      "durationMs": 4.448084,
       "file": "01_Apex_VeloNova_MSA_2023.md",
       "page": 4,
       "tier": 1,
       "quote": "2.1 **Initial Term:** This Agreement commences on the Effective Date (15 January 2023) and shall remain in full force and effect for an initial term of **thirty-six (36) months** ending on 14 January 2026, unless terminated earlier in accordance with Section 12.",
-      "explanation": "Potwierdzone dosłownym fragmentem: 01_Apex_VeloNova_MSA_2023.md (sekcja 4, Tier 1); pokrycie pojęć 100%."
+      "explanation": "Grounded by verbatim fragment: 01_Apex_VeloNova_MSA_2023.md (section 4, Tier 1); concept coverage 100%."
     },
     {
       "id": "H02",
@@ -787,12 +787,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 4.733375,
+      "durationMs": 4.970917,
       "file": "01_Apex_VeloNova_MSA_2023.md",
       "page": 8,
       "tier": 1,
       "quote": "14.2 The Parties irrevocably agree that the **courts of England and Wales** shall have exclusive jurisdiction to settle any dispute or claim arising out of or in connection with this Agreement.",
-      "explanation": "Potwierdzone dosłownym fragmentem: 01_Apex_VeloNova_MSA_2023.md (sekcja 8, Tier 1); pokrycie pojęć 82%."
+      "explanation": "Grounded by verbatim fragment: 01_Apex_VeloNova_MSA_2023.md (section 8, Tier 1); concept coverage 82%."
     },
     {
       "id": "H03",
@@ -803,12 +803,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 3.319542,
+      "durationMs": 3.870417,
       "file": "02_Schedule_B_Service_Levels_and_Credits.md",
       "page": 4,
       "tier": 1,
       "quote": "* **Secondary Disaster Recovery & Analytics Archive:** Hosted in Amazon Web Services (AWS) Region located in **London, United Kingdom (Region: eu-west-2)**.",
-      "explanation": "Potwierdzone dosłownym fragmentem: 02_Schedule_B_Service_Levels_and_Credits.md (sekcja 4, Tier 1); pokrycie pojęć 100%."
+      "explanation": "Grounded by verbatim fragment: 02_Schedule_B_Service_Levels_and_Credits.md (section 4, Tier 1); concept coverage 100%."
     },
     {
       "id": "H04",
@@ -819,12 +819,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 4.366875,
+      "durationMs": 3.783833,
       "file": "03_Invoice_INV-2024-1108.md",
       "page": 1,
       "tier": 1,
       "quote": "*Status: Approved and paid in full by VeloNova Logistics on 28 October 2024.*",
-      "explanation": "Potwierdzone dosłownym fragmentem: 03_Invoice_INV-2024-1108.md (sekcja 1, Tier 1); pokrycie pojęć 91%, liczby zgodne (28, 2024)."
+      "explanation": "Grounded by verbatim fragment: 03_Invoice_INV-2024-1108.md (section 1, Tier 1); concept coverage 91%, numbers match (28, 2024)."
     },
     {
       "id": "H05",
@@ -835,12 +835,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 2.6785,
+      "durationMs": 2.682792,
       "file": "03_Invoice_INV-2024-1108.md",
       "page": 1,
       "tier": 1,
       "quote": "| 01 | Apex Meridian Fleet Engine Platform — Enterprise Telematics Subscription (Tier 1: Up to 180 vehicles) | Q4 2024 (01.10.2024 – 31.12.2024) | 1 Quarter | £12,000.00 | £12,000.00 | 0% (Reverse Charge) | £0.00 | £12,000.00 |",
-      "explanation": "Potwierdzone dosłownym fragmentem: 03_Invoice_INV-2024-1108.md (sekcja 1, Tier 1); pokrycie pojęć 88%, liczby zgodne (0%)."
+      "explanation": "Grounded by verbatim fragment: 03_Invoice_INV-2024-1108.md (section 1, Tier 1); concept coverage 88%, numbers match (0%)."
     },
     {
       "id": "H06",
@@ -851,12 +851,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 2.680875,
+      "durationMs": 2.826541,
       "file": "02_Schedule_B_Service_Levels_and_Credits.md",
       "page": 3,
       "tier": 1,
       "quote": "In no event shall Service Credits be refunded as cash payments.",
-      "explanation": "Potwierdzone dosłownym fragmentem: 02_Schedule_B_Service_Levels_and_Credits.md (sekcja 3, Tier 1); pokrycie pojęć 100%."
+      "explanation": "Grounded by verbatim fragment: 02_Schedule_B_Service_Levels_and_Credits.md (section 3, Tier 1); concept coverage 100%."
     },
     {
       "id": "H07",
@@ -867,12 +867,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 1.52,
+      "durationMs": 1.582542,
       "file": "05_Rachunek_Zyskow_i_Strat_2024_PLN.md",
       "page": 2,
       "tier": 1,
       "quote": "* W roku obrotowym 2024 łączny koszt subskrypcji platformy Apex Meridian Fleet Engine (dostawca: Apex Meridian Technologies Ltd, Wielka Brytania) wyniósł **£48,000.00 GBP**, co po przeliczeniu na walutę polską według średnich kursów NBP z dni poprzedzających wystawienie faktur kwartalnych stanowiło równowartość **246 840,00 PLN**.",
-      "explanation": "Potwierdzone dosłownym fragmentem: 05_Rachunek_Zyskow_i_Strat_2024_PLN.md (sekcja 2, Tier 1); pokrycie pojęć 100%, liczby zgodne (2024, 246 840,00). Uwaga: źródło o niższej randze (04_Email_Thread_Inflation_Dispute_Nov2024.md, Tier 3) twierdzi inaczej."
+      "explanation": "Grounded by verbatim fragment: 05_Rachunek_Zyskow_i_Strat_2024_PLN.md (section 2, Tier 1); concept coverage 100%, numbers match (2024, 246 840,00). Note: lower tier source (04_Email_Thread_Inflation_Dispute_Nov2024.md, Tier 3) claims otherwise."
     },
     {
       "id": "H08",
@@ -883,12 +883,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 3.002291,
+      "durationMs": 3.015042,
       "file": "07_CRM_Export_Enterprise_Contracts_2024.md",
       "page": 2,
       "tier": 2,
       "quote": "| CNT-2023-088 | ThermoKing Telematics Europe B.V. | Sensory IoT i czujniki temperatury komory | 01.03.2023 | 28.02.2026 | 32 400,00 | EUR | ACTIVE / SIGNED | M. Czarnecki |",
-      "explanation": "Potwierdzone dosłownym fragmentem: 07_CRM_Export_Enterprise_Contracts_2024.md (sekcja 2, Tier 2); pokrycie pojęć 100%, liczby zgodne (32 400)."
+      "explanation": "Grounded by verbatim fragment: 07_CRM_Export_Enterprise_Contracts_2024.md (section 2, Tier 2); concept coverage 100%, numbers match (32 400)."
     },
     {
       "id": "H09",
@@ -899,12 +899,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 5.283625,
+      "durationMs": 4.614667,
       "file": "02_Schedule_B_Service_Levels_and_Credits.md",
       "page": 4,
       "tier": 1,
       "quote": "* **Primary Processing & Live Telemetry Ingestion:** Hosted in Amazon Web Services (AWS) Europe Region located in **Dublin, Ireland (Region: eu-west-1)**.",
-      "explanation": "Potwierdzone dosłownym fragmentem: 02_Schedule_B_Service_Levels_and_Credits.md (sekcja 4, Tier 1); pokrycie pojęć 100%."
+      "explanation": "Grounded by verbatim fragment: 02_Schedule_B_Service_Levels_and_Credits.md (section 4, Tier 1); concept coverage 100%."
     },
     {
       "id": "H10",
@@ -915,12 +915,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 5.780125,
+      "durationMs": 5.934459,
       "file": "01_Apex_VeloNova_MSA_2023.md",
       "page": 7,
       "tier": 1,
       "quote": "11.2 **Aggregate Liability Cap:** Except for breaches of Section 10 (Confidentiality) or willful misconduct, Supplier's total aggregate liability arising out of or related to this Agreement, whether in contract, tort (including negligence), or otherwise, shall be strictly limited to **one hundred percent (100%) of the total fees actually paid by Customer to Supplier in the twelve (12) months immediately preceding the event giving rise to liability**.",
-      "explanation": "Potwierdzone dosłownym fragmentem: 01_Apex_VeloNova_MSA_2023.md (sekcja 7, Tier 1); pokrycie pojęć 100%, liczby zgodne (100%, 12)."
+      "explanation": "Grounded by verbatim fragment: 01_Apex_VeloNova_MSA_2023.md (section 7, Tier 1); concept coverage 100%, numbers match (100%, 12)."
     },
     {
       "id": "H11",
@@ -931,12 +931,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 1.625208,
+      "durationMs": 1.611125,
       "file": "01_Apex_VeloNova_MSA_2023.md",
       "page": 5,
       "tier": 1,
       "quote": "3.2 **Invoicing Schedule:** The Annual Subscription Fee shall be billed quarterly in advance in four (4) equal installments of **£12,000.00 GBP net** on the first business day of January, April, July, and October.",
-      "explanation": "Sprzeczne ze źródłem 01_Apex_VeloNova_MSA_2023.md (sekcja 5, Tier 1): wartość: twierdzenie £12,900.00, źródło £12,000.00. Zgodny fragment istnieje w 04_Email_Thread_Inflation_Dispute_Nov2024.md (Tier 3), ale źródło o wyższej lub równej randze mu przeczy."
+      "explanation": "Contradicted by source 01_Apex_VeloNova_MSA_2023.md (section 5, Tier 1): value: claim £12,900.00, source £12,000.00. A matching fragment exists in 04_Email_Thread_Inflation_Dispute_Nov2024.md (Tier 3), but an equal or higher tier source contradicts it."
     },
     {
       "id": "H12",
@@ -947,12 +947,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 2.750792,
+      "durationMs": 2.756625,
       "file": "01_Apex_VeloNova_MSA_2023.md",
       "page": 4,
       "tier": 1,
       "quote": "Automatic rollover renewal is explicitly excluded.",
-      "explanation": "Sprzeczne ze źródłem 01_Apex_VeloNova_MSA_2023.md (sekcja 4, Tier 1): polaryzacja: źródło zaprzecza/odrzuca (excluded)."
+      "explanation": "Contradicted by source 01_Apex_VeloNova_MSA_2023.md (section 4, Tier 1): polarity: source denies/rejects (excluded)."
     },
     {
       "id": "H13",
@@ -963,12 +963,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 3.637209,
+      "durationMs": 3.738333,
       "file": "02_Schedule_B_Service_Levels_and_Credits.md",
       "page": 3,
       "tier": 1,
       "quote": "In no event shall Service Credits be refunded as cash payments.",
-      "explanation": "Sprzeczne ze źródłem 02_Schedule_B_Service_Levels_and_Credits.md (sekcja 3, Tier 1): polaryzacja: źródło zaprzecza/odrzuca (no)."
+      "explanation": "Contradicted by source 02_Schedule_B_Service_Levels_and_Credits.md (section 3, Tier 1): polarity: source denies/rejects (no)."
     },
     {
       "id": "H14",
@@ -979,12 +979,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 2.883917,
+      "durationMs": 2.617042,
       "file": "03_Invoice_INV-2024-1108.md",
       "page": 1,
       "tier": 1,
       "quote": "| 01 | Apex Meridian Fleet Engine Platform — Enterprise Telematics Subscription (Tier 1: Up to 180 vehicles) | Q4 2024 (01.10.2024 – 31.12.2024) | 1 Quarter | £12,000.00 | £12,000.00 | 0% (Reverse Charge) | £0.00 | £12,000.00 |",
-      "explanation": "Sprzeczne ze źródłem 03_Invoice_INV-2024-1108.md (sekcja 1, Tier 1): wartość: twierdzenie 300, źródło 180."
+      "explanation": "Contradicted by source 03_Invoice_INV-2024-1108.md (section 1, Tier 1): value: claim 300, source 180."
     },
     {
       "id": "H15",
@@ -995,12 +995,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 3.767583,
+      "durationMs": 3.615084,
       "file": "01_Apex_VeloNova_MSA_2023.md",
       "page": 4,
       "tier": 1,
       "quote": "2.1 **Initial Term:** This Agreement commences on the Effective Date (15 January 2023) and shall remain in full force and effect for an initial term of **thirty-six (36) months** ending on 14 January 2026, unless terminated earlier in accordance with Section 12.",
-      "explanation": "Sprzeczne ze źródłem 01_Apex_VeloNova_MSA_2023.md (sekcja 4, Tier 1): wartość: twierdzenie 24, źródło 36."
+      "explanation": "Contradicted by source 01_Apex_VeloNova_MSA_2023.md (section 4, Tier 1): value: claim 24, source 36."
     },
     {
       "id": "H16",
@@ -1011,12 +1011,12 @@
       "correct": false,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 2.187667,
+      "durationMs": 1.973667,
       "file": null,
       "page": null,
       "tier": null,
       "quote": null,
-      "explanation": "Brak wystarczającego oparcia. Najbliższy fragment (03_Invoice_INV-2024-1108.md, sekcja 1) nie rozstrzyga: za niskie pokrycie pojęć (57%, brakuje: opiewa); liczby z twierdzenia nie występują w tym fragmencie."
+      "explanation": "Insufficient evidential support. The nearest fragment (03_Invoice_INV-2024-1108.md, section 1) is inconclusive: concept coverage too low (57%, missing: opiewa); numbers from claim do not appear in this fragment."
     },
     {
       "id": "H17",
@@ -1027,12 +1027,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 2.318041,
+      "durationMs": 2.333292,
       "file": "03_Invoice_INV-2024-1108.md",
       "page": 1,
       "tier": 1,
       "quote": "* **Payment Terms:** Net 30 Calendar Days",
-      "explanation": "Sprzeczne ze źródłem 03_Invoice_INV-2024-1108.md (sekcja 1, Tier 1): polaryzacja: twierdzenie zaprzecza, źródło twierdzi."
+      "explanation": "Contradicted by source 03_Invoice_INV-2024-1108.md (section 1, Tier 1): polarity: claim denies, source affirms."
     },
     {
       "id": "H18",
@@ -1043,12 +1043,12 @@
       "correct": false,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 3.1535,
+      "durationMs": 3.295667,
       "file": null,
       "page": null,
       "tier": null,
       "quote": null,
-      "explanation": "Brak wystarczającego oparcia. Najbliższy fragment (01_Apex_VeloNova_MSA_2023.md, sekcja 7) nie rozstrzyga: za niskie pokrycie pojęć (50%, brakuje: granted, frankfurt); liczby z twierdzenia nie występują w tym fragmencie."
+      "explanation": "Insufficient evidential support. The nearest fragment (01_Apex_VeloNova_MSA_2023.md, section 7) is inconclusive: concept coverage too low (50%, missing: granted, frankfurt); numbers from claim do not appear in this fragment."
     },
     {
       "id": "H19",
@@ -1059,12 +1059,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 1.373667,
+      "durationMs": 1.365875,
       "file": null,
       "page": null,
       "tier": null,
       "quote": null,
-      "explanation": "Brak wystarczającego oparcia. Najbliższy fragment (01_Apex_VeloNova_MSA_2023.md, sekcja 1) nie rozstrzyga: ."
+      "explanation": "Insufficient evidential support. The nearest fragment (01_Apex_VeloNova_MSA_2023.md, section 1) is inconclusive: ."
     },
     {
       "id": "H20",
@@ -1075,12 +1075,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 2.696792,
+      "durationMs": 2.734208,
       "file": null,
       "page": null,
       "tier": null,
       "quote": null,
-      "explanation": "Brak wystarczającego oparcia. Najbliższy fragment (01_Apex_VeloNova_MSA_2023.md, sekcja 6) nie rozstrzyga: za niskie pokrycie pojęć (31%, brakuje: includes, non-compete, compete); niezgodna polaryzacja."
+      "explanation": "Insufficient evidential support. The nearest fragment (01_Apex_VeloNova_MSA_2023.md, section 6) is inconclusive: concept coverage too low (31%, missing: includes, non-compete, compete); polarity mismatch."
     },
     {
       "id": "H21",
@@ -1091,12 +1091,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 1.130833,
+      "durationMs": 1.127958,
       "file": null,
       "page": null,
       "tier": null,
       "quote": null,
-      "explanation": "Brak oparcia w korpusie: żaden dokument nie odnosi się do tego twierdzenia."
+      "explanation": "Unsupported by corpus: no document refers to this claim."
     },
     {
       "id": "H22",
@@ -1107,12 +1107,12 @@
       "correct": false,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 4.176125,
+      "durationMs": 4.001333,
       "file": "01_Apex_VeloNova_MSA_2023.md",
       "page": 4,
       "tier": 1,
       "quote": "2.2 **Renewal:** Following the Initial Term, the Agreement may be renewed only upon the express mutual written agreement of both Parties at least sixty (60) days prior to expiration.",
-      "explanation": "Sprzeczne ze źródłem 01_Apex_VeloNova_MSA_2023.md (sekcja 4, Tier 1): wartość: twierdzenie 30, źródło 60."
+      "explanation": "Contradicted by source 01_Apex_VeloNova_MSA_2023.md (section 4, Tier 1): value: claim 30, source 60."
     },
     {
       "id": "H23",
@@ -1123,12 +1123,12 @@
       "correct": true,
       "safe": true,
       "falseGrounded": false,
-      "durationMs": 1.976084,
+      "durationMs": 1.795375,
       "file": null,
       "page": null,
       "tier": null,
       "quote": null,
-      "explanation": "Brak wystarczającego oparcia. Najbliższy fragment (05_Rachunek_Zyskow_i_Strat_2024_PLN.md, sekcja 1) nie rozstrzyga: za niskie pokrycie pojęć (35%, brakuje: mln); liczby z twierdzenia nie występują w tym fragmencie."
+      "explanation": "Insufficient evidential support. The nearest fragment (05_Rachunek_Zyskow_i_Strat_2024_PLN.md, section 1) is inconclusive: concept coverage too low (35%, missing: mln); numbers from claim do not appear in this fragment."
     }
   ]
 }
