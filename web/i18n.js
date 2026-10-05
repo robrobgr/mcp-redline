@@ -14,6 +14,7 @@ const I18N = {
 
     // Navigation actions & switcher labels
     nav_story: "Story Mode",
+    nav_story_count: "(3 Acts)",
     nav_infographic: "Infographics",
     nav_architecture: "CISO Architecture",
     nav_quickstart: "Run Server",
@@ -117,6 +118,15 @@ const I18N = {
     arch_desc_1: "Diagram 1: Verification algorithm 'verify' without language model involvement. Pure deterministic code eliminates hallucinations.",
     arch_desc_2: "Diagram 2: Boundary between LLM agent and local MCP server. Total air-gap (zero outbound network, 100% local disk).",
     arch_desc_3: "Diagram 3: RAG with vector DB vs MCP-Redline. Deterministic grounding instead of probabilistic cosine similarity.",
+
+    // Modals: Infographic & Document Viewer
+    info_modal_title: "Deployment Guide & Architecture // Infographic",
+    info_modal_sub: "(Generated with Gemini Image Creation)",
+    info_download_jpg: "Download JPG",
+    doc_modal_title: "Document Viewer",
+    doc_label_file: "File:",
+    doc_label_lines: "Lines:",
+    doc_label_words: "Words:",
 
     // Modals: Story Mode
     story_modal_title: "Story Mode // Pressure Hallucination vs Digital Auditor",
@@ -329,7 +339,8 @@ const I18N = {
     thesis_quote: "„Model, który pewnym tonem podaje nieprawdę, jest groźniejszy niż model, który odmawia.”",
 
     // Navigation actions & switcher labels
-    nav_story: "Story Mode (3 Akty)",
+    nav_story: "Story Mode",
+    nav_story_count: "(3 Akty)",
     nav_infographic: "Infografika",
     nav_architecture: "Architektura CISO",
     nav_quickstart: "Uruchom Serwer",
@@ -433,6 +444,15 @@ const I18N = {
     arch_desc_1: "Diagram 1: Algorytm weryfikacji verify bez udziału modeli językowych. Czysty kod deterministyczny odcina halucynacje.",
     arch_desc_2: "Diagram 2: Granica zaufania między agentem LLM a lokalnym serwerem MCP. Pełny air-gap (0 sieci, 100% lokalny dysk).",
     arch_desc_3: "Diagram 3: RAG z wektorową bazą danych vs MCP-Redline. Deterministyczne ugruntowanie zamiast probabilistycznego podobieństwa.",
+
+    // Modals: Infographic & Document Viewer
+    info_modal_title: "Instrukcja Uruchomienia i Architektura // Infografika",
+    info_modal_sub: "(Wygenerowano przez Gemini Image Creation)",
+    info_download_jpg: "Pobierz JPG",
+    doc_modal_title: "Podgląd Dokumentu",
+    doc_label_file: "Plik:",
+    doc_label_lines: "Linii:",
+    doc_label_words: "Słów:",
 
     // Modals: Story Mode
     story_modal_title: "Story Mode // Kłamstwo pod presją vs Cyfrowy Rewident",
