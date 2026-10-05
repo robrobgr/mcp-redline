@@ -1,6 +1,9 @@
 /**
  * mcp-redline — deterministic claim verification core engine.
  */
+import { SupportedLang, REASON_CODES, ReasonCode, MESSAGES } from "./messages.js";
+export * from "./messages.js";
+
 // ───────────────────────────── Types ─────────────────────────────
 
 export type VerifyStatus = "GROUNDED" | "CONTRADICTED" | "UNSUPPORTED";
@@ -46,6 +49,7 @@ export interface VerifyResult {
   tier?: number;
   quote?: string;
   explanation: string;
+  reasonCodes: string[];
   evidence?: Evidence;
   conflicting?: Evidence;
   nearest?: Evidence;
@@ -375,6 +379,7 @@ interface UnitScore {
   missing: string[];
   numbersOk: boolean;
   conflicts: string[];
+  conflictCodes: string[];
   polarityFlip: boolean;
   score: number;
 }
@@ -406,12 +411,21 @@ function splitSentences(line: string): string[] {
 
 
 export class RedlineEngineCore {
+  public lang: SupportedLang = "en";
   public sections: CorpusSection[] = [];
   public sources: SourceInfo[] = [];
   public units: Unit[] = [];
   protected sectionUnits = new Map<string, Unit[]>();
   protected vocabulary = new Set<string>();
   public parties: Array<{ name: string; tokens: string[]; names: string[] }> = [];
+
+  constructor(lang: SupportedLang = "en") {
+    this.lang = lang;
+  }
+
+  public setLanguage(lang: SupportedLang): void {
+    this.lang = lang;
+  }
 
   public tokenize(text: string): string[] {
     return rawTokens(text);
@@ -628,6 +642,7 @@ export class RedlineEngineCore {
 
     // numbers
     const conflicts: string[] = [];
+    const conflictCodes: string[] = [];
     let numbersOk = true;
     const sectionYears = sectionUnits.flatMap((s) => s.numbers.filter((n) => n.kind === "year"));
     for (const n of f.numbers) {
@@ -637,7 +652,8 @@ export class RedlineEngineCore {
         (n.kind === "year" && sectionYears.some((y) => y.value === n.value));
       if (curClash) {
         numbersOk = false;
-        conflicts.push(`waluta: twierdzenie ${fmt(n)}, źródło ${fmt(same[0])}`);
+        conflictCodes.push(REASON_CODES.CURRENCY_MISMATCH);
+        conflicts.push(MESSAGES[this.lang].reason_currency_mismatch(fmt(n), fmt(same[0])));
         continue;
       }
       if (found) continue;
@@ -648,7 +664,10 @@ export class RedlineEngineCore {
         if (n.kind === "year") return x.kind === "year";
         return x.kind === "plain" && !f.numbers.some((c) => sameValue(c.value, x.value)) && !!n.word && !!x.word && this.sameConcept(n.word, x.word);
       });
-      if (rivals.length > 0) conflicts.push(`wartość: twierdzenie ${fmt(n)}, źródło ${rivals.map(fmt).join(" / ")}`);
+      if (rivals.length > 0) {
+        conflictCodes.push(REASON_CODES.NUMBER_MISMATCH);
+        conflicts.push(MESSAGES[this.lang].reason_value_mismatch(fmt(n), rivals.map(fmt).join(" / ")));
+      }
     }
 
     // Negation scope = the clause(s) carrying most of the claim's terms.
@@ -664,7 +683,7 @@ export class RedlineEngineCore {
     const supportCoverage = (cov + Math.max(0, numFound) * NW) / denom;
     const supportUnitCoverage = (fullW + Math.max(0, numFound) * NW) / denom;
     const score = coverage + (3 - u.tier) * 0.02 + (numbersOk && f.numbers.length ? 0.1 : 0);
-    return { unit: u, unitNegative, coverage, unitCoverage, contraCoverage, supportCoverage, supportUnitCoverage, valueConflict: conflicts.length > 0, full, matched, missing, numbersOk, conflicts, polarityFlip, score };
+    return { unit: u, unitNegative, coverage, unitCoverage, contraCoverage, supportCoverage, supportUnitCoverage, valueConflict: conflicts.length > 0, full, matched, missing, numbersOk, conflicts, conflictCodes, polarityFlip, score };
   }
 
   /** Two words denote the same concept (stem match or same lexicon group). */
@@ -738,7 +757,12 @@ export class RedlineEngineCore {
   public verify(claim: string): VerifyResult {
     const f = this.features(claim);
     if (f.content.length === 0) {
-      return { status: "UNSUPPORTED", claim, explanation: "Brak oparcia: twierdzenie nie zawiera pojęć, które można sprawdzić w korpusie." };
+      return {
+        status: "UNSUPPORTED",
+        claim,
+        explanation: MESSAGES[this.lang].unsupported_no_terms(),
+        reasonCodes: [REASON_CODES.NO_CHECKABLE_TERMS],
+      };
     }
     const minFull = Math.min(2, f.content.length);
     const scored = this.units.map((u) => this.scoreUnit(f, u)).sort((a, b) => b.score - a.score);
@@ -769,20 +793,49 @@ export class RedlineEngineCore {
         c.contraCoverage >= bestS.contraCoverage - THRESHOLDS.tieMargin);
     const bestC = pick(contras.filter(overrides));
 
-    const contraReasons = (c: UnitScore) => [
-      ...(polarityContra(c) ? [`polaryzacja: ${f.negative ? "twierdzenie zaprzecza, źródło twierdzi" : `źródło zaprzecza/odrzuca (${(c.unit.clauses.flatMap((k) => k.cues).slice(0, 3).join(", ")) || c.unit.negCues.slice(0, 3).join(", ")})`}`] : []),
-      ...c.conflicts,
-    ];
+    const contraReasonDetails = (c: UnitScore) => {
+      const codes: string[] = [];
+      const reasons: string[] = [];
+      if (polarityContra(c)) {
+        codes.push(REASON_CODES.POLARITY_MISMATCH, REASON_CODES.NEGATED);
+        if (f.negative) {
+          reasons.push(MESSAGES[this.lang].reason_polarity_claim_neg());
+        } else {
+          const cues = (c.unit.clauses.flatMap((k) => k.cues).slice(0, 3).join(", ")) || c.unit.negCues.slice(0, 3).join(", ");
+          reasons.push(MESSAGES[this.lang].reason_polarity_source_neg(cues));
+        }
+      }
+      codes.push(...c.conflictCodes);
+      reasons.push(...c.conflicts);
+      return { codes, reasons };
+    };
 
     if (bestC) {
-      const ev = this.toEvidence(bestC, contraReasons(bestC));
-      const conflicting = bestS ? this.toEvidence(bestS, ["zgodne ze źródłem o niższej lub równej randze"]) : undefined;
+      const { codes: contraCodes, reasons: contraReasons } = contraReasonDetails(bestC);
+      const ev = this.toEvidence(bestC, contraReasons);
+      const reasonCodes: string[] = [...new Set(contraCodes)];
+      let conflicting: Evidence | undefined;
+      if (bestS) {
+        reasonCodes.push(REASON_CODES.HIGHER_TIER_CONFLICT);
+        conflicting = this.toEvidence(bestS, [MESSAGES[this.lang].reason_lower_tier_match()]);
+      }
       return {
-        status: "CONTRADICTED", claim, file: ev.file, page: ev.page, tier: ev.tier, quote: ev.quote,
-        explanation:
-          `Sprzeczne ze źródłem ${ev.file} (sekcja ${ev.page}, Tier ${ev.tier}): ${ev.reasons.join("; ")}.` +
-          (conflicting ? ` Zgodny fragment istnieje w ${conflicting.file} (Tier ${conflicting.tier}), ale źródło o wyższej lub równej randze mu przeczy.` : ""),
-        evidence: ev, conflicting,
+        status: "CONTRADICTED",
+        claim,
+        file: ev.file,
+        page: ev.page,
+        tier: ev.tier,
+        quote: ev.quote,
+        explanation: MESSAGES[this.lang].contradicted_by_source({
+          file: ev.file,
+          page: ev.page,
+          tier: ev.tier,
+          reasons: ev.reasons,
+          conflicting: conflicting ? { file: conflicting.file, tier: conflicting.tier } : undefined,
+        }),
+        reasonCodes,
+        evidence: ev,
+        conflicting,
       };
     }
 
@@ -796,15 +849,31 @@ export class RedlineEngineCore {
         if (c && c.unit.tier <= seed.unit.tier) break;
         const ordered = combo.units.slice().sort((a, b) => this.units.indexOf(a) - this.units.indexOf(b));
         const ev: Evidence = {
-          file: seed.unit.file, page: seed.unit.page, tier: seed.unit.tier,
+          file: seed.unit.file,
+          page: seed.unit.page,
+          tier: seed.unit.tier,
           quote: ordered.map((u) => u.text).join(" […] "),
-          coverage: Math.round(combo.coverage * 100) / 100, matched: combo.matched, missing: combo.missing,
-          reasons: [`twierdzenie złożone: potwierdzone ${ordered.length} fragmentami tej samej sekcji`],
+          coverage: Math.round(combo.coverage * 100) / 100,
+          matched: combo.matched,
+          missing: combo.missing,
+          reasons: [MESSAGES[this.lang].reason_compound_claim(ordered.length)],
         };
         return {
-          status: "GROUNDED", claim, file: ev.file, page: ev.page, tier: ev.tier, quote: ev.quote,
-          explanation: `Potwierdzone ${ordered.length} dosłownymi fragmentami: ${ev.file} (sekcja ${ev.page}, Tier ${ev.tier}); pokrycie ${Math.round(ev.coverage * 100)}%` +
-            (f.numbers.length ? `, liczby zgodne (${f.numbers.map((n) => n.raw).join(", ")})` : "") + ".",
+          status: "GROUNDED",
+          claim,
+          file: ev.file,
+          page: ev.page,
+          tier: ev.tier,
+          quote: ev.quote,
+          explanation: MESSAGES[this.lang].grounded_multi({
+            file: ev.file,
+            page: ev.page,
+            tier: ev.tier,
+            count: ordered.length,
+            coverage: Math.round(ev.coverage * 100),
+            numbers: f.numbers.length ? f.numbers.map((n) => n.raw).join(", ") : undefined,
+          }),
+          reasonCodes: [REASON_CODES.COMPLEX_CLAIM_MULTI_UNIT, REASON_CODES.EXACT_MATCH],
           evidence: ev,
         };
       }
@@ -813,30 +882,65 @@ export class RedlineEngineCore {
     if (bestS) {
       const ev = this.toEvidence(bestS);
       const lower = pick(contras.filter((c) => c.unit.tier > bestS.unit.tier));
-      const conflicting = lower ? this.toEvidence(lower, contraReasons(lower)) : undefined;
+      const reasonCodes: string[] = [REASON_CODES.EXACT_MATCH];
+      let conflicting: Evidence | undefined;
+      if (lower) {
+        reasonCodes.push(REASON_CODES.LOWER_TIER_CONFLICT);
+        const { reasons: lowerReasons } = contraReasonDetails(lower);
+        conflicting = this.toEvidence(lower, lowerReasons);
+      }
       return {
-        status: "GROUNDED", claim, file: ev.file, page: ev.page, tier: ev.tier, quote: ev.quote,
-        explanation:
-          `Potwierdzone dosłownym fragmentem: ${ev.file} (sekcja ${ev.page}, Tier ${ev.tier}); pokrycie pojęć ${Math.round(ev.coverage * 100)}%` +
-          (f.numbers.length ? `, liczby zgodne (${f.numbers.map((n) => n.raw).join(", ")})` : "") + "." +
-          (conflicting ? ` Uwaga: źródło o niższej randze (${conflicting.file}, Tier ${conflicting.tier}) twierdzi inaczej.` : ""),
-        evidence: ev, conflicting,
+        status: "GROUNDED",
+        claim,
+        file: ev.file,
+        page: ev.page,
+        tier: ev.tier,
+        quote: ev.quote,
+        explanation: MESSAGES[this.lang].grounded_single({
+          file: ev.file,
+          page: ev.page,
+          tier: ev.tier,
+          coverage: Math.round(ev.coverage * 100),
+          numbers: f.numbers.length ? f.numbers.map((n) => n.raw).join(", ") : undefined,
+          conflicting: conflicting ? { file: conflicting.file, tier: conflicting.tier } : undefined,
+        }),
+        reasonCodes,
+        evidence: ev,
+        conflicting,
       };
     }
 
     const near = scored[0];
     const nearest = near && near.full > 0 ? this.toEvidence(near) : undefined;
     const why: string[] = [];
+    const reasonCodes: string[] = [];
     if (near) {
-      if (near.coverage < THRESHOLDS.support) why.push(`za niskie pokrycie pojęć (${Math.round(near.coverage * 100)}%, brakuje: ${near.missing.join(", ") || "—"})`);
-      if (!near.numbersOk) why.push("liczby z twierdzenia nie występują w tym fragmencie");
-      if (near.polarityFlip) why.push("niezgodna polaryzacja");
+      if (this.partyMismatch(f.parties, near.unit)) {
+        reasonCodes.push(REASON_CODES.PARTY_MISMATCH);
+      }
+      if (near.coverage < THRESHOLDS.support) {
+        reasonCodes.push(REASON_CODES.LOW_COVERAGE);
+        why.push(MESSAGES[this.lang].reason_low_coverage(Math.round(near.coverage * 100), near.missing.join(", ")));
+      }
+      if (!near.numbersOk) {
+        reasonCodes.push(REASON_CODES.NUMBERS_MISSING);
+        why.push(MESSAGES[this.lang].reason_numbers_missing());
+      }
+      if (near.polarityFlip) {
+        reasonCodes.push(REASON_CODES.POLARITY_MISMATCH);
+        why.push(MESSAGES[this.lang].reason_polarity_mismatch());
+      }
+    }
+    if (!nearest) {
+      reasonCodes.push(REASON_CODES.NO_RELEVANT_DOCUMENTS);
     }
     return {
-      status: "UNSUPPORTED", claim,
+      status: "UNSUPPORTED",
+      claim,
       explanation: nearest
-        ? `Brak wystarczającego oparcia. Najbliższy fragment (${nearest.file}, sekcja ${nearest.page}) nie rozstrzyga: ${why.join("; ")}.`
-        : "Brak oparcia w korpusie: żaden dokument nie odnosi się do tego twierdzenia.",
+        ? MESSAGES[this.lang].unsupported_nearest({ file: nearest.file, page: nearest.page, why })
+        : MESSAGES[this.lang].unsupported_no_docs(),
+      reasonCodes: reasonCodes.length > 0 ? [...new Set(reasonCodes)] : [REASON_CODES.NO_RELEVANT_DOCUMENTS],
       nearest,
     };
   }

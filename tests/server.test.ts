@@ -78,10 +78,16 @@ describe("mcp-redline — verify on the demo corpus", () => {
   });
 
   it("CONTRADICTED on wrong numbers, years and currencies", () => {
-    assert.strictEqual(v("The annual fee is £48,000.00 EUR.").status, "CONTRADICTED");
+    const rCur = v("The annual fee is £48,000.00 EUR.");
+    assert.strictEqual(rCur.status, "CONTRADICTED");
+    assert.ok(rCur.reasonCodes.includes("CURRENCY_MISMATCH"));
+
+    const rNum = v("Gwarantowana dostępność wynosi 99.9%.");
+    assert.strictEqual(rNum.status, "CONTRADICTED");
+    assert.ok(rNum.reasonCodes.includes("NUMBER_MISMATCH"));
+
     assert.strictEqual(v("Zysk netto VeloNova za 2024 wyniósł 4 310 000,00 PLN.").status, "CONTRADICTED");
     assert.strictEqual(v("Umowa ramowa została podpisana 15 stycznia 2021 r.").status, "CONTRADICTED");
-    assert.strictEqual(v("Gwarantowana dostępność wynosi 99.9%.").status, "CONTRADICTED");
   });
 
   it("an e-mail (Tier 3) cannot ground a claim that the contract (Tier 1) contradicts", () => {
@@ -89,6 +95,7 @@ describe("mcp-redline — verify on the demo corpus", () => {
     assert.strictEqual(r.status, "CONTRADICTED");
     assert.strictEqual(r.tier, 1);
     assert.strictEqual(r.conflicting?.tier, 3);
+    assert.ok(r.reasonCodes.includes("HIGHER_TIER_CONFLICT"));
   });
 
   it("a proposal is not a fact: the COO's penalty request does not ground 'penalty was imposed'", () => {
@@ -117,7 +124,34 @@ describe("mcp-redline — verify on the demo corpus", () => {
     const r = v("VeloNova Logistics posiada flotę 50 statków morskich pływających pod banderą panamską");
     assert.strictEqual(r.status, "UNSUPPORTED");
     assert.strictEqual(r.quote, undefined, "UNSUPPORTED must not present a quote as evidence");
+    assert.ok(r.reasonCodes.includes("LOW_COVERAGE"));
     assert.strictEqual(v("CISO Apex Meridian nazywa się Dr. Aris Thorne.").status, "UNSUPPORTED");
+  });
+});
+
+describe("mcp-redline — bilingual parity (en vs pl)", () => {
+  const engineEn = new RedlineEngine(corpusDir, "en");
+  const enginePl = new RedlineEngine(corpusDir, "pl");
+
+  it("produces identical status, reasonCodes, and quote across 5 claims, with different explanation", () => {
+    const claims = [
+      "Customer shall pay Supplier an annual base platform fee of £48,000.00 GBP net",
+      "Supplier may raise prices by 7.5% UK CPI from January 2025.",
+      "The annual fee is £48,000.00 EUR.",
+      "Gwarantowana dostępność wynosi 99.9%.",
+      "VeloNova Logistics posiada flotę 50 statków morskich.",
+    ];
+
+    for (const c of claims) {
+      const rEn = engineEn.verify(c);
+      const rPl = enginePl.verify(c);
+
+      assert.strictEqual(rEn.status, rPl.status, `Status mismatch for: ${c}`);
+      assert.deepStrictEqual(rEn.reasonCodes, rPl.reasonCodes, `ReasonCodes mismatch for: ${c}`);
+      assert.strictEqual(rEn.quote, rPl.quote, `Quote mismatch for: ${c}`);
+      assert.notStrictEqual(rEn.explanation, rPl.explanation, `Explanation should differ between languages for: ${c}`);
+      assert.ok(rEn.reasonCodes.length > 0, `Expected reasonCodes for: ${c}`);
+    }
   });
 });
 
