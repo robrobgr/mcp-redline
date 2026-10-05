@@ -68,9 +68,14 @@ Format oparty na [Keep a Changelog](https://keepachangelog.com/pl/1.0.0/).
     - Weryfikacja: zapytanie o przychody natychmiast odnajduje oficjalny RZiS (`05_Rachunek_Zyskow_i_Strat_2024_PLN.md`) ze statusem `GROUNDED` i dokładną tabelą (Pozycja A: 48 520 000 PLN, Pozycja D: 180 000 PLN).
 
 ### 2026-10-05
-- **Planowane / Backlog:**
-  - Dodanie zadania UI-STORY: opracowanie interaktywnego trybu narracyjnego w UI (Storytelling Guided Mode) wyjaśniającego na żywych danych testowych pułapkę konfabulacji LLM, 5 etapów deterministycznego silnika oraz asymetrię ryzyka (False Negative jako bezpieczny hamulec vs False Positive jako katastrofa decyzyjna).
-  - Dodanie zadań DOC-1 i DOC-2: wzbogacenie Landing Page oraz dokumentacji GitHub (`README.md`, `docs/`) o szczegółowe wyjaśnienie mechanizmu deterministycznego, 5 etapów algorytmu oraz uzasadnienie wyższości twardego kodu nad modelami probabilistycznymi (LLM) w audycie i compliance.
+- **Wdrożenie / UI-STORY (Interaktywny Storytelling i Licznik Ryzyka Finansowego):**
+  - Opracowanie koncepcji 3 Perspektyw Decyzyjnych w UI:
+    1. *Tylko LLM*: Niekontrolowana generacja, bezkrytyczne uleganie presji użytkownika, akceptacja fałszywych roszczeń.
+    2. *LLM + MCP Redline*: Deterministyczny rewident odcinający halucynację w locie i wymuszający ścisłe cytaty Tier 1.
+    3. *Gdy Redline ma wątpliwości (Fail-Safe)*: Asymetria ryzyka biznesowego (False Negative = 5 min audytu człowieka za ~30 PLN vs False Positive LLM = katastrofa finansowa i procesowa na 50 000 EUR / £184 200).
+  - Wdrożenie Licznika Ryzyka Finansowego (Financial Liability Meter) z estymacją ekspozycji bilansowej i prawnej dla każdego scenariusza.
+  - Wdrożenie Agent Thought Interception Trace (wizualizacja pętli narzędziowej agenta).
+  - Wdrożenie Symulatora Szumu OCR (Dirty Data) i Przewodnika Narracyjnego (Guided Story Walkthrough).
 
 
 

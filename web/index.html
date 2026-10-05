@@ -121,6 +121,12 @@
 
     <!-- Action Triggers -->
     <div class="flex items-center gap-2">
+      <!-- Story Mode Trigger -->
+      <button id="btn-open-story" class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-brand-surface hover:bg-brand-cardElevated border border-brand-red text-xs font-semibold text-brand-red hover:text-white shadow-sm transition-colors">
+        <span class="material-symbols-outlined text-sm">menu_book</span>
+        <span>Story Mode (3 Akty)</span>
+      </button>
+
       <!-- Infographic Trigger -->
       <button id="btn-open-infographic" class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-brand-card hover:bg-brand-cardElevated border border-brand-border hover:border-brand-cyan text-xs font-medium text-zinc-200 transition-colors">
         <span class="material-symbols-outlined text-brand-cyan text-sm">image</span>
@@ -215,6 +221,105 @@
       <!-- Main Workspace Arena -->
       <div class="p-4 space-y-4 flex-1">
         
+        <!-- TRIAD PERSPECTIVE SWITCHER -->
+        <div class="bg-brand-surface border border-brand-border rounded-lg p-2.5 flex flex-wrap items-center justify-between gap-3 shadow-md">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-mono font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-brand-cyan text-sm">visibility</span>
+              Trzy Perspektywy Decyzyjne:
+            </span>
+            <span class="hidden sm:inline-block text-[11px] text-zinc-400 font-sans">
+              Zbadaj dynamikę ryzyka biznesowego w trzech konfiguracjach:
+            </span>
+          </div>
+          <div class="flex items-center gap-1.5 bg-brand-card p-1 rounded border border-brand-border text-xs font-mono">
+            <button id="btn-persp-1" class="px-3 py-1.5 rounded transition-all flex items-center gap-1.5 text-zinc-400 hover:text-white" title="Perspektywa 1: Samotny model LLM bez zabezpieczeń">
+              <span class="w-2 h-2 rounded-full bg-brand-red"></span>
+              <span>1. Tylko LLM (Halucynacja)</span>
+            </button>
+            <button id="btn-persp-2" class="px-3 py-1.5 rounded bg-brand-emerald text-zinc-950 font-bold shadow-sm transition-all flex items-center gap-1.5" title="Perspektywa 2: Model chroniony przez deterministyczny serwer mcp-redline">
+              <span class="w-2 h-2 rounded-full bg-zinc-950"></span>
+              <span>2. LLM + Redline (Protected)</span>
+            </button>
+            <button id="btn-persp-3" class="px-3 py-1.5 rounded transition-all flex items-center gap-1.5 text-zinc-400 hover:text-white" title="Perspektywa 3: Analiza sytuacji wątpliwości lub błędu serwera mcp-redline (Fail-Safe)">
+              <span class="w-2 h-2 rounded-full bg-brand-cyan"></span>
+              <span>3. Wątpliwości Redline (Fail-Safe)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- BUSINESS IMPACT & FINANCIAL LIABILITY METER (CFO Executive Board) -->
+        <div id="liability-meter-widget" class="bg-gradient-to-r from-red-950/40 via-brand-surface to-emerald-950/40 border border-brand-border rounded-lg p-3.5 shadow-lg space-y-2.5 transition-all">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-brand-red text-base">payments</span>
+              <span class="text-xs font-mono font-bold text-zinc-100 uppercase tracking-wider">
+                Licznik Ryzyka Finansowego & Ekspozycji Zarządczej (CFO Liability Meter)
+              </span>
+              <span id="meter-perspective-pill" class="text-[10px] font-mono px-2 py-0.5 rounded bg-brand-card border border-brand-border text-brand-emerald font-semibold">
+                Tryb: LLM + Redline (Chroniony)
+              </span>
+            </div>
+            <div id="meter-scenario-tag" class="text-xs font-mono text-zinc-400">
+              ID: P01 // Apex Meridian
+            </div>
+          </div>
+
+          <!-- 3 Big Metric Columns -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <!-- Metric 1: LLM Exposure -->
+            <div id="meter-col-llm" class="p-2.5 rounded bg-red-950/50 border border-red-800/60 flex flex-col justify-between transition-all">
+              <div class="flex items-center justify-between text-[11px] font-mono text-red-300">
+                <span>EKSPOZYCJA LLM (BRAK BRAMKI):</span>
+                <span class="material-symbols-outlined text-brand-red text-xs">trending_up</span>
+              </div>
+              <div id="meter-llm-val" class="text-xl lg:text-2xl font-black font-mono text-red-400 my-1">
+                £184,200 GBP
+              </div>
+              <div id="meter-llm-desc" class="text-[11px] text-zinc-300 font-sans leading-tight">
+                Niekontrolowana akceptacja roszczeń przez gładką syntezę LLM.
+              </div>
+            </div>
+
+            <!-- Metric 2: Protected by Redline -->
+            <div id="meter-col-redline" class="p-2.5 rounded bg-emerald-950/50 border border-emerald-800/60 flex flex-col justify-between transition-all">
+              <div class="flex items-center justify-between text-[11px] font-mono text-emerald-300">
+                <span>OCHRONA MCP-REDLINE:</span>
+                <span class="material-symbols-outlined text-brand-emerald text-xs">shield</span>
+              </div>
+              <div id="meter-redline-val" class="text-xl lg:text-2xl font-black font-mono text-brand-emerald my-1">
+                0 PLN / £0
+              </div>
+              <div id="meter-redline-desc" class="text-[11px] text-zinc-300 font-sans leading-tight">
+                100% zablokowana strata. Twarda deterministyczna weryfikacja.
+              </div>
+            </div>
+
+            <!-- Metric 3: Fail-Safe Cost -->
+            <div id="meter-col-failsafe" class="p-2.5 rounded bg-cyan-950/40 border border-cyan-800/50 flex flex-col justify-between transition-all">
+              <div class="flex items-center justify-between text-[11px] font-mono text-cyan-300">
+                <span>KOSZT AUDYTU (FAIL-SAFE):</span>
+                <span class="material-symbols-outlined text-brand-cyan text-xs">schedule</span>
+              </div>
+              <div id="meter-failsafe-val" class="text-xl lg:text-2xl font-black font-mono text-brand-cyan my-1">
+                ~30 PLN
+              </div>
+              <div id="meter-failsafe-desc" class="text-[11px] text-zinc-300 font-sans leading-tight">
+                Koszt 5 min weryfikacji przez człowieka w razie wątpliwości/odmowy serwera.
+              </div>
+            </div>
+          </div>
+
+          <!-- CFO Business Narrative Banner -->
+          <div class="p-2.5 rounded bg-brand-darkCanvas/80 border border-brand-border/60 flex items-start gap-2.5">
+            <span class="material-symbols-outlined text-brand-cyan text-base shrink-0 mt-0.5">account_balance</span>
+            <div class="text-xs text-zinc-200 font-sans leading-relaxed flex-1">
+              <span class="font-bold text-zinc-100 font-mono">OCENA DLA ZARZĄDU / DYREKTORA FINANSOWEGO (CFO): </span>
+              <span id="meter-cfo-analysis">Wczytywanie analizy ekspozycji finansowej...</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Proposition Input Box -->
         <div class="bg-brand-surface border border-brand-border rounded-lg p-3 relative shadow-md">
           <div class="flex items-center justify-between mb-2">
@@ -223,6 +328,10 @@
                 AUDYTOWANE TWIERDZENIE
               </span>
               <span id="claim-id-badge" class="text-xs font-mono text-zinc-400">ID: P01</span>
+              <button id="btn-simulate-noise" class="px-2 py-0.5 rounded bg-brand-card hover:bg-brand-cardElevated border border-brand-border text-zinc-300 text-[10px] font-mono flex items-center gap-1 transition-colors" title="Wstrzyknij realistyczny szum OCR / literówkę, aby sprawdzić odporność silnika">
+                <span class="material-symbols-outlined text-brand-cyan text-xs">auto_fix_high</span>
+                <span id="noise-btn-label">Symuluj szum OCR</span>
+              </button>
             </div>
             <span class="text-xs font-mono text-zinc-400 flex items-center gap-1">
               <span class="material-symbols-outlined text-xs text-brand-emerald">fingerprint</span>
@@ -353,6 +462,24 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- AGENT THOUGHT INTERCEPTION TRACE (Live Intercept Loop) -->
+        <div class="bg-brand-surface border border-brand-border rounded-lg overflow-hidden shadow-md">
+          <button id="btn-toggle-trace" class="w-full px-3.5 py-2.5 bg-brand-card hover:bg-brand-cardElevated flex items-center justify-between text-xs font-mono transition-colors">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-brand-cyan text-sm">hub</span>
+              <span class="font-bold text-zinc-100">ŚLAD MYŚLOWY AGENTA I INTERCEPCJA MCP W LOCIE</span>
+              <span id="trace-badge" class="text-[10px] px-2 py-0.5 rounded bg-emerald-950/60 text-brand-emerald border border-brand-emerald/40 font-semibold">Active Agent Loop</span>
+            </div>
+            <div class="flex items-center gap-2 text-zinc-400">
+              <span class="text-[11px] font-sans hidden sm:inline">Zobacz jak mcp-redline przechwytuje odpowiedź modelu</span>
+              <span id="trace-chevron" class="material-symbols-outlined text-sm transition-transform">expand_more</span>
+            </div>
+          </button>
+          <div id="agent-trace-content" class="p-3.5 border-t border-brand-border bg-brand-darkCanvas space-y-3 text-xs font-mono hidden">
+            <!-- Injected by JavaScript -->
           </div>
         </div>
 
@@ -611,6 +738,69 @@
     </div>
   </div>
 
+  <!-- ========================================================================= -->
+  <!-- MODAL 5: STORY MODE (3 AKTY: KŁAMSTWO POD PRESJĄ VS CYFROWY REWIDENT)     -->
+  <!-- ========================================================================= -->
+  <div id="modal-story" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-brand-surface border border-brand-border rounded-xl max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
+      <!-- Modal Header -->
+      <div class="px-5 py-3.5 border-b border-brand-border flex items-center justify-between bg-brand-darkCanvas">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded bg-red-950/60 border border-brand-red flex items-center justify-center text-brand-red font-bold">
+            <span class="material-symbols-outlined text-lg">menu_book</span>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-sm text-zinc-100 uppercase tracking-wide">Story Mode // Kłamstwo pod presją vs Cyfrowy Rewident</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-brand-card text-brand-cyan border border-brand-border font-semibold">EDUKACJA ZARZĄDÓW & CISO</span>
+            </div>
+            <p class="text-xs text-zinc-400">Dlaczego deterministyczny kod wygrywa z modelem LLM trenowanym za miliony dolarów</p>
+          </div>
+        </div>
+        <button id="btn-close-story" class="w-8 h-8 rounded hover:bg-brand-card flex items-center justify-center text-zinc-400 hover:text-white transition-colors">
+          <span class="material-symbols-outlined text-lg">close</span>
+        </button>
+      </div>
+
+      <!-- Acts Tab Switcher -->
+      <div class="flex border-b border-brand-border bg-brand-card text-xs font-mono">
+        <button id="tab-act-1" class="flex-1 py-3 px-4 border-b-2 border-brand-red text-brand-red font-bold bg-brand-surface text-center flex items-center justify-center gap-2">
+          <span>AKT 1:</span>
+          <span>Pokusa Modelu (Dlaczego LLM kłamie pod presją)</span>
+        </button>
+        <button id="tab-act-2" class="flex-1 py-3 px-4 text-zinc-400 hover:text-zinc-200 hover:bg-brand-surface text-center flex items-center justify-center gap-2 transition-colors">
+          <span>AKT 2:</span>
+          <span>Anatomia Silnika (5 etapów determinizmu)</span>
+        </button>
+        <button id="tab-act-3" class="flex-1 py-3 px-4 text-zinc-400 hover:text-zinc-200 hover:bg-brand-surface text-center flex items-center justify-center gap-2 transition-colors">
+          <span>AKT 3:</span>
+          <span>Asymetria Ryzyka i Odpowiedzialność Finansowa</span>
+        </button>
+      </div>
+
+      <!-- Modal Body (Content for Acts) -->
+      <div id="story-content" class="p-6 overflow-y-auto flex-1 space-y-6 text-sm text-zinc-300 font-sans leading-relaxed">
+        <!-- Injected dynamically by JavaScript -->
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-5 py-3 border-t border-brand-border bg-brand-darkCanvas flex items-center justify-between text-xs font-mono">
+        <div class="flex items-center gap-2 text-zinc-400">
+          <span class="material-symbols-outlined text-brand-emerald text-sm">verified</span>
+          <span>mcp-redline: audytowalność, zero halucynacji w weryfikacji, zero sieci</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btn-story-prev" class="px-3 py-1.5 rounded bg-brand-card hover:bg-brand-cardElevated border border-brand-border text-zinc-300 disabled:opacity-40">
+            &larr; Poprzedni Akt
+          </button>
+          <button id="btn-story-next" class="px-3 py-1.5 rounded bg-brand-emerald text-zinc-950 font-bold hover:bg-brand-darkEmerald transition-colors">
+            Następny Akt &rarr;
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Load bundled dataset -->
   <script type="module">
     import { CORPUS_DOCS, SECTIONS, BILINGUAL_SYNONYMS, SCENARIOS } from './data.js';
@@ -619,6 +809,10 @@
     let currentScenarioIndex = 0;
     let activeRpcTab = 'req'; // 'req', 'res', 'stream'
     let activeArchTab = 1;
+    let activePerspective = 2; // 1: Pure LLM, 2: Protected, 3: Fail-Safe
+    let isNoiseActive = false;
+    let isTraceOpen = false;
+    let activeStoryAct = 1;
 
     // Elements
     const corpusListEl = document.getElementById('corpus-list');
@@ -630,6 +824,36 @@
     const claimCategoryBadge = document.getElementById('claim-category-badge');
     const claimIdBadge = document.getElementById('claim-id-badge');
     const btnVerify = document.getElementById('btn-verify');
+
+    // Triad Perspective Elements
+    const btnPersp1 = document.getElementById('btn-persp-1');
+    const btnPersp2 = document.getElementById('btn-persp-2');
+    const btnPersp3 = document.getElementById('btn-persp-3');
+
+    // CFO Liability Meter Elements
+    const liabilityMeterWidget = document.getElementById('liability-meter-widget');
+    const meterPerspectivePill = document.getElementById('meter-perspective-pill');
+    const meterScenarioTag = document.getElementById('meter-scenario-tag');
+    const meterColLlm = document.getElementById('meter-col-llm');
+    const meterLlmVal = document.getElementById('meter-llm-val');
+    const meterLlmDesc = document.getElementById('meter-llm-desc');
+    const meterColRedline = document.getElementById('meter-col-redline');
+    const meterRedlineVal = document.getElementById('meter-redline-val');
+    const meterRedlineDesc = document.getElementById('meter-redline-desc');
+    const meterColFailsafe = document.getElementById('meter-col-failsafe');
+    const meterFailsafeVal = document.getElementById('meter-failsafe-val');
+    const meterFailsafeDesc = document.getElementById('meter-failsafe-desc');
+    const meterCfoAnalysis = document.getElementById('meter-cfo-analysis');
+
+    // Noise Simulation Elements
+    const btnSimulateNoise = document.getElementById('btn-simulate-noise');
+    const noiseBtnLabel = document.getElementById('noise-btn-label');
+
+    // Agent Thought Interception Trace Elements
+    const btnToggleTrace = document.getElementById('btn-toggle-trace');
+    const agentTraceContent = document.getElementById('agent-trace-content');
+    const traceChevron = document.getElementById('trace-chevron');
+    const traceBadge = document.getElementById('trace-badge');
 
     // LLM Card Elements
     const llmBanner = document.getElementById('llm-banner');
@@ -693,6 +917,17 @@
     const modalQuickstart = document.getElementById('modal-quickstart');
     const btnOpenQuickstart = document.getElementById('btn-open-quickstart');
     const btnCloseQuickstart = document.getElementById('btn-close-quickstart');
+
+    // Story Mode Modal Elements
+    const modalStory = document.getElementById('modal-story');
+    const btnOpenStory = document.getElementById('btn-open-story');
+    const btnCloseStory = document.getElementById('btn-close-story');
+    const tabAct1 = document.getElementById('tab-act-1');
+    const tabAct2 = document.getElementById('tab-act-2');
+    const tabAct3 = document.getElementById('tab-act-3');
+    const storyContent = document.getElementById('story-content');
+    const btnStoryPrev = document.getElementById('btn-story-prev');
+    const btnStoryNext = document.getElementById('btn-story-next');
 
     // 1. Populate Corpus List
     function renderCorpusList(filterText = '') {
@@ -884,8 +1119,415 @@
       redlineMetaPage.textContent = sc.page ? `Sekcja / Strona ${sc.page}` : 'N/A';
       statLatency.textContent = (sc.durationMs || 1.8).toFixed(2) + ' ms';
 
+      // Update CFO Liability Meter
+      renderLiabilityMeter(sc);
+
+      // Update Agent Trace
+      renderAgentTrace(sc);
+
+      // Reset noise state if active
+      isNoiseActive = false;
+      noiseBtnLabel.textContent = 'Symuluj szum OCR';
+      btnSimulateNoise.className = 'px-2 py-0.5 rounded bg-brand-card hover:bg-brand-cardElevated border border-brand-border text-zinc-300 text-[10px] font-mono flex items-center gap-1 transition-colors';
+
+      // Apply Perspective View
+      applyPerspective();
+
       // Update Inspector
       renderInspector();
+    }
+
+    // 4b. Render CFO Financial Liability Meter
+    function renderLiabilityMeter(sc) {
+      meterScenarioTag.textContent = `${sc.id} // ${sc.subtype}`;
+      meterLlmVal.textContent = sc.financialExposureValue || '£184,200 GBP';
+      meterLlmDesc.textContent = sc.financialExposure || 'Brak twardej weryfikacji i ryzyko strat.';
+      
+      meterRedlineVal.textContent = '0 PLN / £0';
+      meterRedlineDesc.textContent = sc.verdict === 'GROUNDED' 
+        ? '100% potwierdzony fakt w dokumencie nadrzędnym (Tier 1). Brak halucynacji.' 
+        : '100% zablokowana strata. Twarda odmowa UNSUPPORTED oparta na umowie.';
+
+      meterFailsafeVal.textContent = sc.financialFailSafeCost || '~30 PLN';
+      meterFailsafeDesc.textContent = 'Koszt 3-5 min weryfikacji manualnej w razie ostrożnościowej odmowy.';
+      meterCfoAnalysis.textContent = sc.financialExposureCfo || sc.financialExposure;
+    }
+
+    // 4c. Render Agent Thought Interception Trace
+    function renderAgentTrace(sc) {
+      const trace = sc.agentTrace || {
+        llmDraft: sc.llmResponse,
+        mcpIntercept: sc.explanation,
+        correctedOutput: sc.verdict === 'GROUNDED' ? sc.quote : 'Odmowa UNSUPPORTED'
+      };
+
+      agentTraceContent.innerHTML = `
+        <div class="space-y-3">
+          <!-- Step 1 -->
+          <div class="flex items-start gap-2.5 p-2.5 rounded bg-brand-surface/70 border border-brand-border/60">
+            <span class="w-6 h-6 rounded-full bg-brand-cyan/20 border border-brand-cyan/40 text-brand-cyan flex items-center justify-center text-xs font-bold shrink-0">1</span>
+            <div class="space-y-1 flex-1">
+              <div class="text-[11px] font-mono text-brand-cyan font-semibold uppercase">Prompt Wejściowy Użytkownika / Audytora:</div>
+              <p class="text-zinc-200 text-xs font-sans">${escapeHtml(sc.prompt)}</p>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="flex items-start gap-2.5 p-2.5 rounded bg-red-950/20 border border-red-900/40">
+            <span class="w-6 h-6 rounded-full bg-red-900/40 border border-red-700 text-red-300 flex items-center justify-center text-xs font-bold shrink-0">2</span>
+            <div class="space-y-1 flex-1">
+              <div class="text-[11px] font-mono text-red-400 font-semibold uppercase flex items-center justify-between">
+                <span>Wewnętrzny Szkic LLM (Pokusa Uległości / Sycophancy):</span>
+                <span class="text-[10px] text-red-400">Przed wywołaniem narzędzia MCP</span>
+              </div>
+              <p class="text-zinc-300 text-xs font-sans italic">„${escapeHtml(trace.llmDraft)}”</p>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="flex items-start gap-2.5 p-2.5 rounded bg-emerald-950/30 border border-brand-emerald/40">
+            <span class="w-6 h-6 rounded-full bg-brand-emerald text-zinc-950 flex items-center justify-center text-xs font-bold shrink-0">3</span>
+            <div class="space-y-1 flex-1">
+              <div class="text-[11px] font-mono text-brand-emerald font-semibold uppercase flex items-center justify-between">
+                <span>Intercepcja MCP Redline [tools/call: verify]:</span>
+                <span class="text-[10px] px-1.5 py-0.2 rounded bg-emerald-900/50 text-emerald-300">100% Determinizm</span>
+              </div>
+              <p class="text-zinc-200 text-xs font-mono">${escapeHtml(trace.mcpIntercept)}</p>
+            </div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="flex items-start gap-2.5 p-2.5 rounded bg-brand-surface/90 border border-brand-border">
+            <span class="w-6 h-6 rounded-full bg-zinc-700 text-zinc-200 flex items-center justify-center text-xs font-bold shrink-0">4</span>
+            <div class="space-y-1 flex-1">
+              <div class="text-[11px] font-mono text-zinc-300 font-semibold uppercase">Ostateczna Odpowiedź Agenta (Zabezpieczona Przed Halucynacją):</div>
+              <p class="text-zinc-100 text-xs font-sans leading-relaxed">${escapeHtml(trace.correctedOutput)}</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // 4d. Perspective Switcher Logic
+    function setPerspective(persp) {
+      activePerspective = persp;
+
+      btnPersp1.className = persp === 1 
+        ? 'px-3 py-1.5 rounded bg-brand-red text-white font-bold shadow-sm transition-all flex items-center gap-1.5'
+        : 'px-3 py-1.5 rounded transition-all flex items-center gap-1.5 text-zinc-400 hover:text-white';
+      btnPersp2.className = persp === 2 
+        ? 'px-3 py-1.5 rounded bg-brand-emerald text-zinc-950 font-bold shadow-sm transition-all flex items-center gap-1.5'
+        : 'px-3 py-1.5 rounded transition-all flex items-center gap-1.5 text-zinc-400 hover:text-white';
+      btnPersp3.className = persp === 3 
+        ? 'px-3 py-1.5 rounded bg-brand-cyan text-zinc-950 font-bold shadow-sm transition-all flex items-center gap-1.5'
+        : 'px-3 py-1.5 rounded transition-all flex items-center gap-1.5 text-zinc-400 hover:text-white';
+
+      applyPerspective();
+    }
+
+    function applyPerspective() {
+      const sc = SCENARIOS[currentScenarioIndex];
+      const isGrounded = sc.verdict === 'GROUNDED';
+
+      const cardLlm = llmBanner.closest('.flex-col');
+      const cardRedline = redlineBanner.closest('.flex-col');
+
+      if (activePerspective === 1) {
+        // Perspective 1: Pure LLM (Uncontrolled)
+        meterPerspectivePill.textContent = 'Perspektywa 1: Samotny LLM (Brak Zabezpieczeń)';
+        meterPerspectivePill.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-red-950/60 border border-brand-red text-brand-red font-bold animate-pulse';
+
+        // Highlight LLM Column in meter
+        meterColLlm.className = 'p-2.5 rounded bg-red-900/60 border-2 border-brand-red flex flex-col justify-between transition-all ring-2 ring-red-500/40';
+        meterColRedline.className = 'p-2.5 rounded bg-brand-card/40 border border-brand-border/40 opacity-40 flex flex-col justify-between transition-all';
+        meterColFailsafe.className = 'p-2.5 rounded bg-brand-card/40 border border-brand-border/40 opacity-40 flex flex-col justify-between transition-all';
+
+        // Highlight LLM card, Dim Redline card
+        if (cardLlm) cardLlm.className = 'flex flex-col bg-brand-surface border-2 border-brand-red rounded-lg overflow-hidden shadow-2xl transition-all';
+        if (cardRedline) cardRedline.className = 'flex flex-col bg-brand-surface/40 border border-zinc-700/50 rounded-lg overflow-hidden opacity-30 pointer-events-none transition-all';
+
+      } else if (activePerspective === 2) {
+        // Perspective 2: Protected by Redline
+        meterPerspectivePill.textContent = 'Perspektywa 2: LLM + Redline (Chroniony)';
+        meterPerspectivePill.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950/60 border border-brand-emerald text-brand-emerald font-semibold';
+
+        // Highlight Redline Column in meter
+        meterColLlm.className = 'p-2.5 rounded bg-red-950/50 border border-red-800/60 flex flex-col justify-between transition-all';
+        meterColRedline.className = 'p-2.5 rounded bg-emerald-950/60 border-2 border-brand-emerald flex flex-col justify-between transition-all ring-2 ring-emerald-500/40';
+        meterColFailsafe.className = 'p-2.5 rounded bg-cyan-950/40 border border-cyan-800/50 flex flex-col justify-between transition-all';
+
+        // Restore normal A/B cards
+        if (cardLlm) cardLlm.className = 'flex flex-col bg-brand-surface border border-red-900/60 rounded-lg overflow-hidden shadow-lg transition-all';
+        if (cardRedline) cardRedline.className = 'flex flex-col bg-brand-surface border border-emerald-900/60 rounded-lg overflow-hidden shadow-lg transition-all';
+
+        // Restore standard Redline card banner and content
+        if (isGrounded) {
+          redlineBanner.className = 'bg-emerald-950/50 border-b border-emerald-800/40 px-3 py-2 flex items-center justify-between';
+          redlineBannerIcon.textContent = 'verified';
+          redlineBannerIcon.className = 'material-symbols-outlined text-brand-emerald text-base font-bold';
+          redlineBannerText.textContent = 'DETERMINISTYCZNY DOWÓD // 100% GROUNDED';
+          redlineBannerText.className = 'text-xs font-mono font-bold text-brand-emerald tracking-wide';
+          redlineStatusBadge.textContent = 'POTWIERDZONE W ŹRÓDLE';
+          redlineStatusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-900/40 text-emerald-200 border border-emerald-700/50 font-semibold';
+          redlineVerdictTag.textContent = 'STATUS: GROUNDED';
+          redlineVerdictTag.className = 'font-mono text-xs px-2 py-0.5 rounded bg-brand-darkCanvas border border-brand-emerald/40 text-brand-emerald';
+          redlineSourceTitle.textContent = 'ŚCISŁY CYTAT (TIER 1 DOWÓD NAJWYŻSZEJ MOCY):';
+          redlineTierBadge.textContent = 'Tier 1: Legal Precedence';
+          redlineTierBadge.className = 'text-brand-emerald font-semibold';
+          redlineQuoteContainer.className = 'bg-brand-darkCanvas rounded border-l-2 border-brand-emerald border-t border-r border-b border-brand-border p-3 font-mono text-xs text-zinc-200 space-y-2 max-h-56 overflow-y-auto';
+          redlineQuoteText.textContent = sc.quote || 'Fragment zweryfikowany w dokumencie.';
+          redlineExplanationText.textContent = sc.explanation + ' ' + sc.comment;
+        } else {
+          redlineBanner.className = 'bg-red-950/60 border-b border-red-800/50 px-3 py-2 flex items-center justify-between';
+          redlineBannerIcon.textContent = 'gpp_bad';
+          redlineBannerIcon.className = 'material-symbols-outlined text-brand-red text-base font-bold';
+          redlineBannerText.textContent = 'TWARDA ODMOWA // DETERMINISTIC REFUSAL';
+          redlineBannerText.className = 'text-xs font-mono font-bold text-brand-red tracking-wide';
+          redlineStatusBadge.textContent = 'UNSUPPORTED (BEZWZGLĘDNA ODMOWA)';
+          redlineStatusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-red-900/60 text-red-100 border border-red-600 font-semibold';
+          redlineVerdictTag.textContent = 'STATUS: UNSUPPORTED';
+          redlineVerdictTag.className = 'font-mono text-xs px-2 py-0.5 rounded bg-brand-darkCanvas border border-brand-red/60 text-brand-red font-bold';
+          redlineSourceTitle.textContent = 'ROZSTRZYGNIĘCIE SPRZECZNOŚCI KONTRAKTOWEJ:';
+          redlineTierBadge.textContent = 'Tier 1 unieważnia Tier 3';
+          redlineTierBadge.className = 'text-brand-red font-semibold';
+          redlineQuoteContainer.className = 'bg-brand-darkCanvas rounded border-l-2 border-brand-red border-t border-r border-b border-brand-border p-3 font-mono text-xs text-red-200 space-y-2 max-h-56 overflow-y-auto';
+          redlineQuoteText.textContent = sc.quote 
+            ? `[DOWÓD WYKLUCZAJĄCY ROSZCZENIE]:\n${sc.quote}` 
+            : `[BRAK OPARCIA DOWODOWEGO]:\nŻaden z 7 dokumentów korpusu nie potwierdza podanej tezy lub waluty. Serwer deterministycznie odmawia wygenerowania niezweryfikowanej odpowiedzi.`;
+          redlineExplanationText.textContent = sc.explanation + ' ' + sc.comment;
+        }
+
+      } else if (activePerspective === 3) {
+        // Perspective 3: Redline doubts / Fail-Safe analysis
+        meterPerspectivePill.textContent = 'Perspektywa 3: Gdy Redline ma wątpliwości (Fail-Safe)';
+        meterPerspectivePill.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950/60 border border-brand-cyan text-brand-cyan font-bold';
+
+        // Highlight Fail-Safe Column in meter
+        meterColLlm.className = 'p-2.5 rounded bg-brand-card/50 border border-brand-border/60 opacity-60 flex flex-col justify-between transition-all';
+        meterColRedline.className = 'p-2.5 rounded bg-emerald-950/40 border border-emerald-800/50 flex flex-col justify-between transition-all';
+        meterColFailsafe.className = 'p-2.5 rounded bg-cyan-950/60 border-2 border-brand-cyan flex flex-col justify-between transition-all ring-2 ring-cyan-500/40';
+
+        // Highlight cards with Perspective 3 focus
+        if (cardLlm) cardLlm.className = 'flex flex-col bg-brand-surface border border-red-900/40 rounded-lg overflow-hidden opacity-70 transition-all';
+        if (cardRedline) cardRedline.className = 'flex flex-col bg-brand-surface border-2 border-brand-cyan rounded-lg overflow-hidden shadow-2xl transition-all';
+
+        // Transform Redline Banner for Perspective 3
+        redlineBanner.className = 'bg-cyan-950/70 border-b border-cyan-800/60 px-3 py-2 flex items-center justify-between';
+        redlineBannerIcon.textContent = 'help_center';
+        redlineBannerIcon.className = 'material-symbols-outlined text-brand-cyan text-base font-bold';
+        redlineBannerText.textContent = 'WĄTPLIWOŚĆ / BŁĄD WEJŚCIA // BEZPIECZNY FAIL-SAFE';
+        redlineBannerText.className = 'text-xs font-mono font-bold text-brand-cyan tracking-wide';
+
+        redlineStatusBadge.textContent = 'BŁĄD II RODZAJU (ODMOWA OSTROŻNOŚCIOWA)';
+        redlineStatusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-cyan-900/50 text-cyan-200 border border-cyan-600 font-semibold';
+
+        redlineVerdictTag.textContent = 'STATUS: FAIL-SAFE HAMULEC';
+        redlineVerdictTag.className = 'font-mono text-xs px-2 py-0.5 rounded bg-brand-darkCanvas border border-brand-cyan/60 text-brand-cyan font-bold';
+
+        redlineSourceTitle.textContent = 'ANALIZA ASYMETRII RYZYKA (CFO & COMPLIANCE):';
+        redlineTierBadge.textContent = 'Koszt audytu: ~30 PLN';
+        redlineTierBadge.className = 'text-brand-cyan font-semibold';
+
+        redlineQuoteContainer.className = 'bg-brand-darkCanvas rounded border-l-2 border-brand-cyan border-t border-r border-b border-brand-border p-3 font-mono text-xs text-zinc-200 space-y-2 max-h-56 overflow-y-auto';
+        redlineQuoteText.textContent = `[DLACZEGO WĄTPLIWOŚĆ CYFROWEGO REWIDENTA JEST BEZPIECZNA]:
+1. BŁĄD I RODZAJU (LLM False Positive): Model gładko potwierdza nieprawdę.
+   -> Konsekwencja: Firma płaci nieuzasadnione kwoty (${sc.financialExposureValue}) lub przegrywa proces. STRATA KATASTROFALNA.
+2. BŁĄD II RODZAJU (Redline False Negative): Silnik nie jest pewien i odmawia (UNSUPPORTED).
+   -> Konsekwencja: Żadna błędna decyzja nie zostaje podjęta. Człowiek poświęca 3-5 minut na weryfikację. KOSZT: ~30 PLN.
+3. JAWNOŚĆ CYTATU:
+   Nawet gdy Redline dopasuje fragment, zawsze podaje DOKŁADNY CYTAT i STRONĘ (${sc.file || 'plik'}). Człowiek od razu widzi kontekst własnymi oczami (zero czarnej skrzynki).`;
+
+        redlineExplanationText.textContent = sc.perspective3Analysis?.riskAsymmetry || 'Deterministyczny hamulec chroni przed katastrofą finansową, redukując ryzyko do 5 minut pracy audytora.';
+      }
+    }
+
+    // 4e. Dirty OCR / Noise Simulator
+    function toggleNoise() {
+      const sc = SCENARIOS[currentScenarioIndex];
+      isNoiseActive = !isNoiseActive;
+
+      if (isNoiseActive) {
+        // Inject OCR-style defects: 0 -> O, l -> 1, typo in entity, spaced currency
+        let noisy = sc.prompt
+          .replace(/2024/g, '2O24')
+          .replace(/2023/g, '2O23')
+          .replace(/48 000/g, '48.OOO')
+          .replace(/VeloNova/g, 'VeloN0va')
+          .replace(/Apex/g, 'Ap3x')
+          .replace(/EUR/g, 'EU R');
+        if (noisy === sc.prompt) {
+          noisy = sc.prompt + ' (skan OCR: znieksztalcony wiersz 14)';
+        }
+        claimInput.value = noisy;
+        noiseBtnLabel.textContent = 'Cofnij szum OCR';
+        btnSimulateNoise.className = 'px-2 py-0.5 rounded bg-brand-red text-white text-[10px] font-mono flex items-center gap-1 transition-colors font-bold shadow-sm';
+      } else {
+        claimInput.value = sc.prompt;
+        noiseBtnLabel.textContent = 'Symuluj szum OCR';
+        btnSimulateNoise.className = 'px-2 py-0.5 rounded bg-brand-card hover:bg-brand-cardElevated border border-brand-border text-zinc-300 text-[10px] font-mono flex items-center gap-1 transition-colors';
+      }
+    }
+
+    // 4f. Render Story Act (Modal 5)
+    function renderStoryAct(actNum) {
+      activeStoryAct = actNum;
+
+      tabAct1.className = actNum === 1 
+        ? 'flex-1 py-3 px-4 border-b-2 border-brand-red text-brand-red font-bold bg-brand-surface text-center flex items-center justify-center gap-2'
+        : 'flex-1 py-3 px-4 text-zinc-400 hover:text-zinc-200 hover:bg-brand-surface text-center flex items-center justify-center gap-2 transition-colors';
+      tabAct2.className = actNum === 2 
+        ? 'flex-1 py-3 px-4 border-b-2 border-brand-emerald text-brand-emerald font-bold bg-brand-surface text-center flex items-center justify-center gap-2'
+        : 'flex-1 py-3 px-4 text-zinc-400 hover:text-zinc-200 hover:bg-brand-surface text-center flex items-center justify-center gap-2 transition-colors';
+      tabAct3.className = actNum === 3 
+        ? 'flex-1 py-3 px-4 border-b-2 border-brand-cyan text-brand-cyan font-bold bg-brand-surface text-center flex items-center justify-center gap-2'
+        : 'flex-1 py-3 px-4 text-zinc-400 hover:text-zinc-200 hover:bg-brand-surface text-center flex items-center justify-center gap-2 transition-colors';
+
+      btnStoryPrev.disabled = actNum === 1;
+      btnStoryNext.textContent = actNum === 3 ? 'Zakończ i wróć do konsoli' : 'Następny Akt →';
+
+      if (actNum === 1) {
+        storyContent.innerHTML = `
+          <div class="space-y-4">
+            <div class="p-3.5 rounded-lg bg-red-950/40 border border-red-900/60 text-red-200 font-mono text-xs flex items-center gap-2">
+              <span class="material-symbols-outlined text-brand-red">warning</span>
+              <span>AKT 1: DLACZEGO MODEL JĘZYKOWY POD PRESJĄ FABRYKUJE GŁADKIE KŁAMSTWO</span>
+            </div>
+
+            <div class="space-y-2">
+              <h3 class="text-base font-bold text-zinc-100 font-mono">1. Mechanizm probabilistyczny vs Prawda logiczna</h3>
+              <p class="text-zinc-300">
+                Modele LLM nie posiadają pojęcia prawdy ani fałszu. Ich jedynym zadaniem optymalizacyjnym jest maksymalizacja prawdopodobieństwa kolejnego tokena:
+                <code class="px-1.5 py-0.5 rounded bg-brand-card text-brand-cyan font-mono text-xs">P(w_n | w_{1..n-1})</code>.
+                Gdy użytkownik zadaje pytanie sugerujące (np. <em>„Czy dostawca ma prawo podnieść ceny o 7.5%?”</em>), model w naturalny sposób dąży do <strong>potwierdzenia tezy (sycophancy)</strong>, syntetyzując logicznie brzmiącą narrację nawet z nieistniejących przesłanek.
+              </p>
+            </div>
+
+            <div class="space-y-2">
+              <h3 class="text-base font-bold text-zinc-100 font-mono">2. Zjawisko „Lost in the Middle” w długich umowach</h3>
+              <p class="text-zinc-300">
+                W 80-stronicowych kontraktach korporacyjnych mechanizm uwagi (self-attention) koncentruje się na początku i końcu promptu. Kluczowe zastrzeżenie (np. Section 8.2 wykreślające indeksację cen) leżące w środku dokumentu ulega „rozmyciu”, a model chwyta łatwiej dostępny wątek z nieformalnego maila handlowca.
+              </p>
+            </div>
+
+            <div class="space-y-2">
+              <h3 class="text-base font-bold text-zinc-100 font-mono">3. Tokenizacja BPE niszczy liczby i waluty</h3>
+              <p class="text-zinc-300">
+                Algorytmy Byte-Pair Encoding dzielą liczby na przypadkowe kawałki (np. <code class="font-mono text-xs text-amber-300">15 250 000</code> bywa dzielone na <code class="font-mono text-xs text-amber-300">"15", " 25", "0 000"</code>). W rezultacie model z łatwością halucynuje, że liczba 50 znajduje się w tekście, myli walutę GBP z EUR, lub gubi przecinki w pozycjach bilansowych.
+              </p>
+            </div>
+
+            <div class="p-3 bg-brand-card rounded border border-brand-border text-xs font-mono text-zinc-400">
+              <span class="text-brand-red font-bold">Wniosek aktu 1:</span> Model, który pewnym tonem podaje nieprawdę, jest wielokrotnie groźniejszy dla korporacji niż system, który otwarcie odmawia odpowiedzi (UNSUPPORTED).
+            </div>
+          </div>
+        `;
+      } else if (actNum === 2) {
+        storyContent.innerHTML = `
+          <div class="space-y-4">
+            <div class="p-3.5 rounded-lg bg-emerald-950/40 border border-emerald-900/60 text-emerald-200 font-mono text-xs flex items-center gap-2">
+              <span class="material-symbols-outlined text-brand-emerald">security</span>
+              <span>AKT 2: ANATOMIA 5-ETAPOWEGO DETERMINISTYCZNEGO SILNIKA MCP-REDLINE</span>
+            </div>
+
+            <p class="text-zinc-300">
+              Silnik <code class="font-mono text-brand-emerald">mcp-redline</code> nie używa wag statystycznych ani modeli językowych. Weryfikacja to w 100% deterministyczny potok działający w <strong>1.8 ms lokalnie offline</strong>:
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="p-3 rounded bg-brand-card border border-brand-border space-y-1">
+                <div class="text-xs font-mono font-bold text-brand-emerald">1. Normalizacja i Tokenizacja</div>
+                <p class="text-xs text-zinc-400 font-sans">Oczyszczenie z zapytań ogólnych (jakie, ile, czy), wyodrębnienie dyskretnych tokenów merytorycznych i liczb.</p>
+              </div>
+
+              <div class="p-3 rounded bg-brand-card border border-brand-border space-y-1">
+                <div class="text-xs font-mono font-bold text-brand-emerald">2. Ontologia Dwujęzyczna PL/EN</div>
+                <p class="text-xs text-zinc-400 font-sans">Kojarzenie pojęć prawnych: <em>odpowiedzialność &harr; liability</em>, <em>dostępność &harr; uptime</em>, <em>przychody &harr; revenues/sales</em>.</p>
+              </div>
+
+              <div class="p-3 rounded bg-brand-card border border-brand-border space-y-1">
+                <div class="text-xs font-mono font-bold text-brand-emerald">3. Bramka Nadrzędności (Precedence)</div>
+                <p class="text-xs text-zinc-400 font-sans">Tier 1 (Governing MSA / Protokół Zarządu) bezwzględnie unieważnia Tier 3 (nieformalne e-maile handlowe). Żadne roszczenie z maila nie unieważni umowy!</p>
+              </div>
+
+              <div class="p-3 rounded bg-brand-card border border-brand-border space-y-1">
+                <div class="text-xs font-mono font-bold text-brand-emerald">4. Atomowe Dopasowanie Liczb & Walut</div>
+                <p class="text-xs text-zinc-400 font-sans">Liczby są izolowane numerycznie. 48 000 GBP nie zostanie pomylone z 48 000 EUR, a 50 nie połączy się z 15 250 000.</p>
+              </div>
+            </div>
+
+            <div class="p-3 rounded bg-brand-card border border-brand-border space-y-1">
+              <div class="text-xs font-mono font-bold text-brand-emerald">5. Pokrycie Pojęciowe i Badanie Sprzeczności (Predicate Coverage)</div>
+              <p class="text-xs text-zinc-300 font-sans">
+                Wymóg minimum 45% pokrycia nie-podmiotowych pojęć w cytowanym zdaniu eliminuje halucynację bytów (np. floty 50 panamskich statków). Klauzule negacyjne (<em>null and void</em>, <em>prohibited</em>, <em>shall not exceed</em>) odcinają roszczenia z wynikiem <strong>UNSUPPORTED</strong>.
+              </p>
+            </div>
+
+            <div class="p-3 bg-brand-card rounded border border-brand-border text-xs font-mono text-zinc-400">
+              <span class="text-brand-emerald font-bold">Zasada kardynalna:</span> Mechanizm weryfikujący halucynacje sam nie może podlegać ryzyku halucynacji.
+            </div>
+          </div>
+        `;
+      } else if (actNum === 3) {
+        storyContent.innerHTML = `
+          <div class="space-y-4">
+            <div class="p-3.5 rounded-lg bg-cyan-950/40 border border-cyan-900/60 text-cyan-200 font-mono text-xs flex items-center gap-2">
+              <span class="material-symbols-outlined text-brand-cyan">gavel</span>
+              <span>AKT 3: CO JEŚLI CYFROWY REWIDENT SIĘ POMYLI? (ASYMETRIA RYZYKA FINANSOWEGO)</span>
+            </div>
+
+            <div class="space-y-2">
+              <h3 class="text-base font-bold text-zinc-100 font-mono">Kardynalna asymetria błędu w prawie i finansach</h3>
+              <p class="text-zinc-300">
+                W medycynie, audycie księgowym i prawie handlowym błędy nie są sobie równe:
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- False Positive -->
+              <div class="p-3.5 rounded bg-red-950/40 border border-red-800/80 space-y-2">
+                <div class="flex items-center justify-between text-xs font-mono text-red-300 font-bold">
+                  <span>BŁĄD I RODZAJU (LLM FALSE POSITIVE):</span>
+                  <span class="text-brand-red">KATASTROFA</span>
+                </div>
+                <p class="text-xs text-zinc-300 font-sans">
+                  Model LLM bez bramki mówi z pełną pewnością: <em>„Tak, dostawca ma prawo do 7.5% podwyżki CPI”</em> lub <em>„Kara 50 000 EUR jest należna”</em>.
+                </p>
+                <div class="text-xs font-mono text-red-400 font-bold">
+                  Koszt: Bezprawna wypłata £184,200 lub 50 000 EUR, przegrany proces w Londynie, odpowiedzialność karna zarządu za poświadczenie nieprawdy (art. 296 k.k.).
+                </div>
+              </div>
+
+              <!-- False Negative -->
+              <div class="p-3.5 rounded bg-emerald-950/40 border border-emerald-800/80 space-y-2">
+                <div class="flex items-center justify-between text-xs font-mono text-emerald-300 font-bold">
+                  <span>BŁĄD II RODZAJU (REDLINE FALSE NEGATIVE):</span>
+                  <span class="text-brand-emerald">BEZPIECZNY FAIL-SAFE</span>
+                </div>
+                <p class="text-xs text-zinc-300 font-sans">
+                  Serwer z powodu literówki w nazwie spółki ma wątpliwości i konserwatywnie odmawia: <code class="text-brand-red font-mono font-bold">UNSUPPORTED</code>.
+                </p>
+                <div class="text-xs font-mono text-brand-emerald font-bold">
+                  Koszt: ~30 PLN (radca prawny lub dyrektor finansowy poświęca 3 minuty na osobiste spojrzenie w umowę MSA). Żadna błędna decyzja nie zapada!
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <h3 class="text-base font-bold text-zinc-100 font-mono">Trzy bezpieczniki determinizmu mcp-redline:</h3>
+              <ul class="text-xs text-zinc-300 font-sans space-y-1.5 list-disc pl-5">
+                <li><strong>Wymóg ścisłego cytatu:</strong> Nawet gdy serwer potwierdza twierdzenie (GROUNDED), w odpowiedzi MUSI znaleźć się dosłowny cytat i strona. Człowiek od razu widzi kontekst własnymi oczami.</li>
+                <li><strong>Zero ukrytych wag (Black Box):</strong> Każda decyzja jest w 100% odtwarzalna w logach JSON-RPC stdio. Kod można przejrzeć linijka po linijce.</li>
+                <li><strong>Air-gapped (Zero sieci):</strong> Żadne wrażliwe dane finansowe czy tajemnice kontraktowe nie opuszczają stacji roboczej użytkownika.</li>
+              </ul>
+            </div>
+          </div>
+        `;
+      }
     }
 
     // 5. Render Protocol Inspector
@@ -1461,6 +2103,46 @@
     btnOpenQuickstart.addEventListener('click', () => modalQuickstart.classList.remove('hidden'));
     btnCloseQuickstart.addEventListener('click', () => modalQuickstart.classList.add('hidden'));
 
+    // Triad Perspective listeners
+    btnPersp1.addEventListener('click', () => setPerspective(1));
+    btnPersp2.addEventListener('click', () => setPerspective(2));
+    btnPersp3.addEventListener('click', () => setPerspective(3));
+
+    // Noise Simulation listener
+    btnSimulateNoise.addEventListener('click', toggleNoise);
+
+    // Agent Trace Toggle listener
+    btnToggleTrace.addEventListener('click', () => {
+      isTraceOpen = !isTraceOpen;
+      if (isTraceOpen) {
+        agentTraceContent.classList.remove('hidden');
+        traceChevron.style.transform = 'rotate(180deg)';
+      } else {
+        agentTraceContent.classList.add('hidden');
+        traceChevron.style.transform = 'rotate(0deg)';
+      }
+    });
+
+    // Story Mode Modal listeners
+    btnOpenStory.addEventListener('click', () => {
+      renderStoryAct(1);
+      modalStory.classList.remove('hidden');
+    });
+    btnCloseStory.addEventListener('click', () => modalStory.classList.add('hidden'));
+    tabAct1.addEventListener('click', () => renderStoryAct(1));
+    tabAct2.addEventListener('click', () => renderStoryAct(2));
+    tabAct3.addEventListener('click', () => renderStoryAct(3));
+    btnStoryPrev.addEventListener('click', () => {
+      if (activeStoryAct > 1) renderStoryAct(activeStoryAct - 1);
+    });
+    btnStoryNext.addEventListener('click', () => {
+      if (activeStoryAct < 3) {
+        renderStoryAct(activeStoryAct + 1);
+      } else {
+        modalStory.classList.add('hidden');
+      }
+    });
+
     // Close modals on ESC or outside click
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
@@ -1468,10 +2150,11 @@
         modalArchitecture.classList.add('hidden');
         modalDocViewer.classList.add('hidden');
         modalQuickstart.classList.add('hidden');
+        modalStory.classList.add('hidden');
       }
     });
 
-    [modalInfographic, modalArchitecture, modalDocViewer, modalQuickstart].forEach(modal => {
+    [modalInfographic, modalArchitecture, modalDocViewer, modalQuickstart, modalStory].forEach(modal => {
       modal.addEventListener('click', (e) => {
         if (e.target === modal) modal.classList.add('hidden');
       });

@@ -77,12 +77,19 @@ Plik pamięci trwałej projektu, zawierający kluczowe ustalenia architektoniczn
 
 ---
 
-## 6. Ustalenia merytoryczne i dydaktyczne (Determinizm vs LLM)
-
+## 6. Ustalenia merytoryczne i dydaktyczne (Determinizm vs LLM & Storytelling)
+ 
 * **Teza dydaktyczna:** Mechanizm weryfikujący (strażnik halucynacji) **nie może sam halucynować**. Dlatego `mcp-redline` nie używa modelu językowego ani wag probabilistycznych, lecz wielopoziomowy algorytm deterministyczny.
 * **Architektura podziału ról:** LLM dostarcza inteligencję lingwistyczną i syntezę w dialogu; `mcp-redline` stanowi kotwicę prawdy logicznej, chroniąc przed zjawiskiem *Lost in the Middle*, błędami tokenizacji BPE dla liczb i walut oraz fabrykowaniem nieistniejących uprawnień prawnych.
-* **Materiały edukacyjne i Storytelling UI:** Treści te zostaną zintegrowane w dedykowanej sekcji Landing Page / Web Demo (tryb Guided Story Mode z żywym poligonem danych testowych) oraz w dokumentacji GitHub (`README.md`, `docs/ARCHITECTURE.md`), aby wspierać rozmowy z CISO, Zarządami i uczestnikami szkoleń.
-* **Format poligonu testowego:** Zestaw gotowych, wyselekcjonowanych scenariuszy (trap CPI, odrzucona kara 50k EUR, pomyłka walutowa, halucynacja floty) z możliwością natychmiastowego przełączania między halucynacją standardowego LLM a twardą odmową `mcp-redline`.
+* **Trzy Perspektywy Decyzyjne (Triad Switcher):**
+  1. *Perspektywa 1: Tylko LLM* — podatność na presję autorytetu użytkownika (sycophancy), fałszywa zgoda na nieistniejące roszczenia, brak dosłownego dowodu.
+  2. *Perspektywa 2: LLM + MCP Redline (Protected)* — agent przechwytuje odpowiedź w pętli MCP (`verify`), wykrywa sprzeczność z Tier 1 i deterministycznie odmawia lub cytuje nienaruszony fragment.
+  3. *Perspektywa 3: Gdy Redline ma wątpliwości / błąd wejścia (Fail-Safe)* — kardynalna asymetria ryzyka:
+     - **False Negative (Redline):** odmowa ostrożnościowa (`UNSUPPORTED`) kosztuje firmę zaledwie ~3-5 minut pracy człowieka audytującego dokument źródłowy (~30 PLN / £10).
+     - **False Positive (LLM):** bezkrytyczna akceptacja nieistniejącego roszczenia (np. podwyżka 7.5% CPI, kara 50k EUR) generuje bezpośrednie straty finansowe i procesowe rzędu dziesiątek/setek tysięcy euro/funtów.
+     - **Jawność dowodowa:** nawet w razie dopasowania przez Redline, w odpowiedzi zawsze zwracany jest dokładny cytat i strona, dzięki czemu człowiek natychmiast widzi kontekst (zero czarnej skrzynki).
+* **Licznik Ryzyka Finansowego (Financial Liability Meter):**
+  - Bezpośrednia metryka zarządcza w UI: kwota ekspozycji (np. £184,200 w skali 100 umów, 50 000 EUR nienależnej noty) vs 0 PLN ochrony vs ~30 PLN kosztu audytu ostrożnościowego. Przemawia bezpośrednio do wyobraźni CFO, General Counsel i CISO.
 
 ---
 

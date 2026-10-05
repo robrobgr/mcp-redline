@@ -92,12 +92,25 @@
 
 ## Dokumentacja i Landing Page (Edukacja Zarządów & CISO)
 
-- [ ] **UI-STORY: Interaktywny Storytelling UI („Kłamstwo pod presją vs Cyfrowy Rewident”)**
-  - Zbudować dedykowany tryb narracyjny / interaktywną ścieżkę edukacyjną w UI (na landing page lub jako Guided Story Mode), która krok po kroku opowiada historię i tłumaczy mechanizmy decyzyjne:
-    1. *Akt 1: Pułapka modelu językowego* — Dlaczego LLM pod presją fabrykuje gładkie kłamstwo (mechanizm probabilistyczny, *Lost in the Middle*, zniekształcenia tokenizacji BPE dla liczb i walut).
-    2. *Akt 2: Anatomia deterministycznego silnika* — Jak działa 5-etapowy potok weryfikacji w `mcp-redline` (normalizacja, ontologia dwujęzyczna PL/EN, bramka hierarchii umów Tier 1 > Tier 3, atomowa weryfikacja kwot, pokrycie predykatu).
-    3. *Akt 3: Co jeśli serwer się pomyli? (Asymetria ryzyka)* — Wyjaśnienie różnicy między błędem I rodzaju (*False Positive* — katastrofalne potakiwanie LLM) a błędem II rodzaju (*False Negative* — bezpieczny hamulec konserwatywnego rewidenta). Prezentacja 3 bezpieczników (wymóg cytatu dowodowego, brak czarnej skrzynki, 100% odtwarzalności).
-  - Wbudowany poligon danych testowych (Curated Test Playground): zestaw klikalnych scenariuszy demonstracyjnych (trap inflacyjny 7.5% CPI, pułapka odrzuconej kary 50k EUR vs £600 kredytu, błąd walutowy GBP/EUR, halucynacja floty statków, poprawne liczby z bilansu) z natychmiastowym porównaniem A/B i inspekcją protokołu.
+- [x] **UI-STORY: Interaktywny Storytelling UI („Kłamstwo pod presją vs Cyfrowy Rewident”)** (W toku / Wdrożenie)
+  - Zbudować dedykowany tryb narracyjny / interaktywną ścieżkę edukacyjną w UI (na landing page i w konsoli web demo), która krok po kroku opowiada historię i tłumaczy mechanizmy decyzyjne:
+    1. **Przełącznik 3 Perspektyw (Triad Switcher):**
+       - *Perspektywa 1: Tylko LLM bez MCP Redline* — niekontrolowana generacja, uleganie presji pytającego, gładkie potakiwanie na fałszywe twierdzenia, halucynowanie podstaw prawnych i brak ścisłego cytatu.
+       - *Perspektywa 2: LLM + MCP Redline (Protected Agent)* — pętla agenta, deterministyczne przechwycenie halucynacji w locie, zmuszenie modelu do cytowania Tier 1 lub twardej odmowy `UNSUPPORTED`.
+       - *Perspektywa 3: Gdy MCP Redline ma wątpliwości / błąd wejścia (Fail-Safe & Asymetria Ryzyka)* — co jeśli serwer odmówi z ostrożności? Wyjaśnienie asymetrii ryzyka: False Negative to zaledwie 3-5 minut audytu człowieka (~30 PLN), podczas gdy False Positive modelu LLM to katastrofalna strata finansowa (setki tysięcy złotych/funtów/euro). Prezentacja jawności cytatów (zero czarnej skrzynki).
+    2. **Licznik Ryzyka Finansowego i Odpowiedzialności Zarządczej (Financial Liability & Risk Meter):**
+       - Precyzyjna kalkulacja ekspozycji finansowej dla każdego ze scenariuszy testowych:
+         * Scenariusz P05 (CPI 7.5%): bezprawna nadpłata £3,600/rok na umowie, a w skali korporacyjnej utrata kontroli nad 100 kontraktami = **£184,200** nieuzasadnionych kosztów.
+         * Scenariusz P06 (Kara 50k EUR): bezprawna nota obciążeniowa i odpis księgowy = **50 000 EUR** (~215 000 PLN) + koszty procesu w Londynie.
+         * Scenariusz P07 (Aneks 300 aut): fikcyjne rozszerzenie licencji w budżecie = **95 000 EUR**.
+         * Scenariusz P09 (Błąd walutowy EUR vs GBP): spread walutowy przy 48k = **~40 000 PLN** straty budżetowej.
+       - Porównanie 3 wskaźników: *Ekspozycja LLM* (np. 50 000 EUR) vs *Ochrona Redline* (£0 / 0 PLN) vs *Koszt Fail-Safe* (~30 PLN / 5 min audytu).
+    3. **Ślad Myślowy Agenta i Intercepcja w Locie (Agent Thought Interception Trace):**
+       - Wizualizacja pętli decyzyjnej: 1. Prompt wejściowy -> 2. Surowy szkic LLM (uległa halucynacja) -> 3. Hak narzędziowy MCP Redline (`verify` -> `UNSUPPORTED`) -> 4. Ostateczna skorygowana odpowiedź agenta.
+    4. **Symulator Zdegradowanych Danych (Dirty OCR & Noise Simulator):**
+       - Przełącznik symulujący zaszumione wejście (błędy OCR, przestawione znaki, literówki), obrazujący odporność atomowego dopasowania i bezpieczne wycofanie do Fail-Safe.
+    5. **Przewodnik Narracyjny (Guided Story Walkthrough Modal):**
+       - Interaktywny modal oprowadzający po 3 aktach dramatu decyzyjnego: Akt 1 (Pułapka modelu), Akt 2 (Anatomia silnika 5-etapowego), Akt 3 (Asymetria ryzyka i zaufanie zarządu).
 - [ ] **DOC-1: Landing Page / Web Demo — sekcja „Dlaczego determinizm wygrywa z LLM”**
   - Dodać do landing page / web demo dedykowaną sekcję lub panel edukacyjny wyjaśniający działanie algorytmu krok po kroku (5 etapów silnika).
   - Umieścić tabelaryczne porównanie: model probabilistyczny (LLM) vs deterministyczny algorytm weryfikacyjny (`mcp-redline`).
