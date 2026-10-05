@@ -3,8 +3,8 @@
 
 This Master Services Agreement ("Agreement") is entered into on the **15th day of January, 2023** (the "Effective Date"), by and between:
 
-1. **Apex Meridian Technologies Ltd**, a private limited company incorporated under the laws of England and Wales with company number 09841234, having its registered office at 25 Bank Street, Canary Wharf, London, E14 5JP, United Kingdom ("Supplier" or "Apex Meridian"); and
-2. **VeloNova Logistics Sp. z o.o.**, a company incorporated under the laws of the Republic of Poland, registered in the National Court Register (KRS) under number 0000845123, Tax Identification Number (NIP): 5252819432, having its registered office at ul. Prosta 68, 00-838 Warsaw, Poland ("Customer" or "VeloNova").
+1. **Apex Meridian Technologies Ltd**, a private limited company incorporated under the laws of England and Wales with company number 00000001, having its registered office at 25 Bank Street, Canary Wharf, London, E14 5JP, United Kingdom ("Supplier" or "Apex Meridian"); and
+2. **VeloNova Logistics Sp. z o.o.**, a company incorporated under the laws of the Republic of Poland, registered in the National Court Register (KRS) under number 0000000001, Tax Identification Number (NIP): 5252819432, having its registered office at ul. Prosta 68, 00-838 Warsaw, Poland ("Customer" or "VeloNova").
 
 ---
 

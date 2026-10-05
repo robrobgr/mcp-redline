@@ -9,6 +9,8 @@ Modele językowe potrafią z pewnością siebie podawać nieprawdziwe liczby, da
 
 Weryfikator nie używa LLM, sieci ani zewnętrznych usług: ten sam korpus i to samo twierdzenie zawsze dają ten sam wynik z tym samym uzasadnieniem. **W razie wątpliwości nie potwierdza.** To nie znaczy, że się nie myli — patrz [Ograniczenia](#ograniczenia) i [raport ewaluacji](prompts_eval/EVALUATION_REPORT.md).
 
+> **Uwaga:** Wszystkie podmioty, osoby, numery rejestrowe (KRS, Company No, NIP, VAT) oraz kwoty w korpusie są fikcyjne i służą wyłącznie do testowania oraz ewaluacji odporności modeli na halucynacje.
+
 ---
 
 ## Narzędzia MCP

@@ -7,14 +7,14 @@ Dokument referencyjny definiujący stan faktyczny (Ground Truth) oraz celowo zas
 ## 1. Profile podmiotów
 
 ### Apex Meridian Technologies Ltd (Dostawca / Global UK)
-* **Forma prawna i jurysdykcja:** Private Limited Company, Anglia i Walia (Company No: 09841234).
+* **Forma prawna i jurysdykcja:** Private Limited Company, Anglia i Walia (Company No: 00000001).
 * **Siedziba:** 25 Bank Street, Canary Wharf, London, E14 5JP, United Kingdom.
 * **Identyfikator podatkowy:** VAT GB 984 1234 56.
 * **Profil działalności:** Globalny dostawca platformy telematycznej i optymalizacji tras floty w chmurze (SaaS).
 * **Kluczowe osoby:** James Harrington (Senior Vice President, EMEA Sales), Dr. Aris Thorne (Chief Information Security Officer).
 
 ### VeloNova Logistics Sp. z o.o. (Klient / Polska & Europa)
-* **Forma prawna i jurysdykcja:** Spółka z ograniczoną odpowiedzialnością, Polska (KRS: 0000845123, NIP: 5252819432, REGON: 385912430).
+* **Forma prawna i jurysdykcja:** Spółka z ograniczoną odpowiedzialnością, Polska (KRS: 0000000001, NIP: 5252819432, REGON: 385912430).
 * **Siedziba:** ul. Prosta 68, 00-838 Warszawa, Polska.
 * **Huby operacyjne:** Warszawa (HQ), Poznań, Frankfurt nad Menem (DE), Venlo (NL).
 * **Profil działalności:** Międzynarodowy transport chłodniczy i logistyka farmaceutyczna w UE.

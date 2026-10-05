@@ -1,6 +1,6 @@
 # RACHUNEK ZYSKÓW I STRAT (WARIANT PORÓWNAWCZY)
 **VeloNova Logistics Sp. z o.o.**  
-*KRS: 0000845123 | NIP: 5252819432*  
+*KRS: 0000000001 | NIP: 5252819432*  
 *Okres sprawozdawczy: 01.01.2024 – 31.12.2024 (zestawienie w PLN)*
 
 ---

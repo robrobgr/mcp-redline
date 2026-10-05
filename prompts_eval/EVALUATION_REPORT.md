@@ -2,7 +2,7 @@
 
 > Plik generowany automatycznie przez `npm run eval` — nie edytować ręcznie.
 
-- Uruchomienie: **2026-10-05T16:28:24.757Z**, Node v26.0.0
+- Uruchomienie: **2026-10-05T21:15:35.739Z**, Node v26.0.0
 - Zestaw: [`claims.json`](claims.json) — 64 twierdzeń, spisanych przed przepisaniem silnika (historia git).
 - Podziały: `legacy` = 10 promptów z Etapu 3 (stary silnik był pod nie strojony), `dev` = zestaw, na którym strojono nowy silnik, `holdout` = zestaw, na którym silnika **nie** strojono (uczciwa miara uogólnienia).
 - Krytyczna metryka: **fałszywe GROUNDED** — twierdzenie bez oparcia oznaczone jako potwierdzone. Każde takie zdarzenie kończy `npm run eval` kodem błędu.
