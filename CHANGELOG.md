@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.1] — 2026-10-06
+
+### Fixed
+- **Accurate data boundary description:** Described the actual data boundary accurately across documentation, UI, and diagrams. The server opens no network ports and keeps the corpus on disk. Cloud models receive claims and returned quotes from the MCP client; zero egress requires a local model (Ollama, LM Studio). Removed inaccurate air-gap/zero-data claims.
+- **Architecture modal:** Removed misleading Diagram 3 (RAG comparison); rewrote Diagram 1 strictly according to the deterministic `verify` algorithm and actual thresholds; rewrote Diagram 2 to illustrate the genuine workstation vs model data boundary. Renamed modal to *Security architecture* / *Architektura bezpieczeństwa*.
+- **Initial claim in English mode:** Clean visits in English mode start with an English-language claim (D01: MSA execution fact) instead of a Polish claim.
+- **Scenario translation gloss:** Reference translation under `#claim-input` recomputes dynamically on every scenario change and hides completely when the claim is in the current interface language.
+- **English scenario content:** Complete English translations provided for all scenarios (D01–D31 and H01–H23) via bilingual generator in `scripts/build-web-data.js`.
+- **Dynamic scenario kind labels:** Scenario dropdown options show specific kind labels (`Fact in Tier N`, `Trap`, `Out of corpus`) consistent with engine verdicts.
+- **Server execution path:** Corrected executable path in quickstart instructions to `dist/src/index.js`.
+- **Wording:** Replaced all occurrences of `hallucination-free` / `bez halucynacji` with `Deterministic engine, no language model` / `Silnik deterministyczny, bez modelu językowego`.
+
+### Removed
+- Removed unused unsuffixed diagram assets and deleted infographic button, modal, images, and keys.
+
+---
+
 ## [1.3.0] — 2026-10-05
 
 ### Changed
