@@ -23,6 +23,8 @@ html = html.replace(/src="i18n\.js(?:\?v=[^"]*)?"/g, `src="i18n.js?v=${version}"
 html = html.replace(/src="dist\/engine\.bundle\.js(?:\?v=[^"]*)?"/g, `src="dist/engine.bundle.js?v=${version}"`);
 // import ... from './data.js(?v=...)?'
 html = html.replace(/from '\.\/data\.js(?:\?v=[^']*)?'/g, `from './data.js?v=${version}'`);
+// import ... from './i18n.js(?v=...)?'
+html = html.replace(/from '\.\/i18n\.js(?:\?v=[^']*)?'/g, `from './i18n.js?v=${version}'`);
 
 fs.writeFileSync(htmlPath, html, 'utf-8');
 console.log(`[version-assets] Injected ?v=${version} into web/index.html assets.`);
