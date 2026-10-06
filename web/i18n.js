@@ -180,7 +180,7 @@ const I18N = {
   pl: {
     // Header & Thesis
     brand_title: "mcp-redline",
-    brand_badge: "stdio · no network ports",
+    brand_badge: "stdio · bez portów sieciowych",
     brand_subtitle: "Deterministyczny Silnik Weryfikacji i Odmów",
     thesis_label: "Teza:",
     thesis_quote: "„Model, który pewnym tonem podaje nieprawdę, jest groźniejszy niż model, który odmawia.”",
@@ -284,7 +284,7 @@ const I18N = {
     quickstart_step2: "2. Konfiguracja w Claude Desktop (claude_desktop_config.json):",
     quickstart_step3: "3. Kluczowe reguły bezpieczeństwa CISO:",
     quickstart_ciso_1: "Transport wyłącznie stdio: Brak portów sieciowych, brak serwera HTTP/SSE.",
-    quickstart_ciso_2: "Zero wycieku danych: 100% korpusu pozostaje na dysku lokalnym maszyny użytkownika.",
+    quickstart_ciso_2: "Granica danych: Serwer nie otwiera portów i nie wykonuje połączeń wychodzących. Korpus zostaje na dysku. Przy modelu w chmurze twierdzenie i zwrócone cytaty trafiają do dostawcy modelu — cały korpus nie. Zero ruchu wychodzącego daje dopiero model lokalny (Ollama, LM Studio).",
     quickstart_ciso_3: "Deterministyczny algorytm weryfikacji: Narzędzie verify nie wywołuje LLM – mechanizm antyhalucynacyjny sam nie może halucynować.",
 
     // Modals: Architecture
