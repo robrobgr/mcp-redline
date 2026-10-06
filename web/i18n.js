@@ -39,7 +39,7 @@ const I18N = {
     meter_col_llm_label: "LLM EXPOSURE (NO GATEWAY):",
     meter_col_llm_sub: "Uncontrolled claims acceptance via smooth LLM synthesis.",
     meter_col_redline_label: "MCP-REDLINE PROTECTION:",
-    meter_col_redline_sub: "100% blocked loss. Strict deterministic verification.",
+    meter_col_redline_sub: "Unsupported claim refused before it reaches a decision.",
     meter_col_failsafe_label: "AUDIT COST (FAIL-SAFE) [ESTIMATE]:",
     meter_col_failsafe_sub: "Estimate: 3-5 min auditor/lawyer review in case of doubt or server refusal.",
     claim_badge_audit: "AUDITED CLAIM",
@@ -49,9 +49,9 @@ const I18N = {
     btn_verify: "VERIFY",
     card_llm_illustrative: "ILLUSTRATIVE RESPONSE",
     card_llm_risk_high: "RISK: HIGH",
-    card_redline_badge_safe: "FAIL-SAFE // ZERO HALLUCINATION",
-    card_redline_badge_grounded: "100% EVIDENCE MATCH",
-    card_redline_verdict_grounded: "DETERMINISTIC PROOF // 100% GROUNDED",
+    card_redline_badge_safe: "FAIL-SAFE // REFUSES WHEN UNSURE",
+    card_redline_badge_grounded: "VERBATIM EVIDENCE",
+    card_redline_verdict_grounded: "GROUNDED // VERBATIM QUOTE",
     card_redline_verdict_contradicted: "CONTRADICTION DETECTED // CONTRADICTED",
     card_redline_verdict_unsupported: "STRICT REFUSAL // UNSUPPORTED",
 
@@ -76,9 +76,9 @@ const I18N = {
     stat_tokens_title: "LLM Token Cost",
     stat_tokens_desc: "Zero cost / zero drift",
     stat_determinism_title: "Code Determinism",
-    stat_determinism_desc: "Engine cannot hallucinate",
+    stat_determinism_desc: "Same input, same verdict",
     stat_protocol_title: "Transport Protocol",
-    stat_protocol_desc: "100% isolated IPC process",
+    stat_protocol_desc: "Local stdio process, no network ports",
 
     // Zone C: Protocol Inspector
     inspector_title: "MCP PROTOCOL INSPECTOR",
@@ -146,7 +146,7 @@ const I18N = {
     story_act_1_conclusion: "Act 1 Takeaway: A model that states an untruth with confidence is far more dangerous to an enterprise than a system that explicitly refuses to answer (UNSUPPORTED).",
 
     story_act_2_title: "ACT 2: ANATOMY OF THE 5-STAGE DETERMINISTIC MCP-REDLINE ENGINE",
-    story_act_2_intro: "The mcp-redline engine uses neither statistical weights nor generative models. Verification is an unyielding 100% deterministic pipeline executing in 1.8 ms locally offline:",
+    story_act_2_intro: "The mcp-redline engine uses neither statistical weights nor generative models. Verification is a deterministic pipeline executing locally offline:",
     story_act_2_step1_title: "1. Normalization & Tokenization",
     story_act_2_step1_body: "Query deconstruction stripping interrogatives, isolating discrete substantive legal tokens, numbers, and dates.",
     story_act_2_step2_title: "2. Bilingual Ontology EN/PL",
@@ -156,7 +156,7 @@ const I18N = {
     story_act_2_step4_title: "4. Atomic Matching of Numbers & Currencies",
     story_act_2_step4_body: "Numbers are numerically and currency-isolated. £48,000 GBP will never match €48,000 EUR, and 50 cannot attach to 15,250,000.",
     story_act_2_step5_title: "5. Predicate Coverage & Contradiction Detection",
-    story_act_2_step5_body: "Enforcing minimum 45% non-entity substantive concept coverage in cited sentences eliminates phantom entities (e.g. a fictional fleet of 50 cargo vessels). Negative legal clauses (null and void, prohibited, shall not exceed) immediately cut claims with UNSUPPORTED.",
+    story_act_2_step5_body: "Requiring concept coverage of at least 0.6 (fragment + context) and 0.5 (quoted unit itself) to confirm, with a 0.45 threshold for contradiction, reduces phantom entities (e.g. a fictional fleet of 50 cargo vessels). Negative legal clauses (null and void, prohibited, shall not exceed) immediately cut claims with UNSUPPORTED.",
     story_act_2_conclusion: "Cardinal Rule: The mechanism verifying hallucinations cannot itself be susceptible to hallucinations.",
 
     story_act_3_title: "ACT 3: WHAT IF THE DIGITAL AUDITOR MAKES A MISTAKE? (FINANCIAL RISK ASYMMETRY)",
@@ -212,7 +212,7 @@ const I18N = {
     meter_col_llm_label: "EKSPOZYCJA LLM (BRAK BRAMKI):",
     meter_col_llm_sub: "Niekontrolowana akceptacja roszczeń przez gładką syntezę LLM.",
     meter_col_redline_label: "OCHRONA MCP-REDLINE:",
-    meter_col_redline_sub: "100% zablokowana strata. Twarda deterministyczna weryfikacja.",
+    meter_col_redline_sub: "Niepotwierdzone twierdzenie odrzucone, zanim trafi do decyzji.",
     meter_col_failsafe_label: "KOSZT AUDYTU (FAIL-SAFE) [SZACUNEK]:",
     meter_col_failsafe_sub: "Szacunek: 3-5 min weryfikacji przez audytora/prawnika w razie wątpliwości lub odmowy serwera.",
     claim_badge_audit: "AUDYTOWANE TWIERDZENIE",
@@ -222,9 +222,9 @@ const I18N = {
     btn_verify: "WERYFIKUJ",
     card_llm_illustrative: "ODPOWIEDŹ ILUSTRACYJNA",
     card_llm_risk_high: "RYZYKO: WYSOKIE",
-    card_redline_badge_safe: "FAIL-SAFE // ZERO HALUCYNACJI",
-    card_redline_badge_grounded: "100% DOWÓD W ŹRÓDLE",
-    card_redline_verdict_grounded: "DETERMINISTYCZNY DOWÓD // 100% GROUNDED",
+    card_redline_badge_safe: "FAIL-SAFE // ODMAWIA, GDY NIE MA PEWNOŚCI",
+    card_redline_badge_grounded: "DOSŁOWNY DOWÓD",
+    card_redline_verdict_grounded: "GROUNDED // DOSŁOWNY CYTAT",
     card_redline_verdict_contradicted: "WYKRYTO SPRZECZNOŚĆ // CONTRADICTED",
     card_redline_verdict_unsupported: "TWARDA ODMOWA // UNSUPPORTED",
 
@@ -249,9 +249,9 @@ const I18N = {
     stat_tokens_title: "Koszt Tokenów LLM",
     stat_tokens_desc: "Zero kosztu / zero driftu",
     stat_determinism_title: "Determinizm Kodu",
-    stat_determinism_desc: "Mechanizm nie może halucynować",
+    stat_determinism_desc: "To samo wejście, ten sam werdykt",
     stat_protocol_title: "Protokół Transportu",
-    stat_protocol_desc: "100% izolowany proces IPC",
+    stat_protocol_desc: "Lokalny proces stdio, bez portów sieciowych",
 
     // Zone C: Protocol Inspector
     inspector_title: "INSPEKTOR PROTOKOŁU MCP",
@@ -319,7 +319,7 @@ const I18N = {
     story_act_1_conclusion: "Wniosek aktu 1: Model, który pewnym tonem podaje nieprawdę, jest wielokrotnie groźniejszy dla korporacji niż system, który otwarcie odmawia odpowiedzi (UNSUPPORTED).",
 
     story_act_2_title: "AKT 2: ANATOMIA 5-ETAPOWEGO DETERMINISTYCZNEGO SILNIKA MCP-REDLINE",
-    story_act_2_intro: "Silnik mcp-redline nie używa wag statystycznych ani modeli językowych. Weryfikacja to w 100% deterministyczny potok działający w 1.8 ms lokalnie offline:",
+    story_act_2_intro: "Silnik mcp-redline nie używa wag statystycznych ani modeli językowych. Weryfikacja to deterministyczny potok działający lokalnie offline:",
     story_act_2_step1_title: "1. Normalizacja i Tokenizacja",
     story_act_2_step1_body: "Oczyszczenie z zapytań ogólnych (jakie, ile, czy), wyodrębnienie dyskretnych tokenów merytorycznych i liczb.",
     story_act_2_step2_title: "2. Ontologia Dwujęzyczna PL/EN",
@@ -329,7 +329,7 @@ const I18N = {
     story_act_2_step4_title: "4. Atomowe Dopasowanie Liczb & Walut",
     story_act_2_step4_body: "Liczby są izolowane numerycznie. 48 000 GBP nie zostanie pomylone z 48 000 EUR, a 50 nie połączy się z 15 250 000.",
     story_act_2_step5_title: "5. Pokrycie Pojęciowe i Badanie Sprzeczności (Predicate Coverage)",
-    story_act_2_step5_body: "Wymóg minimum 45% pokrycia nie-podmiotowych pojęć w cytowanym zdaniu eliminuje halucynację bytów (np. floty 50 panamskich statków). Klauzule negacyjne (null and void, prohibited, shall not exceed) odcinają roszczenia z wynikiem UNSUPPORTED.",
+    story_act_2_step5_body: "Wymóg pokrycia pojęć minimum 0.6 (fragment + kontekst) oraz 0.5 (sam fragment) przy potwierdzeniu, z progiem 0.45 dla zaprzeczenia, ogranicza halucynację bytów (np. floty 50 panamskich statków). Klauzule negacyjne (null and void, prohibited, shall not exceed) odcinają roszczenia z wynikiem UNSUPPORTED.",
     story_act_2_conclusion: "Zasada kardynalna: Mechanizm weryfikujący halucynacje sam nie może podlegać ryzyku halucynacji.",
 
     story_act_3_title: "AKT 3: CO JEŚLI CYFROWY REWIDENT SIĘ POMYLI? (ASYMETRIA RYZYKA FINANSOWEGO)",

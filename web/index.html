@@ -263,7 +263,7 @@
                 0 PLN / £0
               </div>
               <div id="meter-redline-desc" class="text-[11px] text-zinc-300 font-sans leading-tight" data-i18n="meter_col_redline_sub">
-                100% blocked loss. Strict deterministic verification.
+                Unsupported claim refused before it reaches a decision.
               </div>
             </div>
 
@@ -395,11 +395,11 @@
               <div class="flex items-center gap-2">
                 <span id="redline-banner-icon" class="material-symbols-outlined text-brand-emerald text-base font-bold">verified</span>
                 <span id="redline-banner-text" class="text-xs font-mono font-bold text-brand-emerald tracking-wide">
-                  DETERMINISTIC PROOF // 100% GROUNDED
+                  GROUNDED // VERBATIM QUOTE
                 </span>
               </div>
               <span id="redline-status-badge" class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-900/40 text-emerald-200 border border-emerald-700/50 font-semibold" data-i18n="card_redline_badge_safe">
-                FAIL-SAFE // ZERO HALLUCINATION
+                FAIL-SAFE // REFUSES WHEN UNSURE
               </span>
             </div>
 
@@ -492,7 +492,7 @@
             <div>
               <div class="text-[10px] font-mono text-zinc-400 uppercase" data-i18n="stat_determinism_title">Code Determinism</div>
               <div class="text-xl font-bold font-mono text-brand-emerald">100%</div>
-              <div class="text-[11px] text-zinc-500 font-sans" data-i18n="stat_determinism_desc">Engine cannot hallucinate</div>
+              <div class="text-[11px] text-zinc-500 font-sans" data-i18n="stat_determinism_desc">Same input, same verdict</div>
             </div>
             <span class="material-symbols-outlined text-brand-emerald text-2xl">verified</span>
           </div>
@@ -501,7 +501,7 @@
             <div>
               <div class="text-[10px] font-mono text-zinc-400 uppercase" data-i18n="stat_protocol_title">Transport Protocol</div>
               <div class="text-xl font-bold font-mono text-brand-cyan">MCP stdio</div>
-              <div class="text-[11px] text-zinc-500 font-sans" data-i18n="stat_protocol_desc">100% isolated IPC process</div>
+              <div class="text-[11px] text-zinc-500 font-sans" data-i18n="stat_protocol_desc">Local stdio process, no network ports</div>
             </div>
             <span class="material-symbols-outlined text-brand-cyan text-2xl">shield</span>
           </div>
@@ -1154,10 +1154,10 @@
         redlineBanner.className = 'bg-emerald-950/50 border-b border-emerald-800/40 px-3 py-2 flex items-center justify-between';
         redlineBannerIcon.textContent = 'verified';
         redlineBannerIcon.className = 'material-symbols-outlined text-brand-emerald text-base font-bold';
-        redlineBannerText.textContent = isPl ? 'DETERMINISTYCZNY DOWÓD // 100% GROUNDED' : 'DETERMINISTIC PROOF // 100% GROUNDED';
+        redlineBannerText.textContent = isPl ? 'GROUNDED // DOSŁOWNY CYTAT' : 'GROUNDED // VERBATIM QUOTE';
         redlineBannerText.className = 'text-xs font-mono font-bold text-brand-emerald tracking-wide';
         
-        redlineStatusBadge.textContent = isPl ? 'POTWIERDZONE W ŹRÓDLE' : '100% EVIDENCE MATCH';
+        redlineStatusBadge.textContent = isPl ? 'DOSŁOWNY DOWÓD' : 'VERBATIM EVIDENCE';
         redlineStatusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-900/40 text-emerald-200 border border-emerald-700/50 font-semibold';
         
         redlineVerdictTag.textContent = 'STATUS: GROUNDED';
@@ -1228,8 +1228,8 @@
       
       meterRedlineVal.textContent = isPl ? '0 PLN / £0' : '$0 / 0 PLN / £0';
       meterRedlineDesc.textContent = sc.verdict === 'GROUNDED' 
-        ? (isPl ? '100% potwierdzony fakt w dokumencie nadrzędnym (Tier 1). Brak halucynacji.' : '100% confirmed fact in governing document (Tier 1). Zero hallucination.')
-        : (isPl ? '100% zablokowana strata. Twarda odmowa UNSUPPORTED oparta na umowie.' : '100% blocked loss. Strict deterministic verification.');
+        ? (isPl ? 'Fakt potwierdzony w dokumencie nadrzędnym (Tier 1). Dosłowny cytat.' : 'Confirmed fact in governing document (Tier 1). Verbatim quote.')
+        : (isPl ? 'Niepotwierdzone twierdzenie odrzucone, zanim trafi do decyzji.' : 'Unsupported claim refused before it reaches a decision.');
 
       meterFailsafeVal.textContent = scI18n.financialFailSafeCost || sc.financialFailSafeCost || (isPl ? '~30 PLN' : '~$8 / 30 PLN');
       meterFailsafeDesc.textContent = isPl ? 'Szacunek: 3-5 min weryfikacji przez audytora/prawnika w razie wątpliwości lub odmowy serwera.' : 'Estimate: 3-5 min auditor/lawyer review in case of doubt or server refusal.';
@@ -1359,9 +1359,9 @@
           redlineBanner.className = 'bg-emerald-950/50 border-b border-emerald-800/40 px-3 py-2 flex items-center justify-between';
           redlineBannerIcon.textContent = 'verified';
           redlineBannerIcon.className = 'material-symbols-outlined text-brand-emerald text-base font-bold';
-          redlineBannerText.textContent = isPl ? 'DETERMINISTYCZNY DOWÓD // 100% GROUNDED' : 'DETERMINISTIC PROOF // 100% GROUNDED';
+          redlineBannerText.textContent = isPl ? 'GROUNDED // DOSŁOWNY CYTAT' : 'GROUNDED // VERBATIM QUOTE';
           redlineBannerText.className = 'text-xs font-mono font-bold text-brand-emerald tracking-wide';
-          redlineStatusBadge.textContent = isPl ? 'POTWIERDZONE W ŹRÓDLE' : '100% EVIDENCE MATCH';
+          redlineStatusBadge.textContent = isPl ? 'DOSŁOWNY DOWÓD' : 'VERBATIM EVIDENCE';
           redlineStatusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-900/40 text-emerald-200 border border-emerald-700/50 font-semibold';
           redlineVerdictTag.textContent = 'STATUS: GROUNDED';
           redlineVerdictTag.className = 'font-mono text-xs px-2 py-0.5 rounded bg-brand-darkCanvas border border-brand-emerald/40 text-brand-emerald';
@@ -1805,10 +1805,10 @@
         redlineBanner.className = 'bg-emerald-950/50 border-b border-emerald-800/40 px-3 py-2 flex items-center justify-between';
         redlineBannerIcon.textContent = 'verified';
         redlineBannerIcon.className = 'material-symbols-outlined text-brand-emerald text-base font-bold';
-        redlineBannerText.textContent = isQuestion ? (isPl ? 'DOWÓD ZE ŹRÓDŁA // SEARCH & CITATION' : 'SOURCE EVIDENCE // SEARCH & CITATION') : (isPl ? 'DETERMINISTYCZNY DOWÓD // 100% GROUNDED' : 'DETERMINISTIC PROOF // 100% GROUNDED');
+        redlineBannerText.textContent = isQuestion ? (isPl ? 'DOWÓD ZE ŹRÓDŁA // SEARCH & CITATION' : 'SOURCE EVIDENCE // SEARCH & CITATION') : (isPl ? 'GROUNDED // DOSŁOWNY CYTAT' : 'GROUNDED // VERBATIM QUOTE');
         redlineBannerText.className = 'text-xs font-mono font-bold text-brand-emerald tracking-wide';
 
-        redlineStatusBadge.textContent = isPl ? '100% POTWIERDZONE W ŹRÓDLE' : '100% EVIDENCE MATCH';
+        redlineStatusBadge.textContent = isPl ? 'DOSŁOWNY DOWÓD' : 'VERBATIM EVIDENCE';
         redlineStatusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-900/40 text-emerald-200 border border-emerald-700/50 font-semibold';
 
         redlineVerdictTag.textContent = 'STATUS: GROUNDED';
