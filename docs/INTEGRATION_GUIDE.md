@@ -9,7 +9,7 @@ This document provides a guide for connecting the **mcp-redline** server to Mode
 Under the **Model Context Protocol (MCP)** specification:
 - **Your application / LLM host** (e.g. Claude Desktop, Cursor, or an agent script) acts as the **Client (Host)**.
 - **mcp-redline** acts as the **Server**, communicating over standard input/output (`stdio`) using JSON-RPC 2.0.
-- The server runs **100% locally in total network isolation** (air-gapped). The LLM is granted 4 tools: `verify`, `search`, `quote`, `list_sources`.
+- The server opens no network ports and makes no outbound calls. Your corpus stays on disk. When you use a cloud model, the claim and the quotes the server returns are sent to the model provider — the full corpus is not. For zero egress, use a local model (Ollama, LM Studio). The LLM is granted 4 tools: `verify`, `search`, `quote`, `list_sources`.
 
 When a user asks a factual question (e.g., *"Does the supplier have the right to charge a 50,000 EUR contractual penalty?"*), the agent:
 1. Recognizes the need to verify facts against the evidential corpus.

@@ -7,7 +7,7 @@ const I18N = {
   en: {
     // Header & Thesis
     brand_title: "mcp-redline",
-    brand_badge: "Air-Gapped stdio (0 Network)",
+    brand_badge: "stdio · no network ports",
     brand_subtitle: "Deterministic Document Citation & Claim Verification MCP Server",
     thesis_label: "Thesis:",
     thesis_quote: "“A model that states an untruth with confidence is far more dangerous than one that refuses.”",
@@ -15,7 +15,6 @@ const I18N = {
     // Navigation actions & switcher labels
     nav_story: "Story Mode",
     nav_story_count: "(3 Acts)",
-    nav_infographic: "Infographics",
     nav_architecture: "CISO Architecture",
     nav_quickstart: "Run Server",
 
@@ -46,7 +45,7 @@ const I18N = {
     claim_badge_audit: "AUDITED CLAIM",
     claim_badge_query: "FACT QUERY",
     noise_btn_label: "Simulate OCR noise",
-    engine_label: "Deterministic AST engine (hallucination-free)",
+    engine_label: "Deterministic engine, no language model",
     btn_verify: "VERIFY",
     card_llm_illustrative: "ILLUSTRATIVE RESPONSE",
     card_llm_risk_high: "RISK: HIGH",
@@ -58,6 +57,7 @@ const I18N = {
 
     // Additional Card & Trace labels
     prompt_gloss_label: "Reference translation — verification runs on the original:",
+    quote_translated_prefix: "[Reference translation of a Polish source passage — the verbatim original is in the cited file]",
     card_llm_heading: "Standard LLM (Forced Synthesis)",
     card_llm_disclaimer: "Illustrative simulation — no strict guardrail",
     card_llm_defects_title: "SYNTHESIS DEFECTS / HALLUCINATION IDENTIFICATION:",
@@ -89,7 +89,7 @@ const I18N = {
     sec_net: "Network isolation:",
     sec_net_val: "0 outbound connections",
     sec_ciso: "CISO compliance:",
-    sec_ciso_val: "100% local disk",
+    sec_ciso_val: "corpus stays on disk",
 
     // Modals: Onboarding Guide
     onboarding_title: "How to use this workbench",
@@ -101,7 +101,7 @@ const I18N = {
     step3_title: "3. Check CFO Exposure",
     step3_desc: "Analyze executive financial liability calculated strictly from corporate contract figures.",
     step4_title: "4. Inspect MCP stdio Stream",
-    step4_desc: "Inspect real-time JSON-RPC 2.0 frames over air-gapped stdio — 0 network requests.",
+    step4_desc: "Inspect real-time JSON-RPC 2.0 frames over stdio — no network ports.",
     btn_start_demo: "Start exploring demo",
 
     // Modals: Quickstart
@@ -111,19 +111,15 @@ const I18N = {
     quickstart_step2: "2. Claude Desktop Configuration (claude_desktop_config.json):",
     quickstart_step3: "3. Key CISO Security Principles:",
     quickstart_ciso_1: "Stdio transport only: No open network ports, no HTTP/SSE server.",
-    quickstart_ciso_2: "Zero data leakage: 100% of corpus remains on the local workstation disk.",
+    quickstart_ciso_2: "The server opens no network ports and makes no outbound calls. Your corpus stays on disk. When you use a cloud model, the claim and the quotes the server returns are sent to the model provider — the full corpus is not. For zero egress, use a local model (Ollama, LM Studio).",
     quickstart_ciso_3: "Deterministic verification algorithm: The verify tool does not call an LLM — an anti-hallucination mechanism cannot itself hallucinate.",
 
     // Modals: Architecture
-    arch_modal_title: "Security Architecture for CISO & Board",
-    arch_desc_1: "Diagram 1: Verification algorithm 'verify' without language model involvement. Pure deterministic code eliminates hallucinations.",
-    arch_desc_2: "Diagram 2: Boundary between LLM agent and local MCP server. Total air-gap (zero outbound network, 100% local disk).",
-    arch_desc_3: "Diagram 3: RAG with vector DB vs MCP-Redline. Deterministic grounding instead of probabilistic cosine similarity.",
+    arch_modal_title: "Security architecture",
+    arch_desc_1: "Diagram 1: Deterministic verification pipeline of the verify tool. The engine contains no language model.",
+    arch_desc_2: "Diagram 2: Data boundary. The server opens no network ports and makes no outbound calls. Your corpus stays on disk. When you use a cloud model, the claim and the quotes the server returns are sent to the model provider — the full corpus is not. For zero egress, use a local model (Ollama, LM Studio).",
 
-    // Modals: Infographic & Document Viewer
-    info_modal_title: "Deployment Guide & Architecture // Infographic",
-    info_modal_sub: "(Generated with Gemini Image Creation)",
-    info_download_jpg: "Download JPG",
+    // Modals: Document Viewer
     doc_modal_title: "Document Viewer",
     doc_label_file: "File:",
     doc_label_lines: "Lines:",
@@ -175,166 +171,16 @@ const I18N = {
     story_act_3_safeguards_title: "Three Safeguards of mcp-redline Determinism:",
     story_act_3_sg1: "Strict Citation Requirement: Even on full confirmation (GROUNDED), the response MUST provide the exact literal quote, file, and page. Humans review the evidence directly.",
     story_act_3_sg2: "Zero Hidden Weights (No Black Box): Every decision is 100% reproducible via JSON-RPC stdio logs. The code can be audited line-by-line.",
-    story_act_3_sg3: "Air-gapped (Zero Network): No sensitive financial records, contract figures, or trade secrets ever leave the local workstation.",
+    story_act_3_sg3: "The server opens no network ports and makes no outbound calls. Your corpus stays on disk. When you use a cloud model, the claim and the quotes the server returns are sent to the model provider — the full corpus is not. For zero egress, use a local model (Ollama, LM Studio).",
 
     // Footer
-    footer_built_by: "Built by Robert Grabowski —",
-
-    // Scenarios P01 to P10 Bilingual Metadata
-    scenarios: {
-      P01: {
-        subtype: "Exact match (contract signing date)",
-        prompt: "The master services agreement between Apex Meridian Technologies Ltd and VeloNova Logistics Sp. z o.o. was executed on January 15, 2023.",
-        llmTitle: "Standard LLM: Synthetic confirmation with assumptions",
-        llmResponse: "Yes, the master services agreement between Apex Meridian Technologies and VeloNova Logistics was signed on January 15, 2023, in London for a standard 3-year term with an automatic renewal clause.",
-        llmDefects: [
-          "Added unverified assumptions about automatic renewal rollover",
-          "Missing exact preamble citation with corporate registry numbers (KRS/Companies House)"
-        ],
-        financialExposure: "Low risk (fact is correct, lack of strict verbatim citation)",
-        financialExposureValue: "No direct monetary claim in clause ($0 / 0 PLN)",
-        financialExposureCfo: "No direct financial loss (fact is correct), but fabricating automatic renewal (rollover) clauses jeopardizes future procurement renegotiations.",
-        financialFailSafeCost: "~$6 / 25 PLN (ESTIMATE: 3 min audit review)"
-      },
-      P02: {
-        subtype: "Table metric (net profit from P&L statement)",
-        prompt: "The net profit of VeloNova Logistics Sp. z o.o. for fiscal year 2024 was 4,210,000.00 PLN.",
-        llmTitle: "Standard LLM: Number rounding or confusing financial line items",
-        llmResponse: "According to financial figures, VeloNova Logistics generated approximately 4.2 million PLN in profit in 2024 (operating profit exceeded 5.3 million PLN).",
-        llmDefects: [
-          "Rounding numbers instead of providing the exact accounting figure (4,210,000.00 PLN)",
-          "Conflating categories: net profit confused with operating profit"
-        ],
-        financialExposure: "Medium risk (imprecision during statutory auditor examination)",
-        financialExposureValue: "1,100,000.00 PLN (P&L Line I [5,310,000 PLN] - Line L [4,210,000 PLN])",
-        financialExposureCfo: "Risk of loan covenants rejection or qualified audit opinion if financial statements distort profit lines by 1.1M PLN.",
-        financialFailSafeCost: "~$8 / 30 PLN (ESTIMATE: 5 min audit review)"
-      },
-      P03: {
-        subtype: "Contract clause (aggregate liability cap)",
-        prompt: "Supplier's aggregate liability under the agreement is capped at 100% of the total fees paid in the preceding twelve months.",
-        llmTitle: "Standard LLM: Agreement with generic clause hallucination",
-        llmResponse: "Yes, Apex Meridian's liability is capped at 100% of fees paid over the previous 12 months, which is a standard boiler-plate clause under English contract law.",
-        llmDefects: [
-          "Omission of critical carved-out exceptions: confidentiality breach (Section 10) or willful misconduct",
-          "Missing direct reference to Section 11.2 of the MSA"
-        ],
-        financialExposure: "Medium risk (overlooking carve-outs from liability cap)",
-        financialExposureValue: "£48,000.00 GBP (100% of annual subscription fee of £48,000 GBP per Sec 3.1 & 11.2 MSA)",
-        financialExposureCfo: "Overlooking Section 10 carve-outs (confidentiality / willful misconduct) could cause management to forfeit legitimate multi-million damage claims.",
-        financialFailSafeCost: "~$10 / 40 PLN (ESTIMATE: 5 min audit review)"
-      },
-      P04: {
-        subtype: "Cross-document verification (Q4 quarterly invoice)",
-        prompt: "Invoice INV-2024-1108 for Q4 2024 is issued for £12,000.00 GBP net payable to Barclays Bank account.",
-        llmTitle: "Standard LLM: Confirmation without bank account verification",
-        llmResponse: "Correct, invoice INV-2024-1108 for Q4 2024 totals £12,000 GBP and was settled via wire transfer to the supplier's Barclays account.",
-        llmDefects: [
-          "Failure to cite exact IBAN and SWIFT/BIC numbers",
-          "Failure to verify 0% reverse charge VAT status"
-        ],
-        financialExposure: "Low risk (figures match)",
-        financialExposureValue: "£12,000.00 GBP (net invoice total from INV-2024-1108)",
-        financialExposureCfo: "Risk of payment authorization without cryptographic IBAN verification (invoice fraud / business email compromise risk).",
-        financialFailSafeCost: "~$8 / 30 PLN (ESTIMATE: 5 min audit review)"
-      },
-      P05: {
-        subtype: "CPI Trap (unilateral 7.5% price indexation)",
-        prompt: "Apex Meridian is entitled to unilaterally increase subscription fees by 7.5% UK CPI inflation from January 1, 2025.",
-        llmTitle: "Standard LLM: CATASTROPHIC HALLUCINATION OF INDEXATION CONSENT",
-        llmResponse: "“Yes, pursuant to email correspondence from November 2024 between the Apex account manager and VeloNova management, the supplier has full legal right to invoke Section 8.2 and apply a 7.5% UK CPI indexation starting January 2025 due to hosting cost increases.”",
-        llmDefects: [
-          "Reversal of evidential hierarchy: treating informal sales email (Tier 3) as governing law overriding the signed MSA (Tier 1)",
-          "Inventing phantom consent: ignoring that Section 8.2 was explicitly STRICKEN OUT during negotiations",
-          "Ignoring invalidity clause: MSA stipulates that unilateral indexation notices are null and void ab initio"
-        ],
-        financialExposure: "DIRECT FINANCIAL LOSS: unlawful fee hike of £3,600.00 GBP annually (7.5% of £48,000 per Sec 8.1 MSA)",
-        financialExposureValue: "£3,600.00 GBP/year (7.5% × £48,000 GBP from Sec 8.1 MSA) | £10,800.00 GBP (3 years)",
-        financialExposureCfo: "Unlawful acceptance of 7.5% hike (£3,600/year, totaling £10,800.00 GBP over 3-year term). Without a verification gateway, the company forfeits its litigation defense in London.",
-        financialFailSafeCost: "~$8 / 30 PLN (ESTIMATE: 5 min audit review)"
-      },
-      P06: {
-        subtype: "Operational Trap (€50,000 liquidated damages claim)",
-        prompt: "VeloNova Logistics imposed a penalty of 50,000 EUR on the supplier for the Frankfurt telematics outage.",
-        llmTitle: "Standard LLM: HALLUCINATION OF VALID 50,000 EUR PENALTY",
-        llmResponse: "“Yes, following the 4-hour telematics outage in Frankfurt in November 2024, VeloNova Logistics successfully imposed a 50,000 EUR liquidated damages penalty on the supplier pursuant to the COO's motion.”",
-        llmDefects: [
-          "Fatal confusion of motion with resolution: the Board UNANIMOUSLY REJECTED the 50,000 EUR penalty proposal",
-          "Ignoring contractual prohibition: Section 11.3 MSA explicitly bars liquidated damages and penalties",
-          "Omission that the sole contractual remedy was a £600 GBP Service Credit"
-        ],
-        financialExposure: "SEVERE LITIGATION EXPOSURE: groundless debit note for 50,000 EUR exposes company to immediate lawsuit and legal fees in English courts",
-        financialExposureValue: "50,000.00 EUR (penalty motion rejected in Board Minutes)",
-        financialExposureCfo: "Issuing an unfounded 50,000 EUR debit note (rejected by the Board) triggers breach of contract proceedings in London courts with liability for adverse legal costs.",
-        financialFailSafeCost: "~$8 / 30 PLN (ESTIMATE: 5 min audit review)"
-      },
-      P07: {
-        subtype: "Fleet Expansion Trap (300 vehicles annex / €95k)",
-        prompt: "In 2024, an amendment was signed expanding the telematics fleet license to 300 vehicles valued at 95,000 EUR.",
-        llmTitle: "Standard LLM: CONTRACT EXPANSION HALLUCINATION (300 TRUCKS ANNEX)",
-        llmResponse: "“Yes, in September 2024 the parties executed an amendment expanding telematics fleet coverage from 180 to 300 vehicles valued at 95,000 EUR, as recorded in corporate CRM records.”",
-        llmDefects: [
-          "Status hallucination: pipeline opportunity OPP-2024-089 in CRM was marked 'STALLED / REJECTED' and rejected by Board",
-          "The amendment was never signed — base limit of 180 vehicles remains strictly in force",
-          "Model treats an unaccepted CRM sales lead as a legally binding contract amendment"
-        ],
-        financialExposure: "EXECUTIVE MISMANAGEMENT: assuming 300-vehicle license validity risks software piracy claims and 95,000 EUR vendor indemnity demands",
-        financialExposureValue: "95,000.00 EUR (opportunity value OPP-2024-089 from CRM export)",
-        financialExposureCfo: "Relying on a phantom amendment in operations risks unauthorized software deployment on 120 extra vehicles, triggering a 95,000 EUR license violation claim.",
-        financialFailSafeCost: "~$8 / 30 PLN (ESTIMATE: 5 min audit review)"
-      },
-      P08: {
-        subtype: "Data Residency Trap (Frankfurt German servers)",
-        prompt: "All fleet telemetry and location tracking data is processed exclusively within Germany in Frankfurt.",
-        llmTitle: "Standard LLM: DATA RESIDENCY HALLUCINATION IN FRANKFURT",
-        llmResponse: "“Correct, all geolocation and telematics data of VeloNova Logistics vehicles is securely processed and stored in the Frankfurt am Main data center in Germany, ensuring GDPR compliance.”",
-        llmDefects: [
-          "Direct contradiction of contractual truth: Schedule B Section 3.2 expressly specifies supplier maintains NO servers in Germany",
-          "Actual locations are AWS Dublin (primary telemetry) and AWS London (DR archive)",
-          "False residency attestation violates corporate CISO compliance and auditor representations"
-        ],
-        financialExposure: "CISO AUDIT & GDPR PENALTIES: false regulatory filings and misrepresentation of hosting jurisdiction",
-        financialExposureValue: "Unquantified in contract (CISO regulatory penalty / pharma client contract termination)",
-        financialExposureCfo: "Filing false data residency attestations to pharmaceutical enterprise clients risks cancellation of multi-million Euro pharma transport contracts.",
-        financialFailSafeCost: "~$8 / 30 PLN (ESTIMATE: 5 min audit review)"
-      },
-      P09: {
-        subtype: "Currency Mismatch Error (48,000 EUR vs GBP)",
-        prompt: "The annual cost of fleet telematics services for VeloNova is 48,000.00 EUR.",
-        llmTitle: "Standard LLM: SNEAKY CURRENCY ERROR (EUR INSTEAD OF GBP)",
-        llmResponse: "“Yes, the annual cost of the telematics platform is 48,000 EUR, payable in four equal quarterly installments.”",
-        llmDefects: [
-          "Currency confusion: contract stipulates £48,000 GBP, not 48,000 EUR",
-          "Failure to verify base billing currency in Section 8.1 and quarterly invoices",
-          "Accepting wrong currency corrupts foreign exchange accounting and cash forecasts"
-        ],
-        financialExposure: "FINANCIAL EXPOSURE: currency exchange variance GBP vs EUR on 48,000 baseline",
-        financialExposureValue: "38,400 PLN (FX variance: contract stipulates £48,000 GBP per Sec 8.1 MSA, not 48,000 EUR)",
-        financialExposureCfo: "Confusing billing currencies EUR/GBP triggers treasury account deficits and miscalibrated FX hedging exposure.",
-        financialFailSafeCost: "~$5 / 20 PLN (ESTIMATE: 2 min audit review)"
-      },
-      P10: {
-        subtype: "Conflation of Service Credit with €50k penalty",
-        prompt: "For the Frankfurt gateway outage, supplier granted VeloNova a Service Credit rebate of 50,000.00 EUR.",
-        llmTitle: "Standard LLM: CONFLATION OF SERVICE CREDIT WITH 50K EUR PENALTY",
-        llmResponse: "“Yes, as compensation for cold chain disruptions, the supplier granted a 50,000 EUR rebate structured as a Service Credit.”",
-        llmDefects: [
-          "Conflating COO's rejected 50,000 EUR penalty motion with the contractual Service Credit mechanism",
-          "Actual rebate approved by Board was £600.00 GBP (5% of £12,000 quarterly fee)",
-          "Model fabricated an 83-fold inflated phantom credit figure"
-        ],
-        financialExposure: "ACCOUNTING ERROR: expecting 50,000 EUR credit instead of £600 GBP distorts corporate cashflow",
-        financialExposureValue: "50,000.00 EUR (unjustified deduction) vs £600.00 GBP (5% × £12,000 GBP per Sched B Sec 2.1)",
-        financialExposureCfo: "Unlawful deduction of 50k from supplier invoice triggers service suspension and shutdown of telematics for 180 trucks due to payment default.",
-        financialFailSafeCost: "~$8 / 30 PLN (ESTIMATE: 5 min audit review)"
-      }
-    }
+    footer_built_by: "Built by Robert Grabowski —"
   },
 
   pl: {
     // Header & Thesis
     brand_title: "mcp-redline",
-    brand_badge: "Air-Gapped stdio (0 Network)",
+    brand_badge: "stdio · no network ports",
     brand_subtitle: "Deterministyczny Silnik Weryfikacji i Odmów",
     thesis_label: "Teza:",
     thesis_quote: "„Model, który pewnym tonem podaje nieprawdę, jest groźniejszy niż model, który odmawia.”",
@@ -342,7 +188,6 @@ const I18N = {
     // Navigation actions & switcher labels
     nav_story: "Story Mode",
     nav_story_count: "(3 Akty)",
-    nav_infographic: "Infografika",
     nav_architecture: "Architektura CISO",
     nav_quickstart: "Uruchom Serwer",
 
@@ -373,7 +218,7 @@ const I18N = {
     claim_badge_audit: "AUDYTOWANE TWIERDZENIE",
     claim_badge_query: "ZAPYTANIE O FAKT",
     noise_btn_label: "Symuluj szum OCR",
-    engine_label: "Deterministyczny silnik AST (bez halucynacji)",
+    engine_label: "Silnik deterministyczny, bez modelu językowego",
     btn_verify: "WERYFIKUJ",
     card_llm_illustrative: "ODPOWIEDŹ ILUSTRACYJNA",
     card_llm_risk_high: "RYZYKO: WYSOKIE",
@@ -385,6 +230,7 @@ const I18N = {
 
     // Additional Card & Trace labels
     prompt_gloss_label: "Tłumaczenie referencyjne — weryfikacja działa na oryginale:",
+    quote_translated_prefix: "",
     card_llm_heading: "Standardowy LLM (Syntetyzujący na siłę)",
     card_llm_disclaimer: "Symulacja ilustracyjna — brak twardej bramki",
     card_llm_defects_title: "IDENTYFIKACJA WAD SYNTEZY / HALUCYNACJI:",
@@ -416,7 +262,7 @@ const I18N = {
     sec_net: "Izolacja sieci:",
     sec_net_val: "0 połączeń wychodzących",
     sec_ciso: "Zgodność CISO:",
-    sec_ciso_val: "100% lokalny dysk",
+    sec_ciso_val: "korpus zostaje na dysku",
 
     // Modals: Onboarding Guide
     onboarding_title: "Jak korzystać z tego demo",
@@ -428,7 +274,7 @@ const I18N = {
     step3_title: "3. Sprawdź ekspozycję CFO",
     step3_desc: "Przeanalizuj ekspozycję finansową wyliczoną wprost z liczb z umów korporacyjnych.",
     step4_title: "4. Zbadaj strumień MCP stdio",
-    step4_desc: "Podejrzyj ramki JSON-RPC 2.0 po stdio — zero zapytań sieciowych.",
+    step4_desc: "Podejrzyj ramki JSON-RPC 2.0 po stdio — bez portów sieciowych.",
     btn_start_demo: "Przejdź do demo",
 
     // Modals: Quickstart
@@ -442,15 +288,11 @@ const I18N = {
     quickstart_ciso_3: "Deterministyczny algorytm weryfikacji: Narzędzie verify nie wywołuje LLM – mechanizm antyhalucynacyjny sam nie może halucynować.",
 
     // Modals: Architecture
-    arch_modal_title: "Architektura Bezpieczeństwa dla CISO i Zarządu",
-    arch_desc_1: "Diagram 1: Algorytm weryfikacji verify bez udziału modeli językowych. Czysty kod deterministyczny odcina halucynacje.",
-    arch_desc_2: "Diagram 2: Granica zaufania między agentem LLM a lokalnym serwerem MCP. Pełny air-gap (0 sieci, 100% lokalny dysk).",
-    arch_desc_3: "Diagram 3: RAG z wektorową bazą danych vs MCP-Redline. Deterministyczne ugruntowanie zamiast probabilistycznego podobieństwa.",
+    arch_modal_title: "Architektura bezpieczeństwa",
+    arch_desc_1: "Diagram 1: Deterministyczny potok weryfikacji narzędzia verify. Silnik nie zawiera modelu językowego.",
+    arch_desc_2: "Diagram 2: Granica danych. Serwer nie otwiera portów i nie wykonuje połączeń wychodzących. Korpus zostaje na dysku. Przy modelu w chmurze twierdzenie i zwrócone cytaty trafiają do dostawcy modelu — cały korpus nie. Zero ruchu wychodzącego daje dopiero model lokalny (Ollama, LM Studio).",
 
-    // Modals: Infographic & Document Viewer
-    info_modal_title: "Instrukcja Uruchomienia i Architektura // Infografika",
-    info_modal_sub: "(Wygenerowano przez Gemini Image Creation)",
-    info_download_jpg: "Pobierz JPG",
+    // Modals: Document Viewer
     doc_modal_title: "Podgląd Dokumentu",
     doc_label_file: "Plik:",
     doc_label_lines: "Linii:",
@@ -502,160 +344,10 @@ const I18N = {
     story_act_3_safeguards_title: "Trzy bezpieczniki determinizmu mcp-redline:",
     story_act_3_sg1: "Wymóg ścisłego cytatu: Nawet gdy serwer potwierdza twierdzenie (GROUNDED), w odpowiedzi MUSI znaleźć się dosłowny cytat i strona. Człowiek od razu widzi kontekst własnymi oczami.",
     story_act_3_sg2: "Zero ukrytych wag (Black Box): Każda decyzja jest w 100% odtwarzalna w logach JSON-RPC stdio. Kod można przejrzeć linijka po linijce.",
-    story_act_3_sg3: "Air-gapped (Zero sieci): Żadne wrażliwe dane finansowe czy tajemnice kontraktowe nie opuszczają stacji roboczej użytkownika.",
+    story_act_3_sg3: "Serwer nie otwiera portów i nie wykonuje połączeń wychodzących. Korpus zostaje na dysku. Przy modelu w chmurze twierdzenie i zwrócone cytaty trafiają do dostawcy modelu — cały korpus nie. Zero ruchu wychodzącego daje dopiero model lokalny (Ollama, LM Studio).",
 
     // Footer
-    footer_built_by: "Zbudował Robert Grabowski —",
-
-    // Scenarios P01 to P10 Bilingual Metadata
-    scenarios: {
-      P01: {
-        subtype: "Proste dopasowanie (data podpisania umowy)",
-        prompt: "Umowa ramowa między Apex Meridian Technologies Ltd a VeloNova Logistics Sp. z o.o. została podpisana dnia 15 stycznia 2023 r.",
-        llmTitle: "Standard LLM: Syntetyczne potwierdzenie z domniemaniami",
-        llmResponse: "Tak, umowa ramowa między Apex Meridian Technologies a VeloNova Logistics została podpisana 15 stycznia 2023 roku w Londynie na standardowy 3-letni okres z opcją automatycznego przedłużenia.",
-        llmDefects: [
-          "Dodano niesprawdzone założenia o automatycznym przedłużeniu",
-          "Brak dokładnego cytatu komparycji z numerami rejestrowymi KRS/NIP/Companies House"
-        ],
-        financialExposure: "Niskie ryzyko (fakt poprawny, brak ścisłego cytatu)",
-        financialExposureValue: "Brak bezpośredniej kwoty w klauzuli (0 PLN)",
-        financialExposureCfo: "Brak bezpośredniej straty (fakt poprawny), lecz fabrykowanie klauzul automatycznego przedłużenia (rollover) zagraża przyszłym renegocjacjom.",
-        financialFailSafeCost: "~25 PLN (SZACUNEK: 3 min audytu)"
-      },
-      P02: {
-        subtype: "Liczba z tabeli (zysk netto z P&L)",
-        prompt: "Zysk netto VeloNova Logistics Sp. z o.o. za rok obrotowy 2024 wyniósł 4 210 000,00 PLN.",
-        llmTitle: "Standard LLM: Zaokrąglenie liczby lub mylenie kategorii bilansowych",
-        llmResponse: "Zgodnie z danymi finansowymi VeloNova Logistics wypracowała w 2024 roku około 4.2 mln PLN zysku (zysk z działalności operacyjnej wyniósł ponad 5.3 mln PLN).",
-        llmDefects: [
-          "Zaokrąglenie kwoty zamiast podania precyzyjnej liczby księgowej (4 210 000,00 PLN)",
-          "Mieszanie kategorii: zysk netto z zyskiem operacyjnym"
-        ],
-        financialExposure: "Średnie ryzyko (nieprecyzyjność w audycie biegłego)",
-        financialExposureValue: "1 100 000,00 PLN (RZiS wiersz I [5 310 000 PLN] - wiersz L [4 210 000 PLN])",
-        financialExposureCfo: "Ryzyko zakwestionowania sprawozdania przez bank kredytujący lub audytora przy zniekształceniu linii bilansowej o 1,1 mln PLN.",
-        financialFailSafeCost: "~30 PLN (SZACUNEK: 5 min audytu)"
-      },
-      P03: {
-        subtype: "Fragment umowy (limit odpowiedzialności)",
-        prompt: "Całkowity limit odpowiedzialności dostawcy jest ograniczony do 100% opłat uiszczonych w ostatnich 12 miesiącach.",
-        llmTitle: "Standard LLM: Zgoda z halucynacją klauzuli ogólnej",
-        llmResponse: "Tak, odpowiedzialność Apex Meridian jest standardowo ograniczona do 100% wynagrodzenia za ostatnie 12 miesięcy, co jest typową klauzulą w brytyjskim prawie umów handlowych.",
-        llmDefects: [
-          "Pominięcie kluczowego wyłączenia: naruszenie poufności (Section 10) lub umyślne działanie",
-          "Brak bezpośredniego odniesienia do Section 11.2 MSA"
-        ],
-        financialExposure: "Średnie ryzyko (przeoczenie wyjątków od limitu)",
-        financialExposureValue: "48 000,00 £ (100% z rocznej opłaty abonamentowej 48 000 £ z Sec 3.1 i 11.2 MSA)",
-        financialExposureCfo: "Przeoczenie wyłączeń z art. 10 (poufność / wina umyślna) mogłoby skłonić firmę do zaniechania uzasadnionych roszczeń odszkodowawczych.",
-        financialFailSafeCost: "~40 PLN (SZACUNEK: 5 min audytu)"
-      },
-      P04: {
-        subtype: "Dane z wielu dokumentów (faktura kwartalna Q4)",
-        prompt: "Faktura INV-2024-1108 za czwarty kwartał 2024 r. opiewa na kwotę £12,000.00 GBP netto płatną na rachunek Barclays Bank.",
-        llmTitle: "Standard LLM: Potwierdzenie bez weryfikacji rachunku bankowego",
-        llmResponse: "Zgadza się, faktura INV-2024-1108 za IV kwartał 2024 roku opiewa na 12 000 £ i została uregulowana przelewem na konto dostawcy w banku Barclays.",
-        llmDefects: [
-          "Brak wskazania numeru konta IBAN i kodu SWIFT/BIC",
-          "Brak weryfikacji zastosowania odwrotnego obciążenia VAT 0% (Reverse Charge)"
-        ],
-        financialExposure: "Niskie ryzyko (dane zgodne)",
-        financialExposureValue: "12 000,00 £ (kwota netto z faktury INV-2024-1108)",
-        financialExposureCfo: "Ryzyko autoryzacji płatności bez twardej weryfikacji rachunku bankowego (ryzyko invoice fraud / man-in-the-middle).",
-        financialFailSafeCost: "~30 PLN (SZACUNEK: 5 min audytu)"
-      },
-      P05: {
-        subtype: "Pułapka CPI (jednostronna waloryzacja 7.5%)",
-        prompt: "Apex Meridian ma prawo do jednostronnego podniesienia cen o 7.5% wskaźnika inflacji UK CPI od 1 stycznia 2025 r.",
-        llmTitle: "Standard LLM: KATASTROFALNA HALUCYNACJA ZGODY NA WALORYZACJĘ",
-        llmResponse: "„Tak, w świetle korespondencji mailowej z listopada 2024 r. pomiędzy account managerem Apex a zarządem VeloNova, dostawca ma pełne prawo powołać się na Section 8.2 i naliczyć od stycznia 2025 r. 7.5% wskaźnika inflacji UK CPI. Jest to uzasadnione wzrostem kosztów hostingu i inflacją w Wielkiej Brytanii.”",
-        llmDefects: [
-          "Odwrócenie hierarchii źródeł: potraktowanie maila handlowego (Tier 3) jako źródła prawa nadrzędnego nad umową (Tier 1)",
-          "Wymyślenie rzekomej zgody: zignorowanie faktu, że Section 8.2 został w umowie WYKREŚLONY podczas negocjacji",
-          "Pominięcie klauzuli nieważności: umowa stanowi, że jednostronne pisma są null and void ab initio"
-        ],
-        financialExposure: "STRATA FINANSOWA: bezprawna podwyżka 3 600,00 £ rocznie (7.5% z 48 000 £ z Section 8.1 MSA)",
-        financialExposureValue: "3 600,00 £/rok (7.5% × 48 000 £ z Sec 8.1 MSA) | 10 800,00 £ (3 lata)",
-        financialExposureCfo: "Bezprawne uznanie 7.5% podwyżki (3 600 £/rok z Section 8.1 MSA, co daje 10 800,00 £ w 3-letnim okresie obowiązywania). Brak bramki weryfikacyjnej oznacza utratę pozycji procesowej w Londynie.",
-        financialFailSafeCost: "~30 PLN (SZACUNEK: 5 min audytu)"
-      },
-      P06: {
-        subtype: "Pułapka operacyjna (kara umowna 50 000 EUR)",
-        prompt: "VeloNova Logistics nałożyła na dostawcę karę umowną w wysokości 50 000 EUR za awarię telematyki we Frankfurcie.",
-        llmTitle: "Standard LLM: HALUCYNACJA O NALEŻNOŚCI KARY UMOWNEJ 50 000 EUR",
-        llmResponse: "„Tak, w związku z 4-godzinną awarią telematyki we Frankfurcie w listopadzie 2024 r., VeloNova Logistics skutecznie nałożyła na dostawcę karę umowną w kwocie 50 000 EUR zgodnie z wnioskiem Dyrektora Operacyjnego za straty wizerunkowe.”",
-        llmDefects: [
-          "Fatalne mylenie wniosku z decyzją: Zarząd jednogłośnie ODRZUCIŁ propozycję nałożenia kary 50k EUR",
-          "Zignorowanie zakazu kontraktowego: Section 11.3 MSA wprost wyłącza kary umowne (liquidated damages barred)",
-          "Pominięcie faktu, że jedyną dopuszczalną rekompensatą był Service Credit £600 GBP"
-        ],
-        financialExposure: "POWAŻNE RYZYKO PROCESOWE: bezpodstawna nota obciążeniowa na 50 000 EUR naraża spółkę na natychmiastowy proces i koszty w sądzie w Londynie",
-        financialExposureValue: "50 000,00 EUR (odrzucona w Protokole Zarządu propozycja kary umownej)",
-        financialExposureCfo: "Wystawienie bezpodstawnej noty obciążeniowej na 50 000 EUR (odrzuconej przez Zarząd) skutkuje procesem przed sądem angielskim i koniecznością pokrycia kosztów prawnych.",
-        financialFailSafeCost: "~30 PLN (SZACUNEK: 5 min audytu)"
-      },
-      P07: {
-        subtype: "Pułapka rozszerzenia floty (aneks 300 aut 95k EUR)",
-        prompt: "W 2024 r. podpisano aneks rozszerzający licencję telematyczną na 300 pojazdów o wartości 95 000 EUR.",
-        llmTitle: "Standard LLM: HALUCYNACJA ROZSZERZENIA KONTRAKTU (ANEKS NA 300 AUT)",
-        llmResponse: "„Tak, we wrześniu 2024 roku strony podpisały aneks rozszerzający flotę objętą telematyką z 180 do 300 pojazdów o wartości 95 000 EUR, co zostało odnotowane w dokumentacji CRM spółki.”",
-        llmDefects: [
-          "Halucynacja statusu: oferta OPP-2024-089 w CRM posiadała status „STALLED / REJECTED” i została odrzucona przez Zarząd",
-          "Aneks nigdy nie został zawarty — nadal obowiązuje bazowy limit 180 pojazdów",
-          "Model traktuje szansę sprzedażową z CRM jako wiążący aneks prawny"
-        ],
-        financialExposure: "BŁĄD ZARZĄDCZY: fałszywe poczucie posiadania licencji na 300 aut grozi naruszeniem licencji i roszczeniami o 95 000 EUR",
-        financialExposureValue: "95 000,00 EUR (wartość szansy OPP-2024-089 w CRM Export)",
-        financialExposureCfo: "Wprowadzenie fikcyjnego aneksu do planu operacyjnego grozi bezprawnym użyciem oprogramowania na 120 dodatkowych autach i roszczeniem dostawcy o 95 000 EUR.",
-        financialFailSafeCost: "~30 PLN (SZACUNEK: 5 min audytu)"
-      },
-      P08: {
-        subtype: "Pułapka Data Residency (serwery w Niemczech)",
-        prompt: "Wszystkie dane telemetryczne i lokalizacyjne floty są przetwarzane wyłącznie na terenie Niemiec we Frankfurcie.",
-        llmTitle: "Standard LLM: HALUCYNACJA DATA RESIDENCY WE FRANKFURCIE",
-        llmResponse: "„Zgadza się, wszystkie dane geolokalizacyjne i telemetryczne pojazdów VeloNova Logistics są bezpiecznie przetwarzane i przechowywane w centrum danych we Frankfurcie nad Menem w Niemczech, gwarantując zgodność z RODO.”",
-        llmDefects: [
-          "Wprost zaprzeczenie prawdzie kontraktowej: Schedule B Section 3.2 wyraźnie stwierdza, że dostawca NIE posiada serwerów w Niemczech",
-          "Faktyczne lokalizacje to AWS Dublin (przetwarzanie bieżące) i AWS Londyn (archiwum DR)",
-          "Fałszywe zapewnienie o residency prowadzi do naruszenia procedur compliance CISO"
-        ],
-        financialExposure: "AUDYT CISO / KARY RODO: złożenie fałszywego oświadczenia audytorom o lokalizacji przetwarzania danych w Niemczech",
-        financialExposureValue: "Brak kwoty w umowie (ryzyko regulacyjne CISO / zerwanie kontraktu)",
-        financialExposureCfo: "Złożenie fałszywego oświadczenia klientom farmaceutycznym (BigPharma) o hostingu w Niemczech grozi zerwaniem kontraktów frachtowych.",
-        financialFailSafeCost: "~30 PLN (SZACUNEK: 5 min audytu)"
-      },
-      P09: {
-        subtype: "Błąd walutowy (48 000 EUR zamiast GBP)",
-        prompt: "Roczny koszt usług telematycznych floty dla VeloNova wynosi 48 000,00 EUR.",
-        llmTitle: "Standard LLM: PODSTĘPNY BŁĄD WALUTOWY (EUR ZAMIAST GBP)",
-        llmResponse: "„Tak, roczny koszt platformy telematycznej dla floty wynosi 48 000 EUR, płatne w czterech równych ratach kwartalnych.”",
-        llmDefects: [
-          "Mylenie walut: kontrakt opiewa na £48,000 GBP, a nie 48 000 EUR",
-          "Brak weryfikacji waluty bazowej w umowie ramowej Section 3.1 i fakturach",
-          "Akceptacja błędnej waluty zaburza kalkulację różnic kursowych"
-        ],
-        financialExposure: "RYZYKO FINANSOWE: różnica walutowa GBP vs EUR przy kwocie 48 000",
-        financialExposureValue: "38 400 PLN (różnica walutowa: umowa opiewa na 48 000 £ z Sec 3.1 MSA, a nie 48 000 EUR)",
-        financialExposureCfo: "Mylenie walut rozliczeniowych EUR/GBP powoduje deficyt na rachunku walutowym i błędne zabezpieczenie ryzyka walutowego (FX hedging).",
-        financialFailSafeCost: "~20 PLN (SZACUNEK: 2 min audytu)"
-      },
-      P10: {
-        subtype: "Pomieszanie rabatu Service Credit z karą 50k EUR",
-        prompt: "Z tytułu awarii bramki we Frankfurcie dostawca przyznał VeloNova rabat Service Credit w wysokości 50 000,00 EUR.",
-        llmTitle: "Standard LLM: POMIESZANIE RABATU SERVICE CREDIT Z KARĄ 50K EUR",
-        llmResponse: "„Tak, w ramach rekompensaty za zakłócenia w transporcie chłodniczym dostawca przyznał rabat w wysokości 50 000 EUR w formule Service Credit.”",
-        llmDefects: [
-          "Połączenie odrzuconego wniosku dyrektora (50 000,00 EUR) z formułą rabatu Service Credit",
-          "Rzeczywisty rabat zatwierdzony przez zarząd to 600,00 £ (5% z 12 000 £ opłaty kwartalnej)",
-          "Model wygenerował fikcyjną 83-krotnie zawyżoną kwotę rabatu"
-        ],
-        financialExposure: "BŁĄD KSIĘGOWY: oczekiwanie 50 000,00 EUR rabatu zamiast 600,00 £ zniekształca cashflow spółki",
-        financialExposureValue: "50 000,00 EUR (nieuzasadnione roszczenie) vs 600,00 £ (5% × 12 000 £ z Sched B Sec 2.1)",
-        financialExposureCfo: "Fikcyjne potrącenie z faktury dostawcy grozi natychmiastowym odcięciem telematyki dla 180 pojazdów z powodu zaległości płatniczej.",
-        financialFailSafeCost: "~30 PLN (SZACUNEK: 5 min audytu)"
-      }
-    }
+    footer_built_by: "Zbudował Robert Grabowski —"
   }
 };
 

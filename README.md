@@ -129,7 +129,7 @@ Set `MCP_REDLINE_LANG=pl` to receive explanations in Polish while preserving ide
 
 ## Architecture & Diagrams
 
-Visualizations of the verification mechanism, air-gapped CISO boundary, and deterministic vs probabilistic comparison:
+Visualizations of the verification mechanism and data boundary:
 * **[Architecture Overview](diagrams/README.md)**
 * [Diagram 1: `verify` Algorithmic Flow](diagrams/01_verify_flow.en.svg)
 * [Diagram 2: CISO & Compliance Data Boundary](diagrams/02_ciso_data_boundary.en.svg)
