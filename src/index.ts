@@ -53,7 +53,7 @@ export class RedlineEngine extends RedlineEngineCore {
 const json = (v: unknown) => ({ content: [{ type: "text" as const, text: JSON.stringify(v, null, 2) }] });
 
 export function createServer(engine?: RedlineEngine): McpServer {
-  const server = new McpServer({ name: "mcp-redline", version: "1.3.1" });
+  const server = new McpServer({ name: "mcp-redline", version: "1.3.2" });
   const redline = engine || new RedlineEngine();
 
   server.tool("list_sources", "List all documents in the local corpus with their authority tier (1 = contract/ledger, 2 = CRM, 3 = correspondence)", {}, async () =>

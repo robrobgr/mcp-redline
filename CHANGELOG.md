@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.2] — 2026-10-06
+
+### Fixed
+- **Cache revalidation:** Added `Cache-Control: public, max-age=0, must-revalidate` in `vercel.json` and automated asset URL version query params (`?v=1.3.2`) in build pipeline for instant refresh on returning clients.
+- **Polish translations:** Corrected Polish `brand_badge` to `stdio · bez portów sieciowych`, updated `quickstart_ciso_2` with the accurate data boundary statement, and renamed Diagram 2 in `README.pl.md` to *Granica danych*.
+- **Overstated claims:** Replaced absolute phrases across EN/PL UI (`FAIL-SAFE // REFUSES WHEN UNSURE`, `VERBATIM EVIDENCE`, `GROUNDED // VERBATIM QUOTE`, `Same input, same verdict`, `Local stdio process, no network ports`, refused before decision).
+- **Coverage thresholds in Story Mode:** Corrected verification coverage threshold numbers (0.6 unit+context, 0.5 unit, 0.45 contradiction) in Story Mode Act 2 and removed arbitrary latency claims.
+- **Diagram theme contrast:** Re-rendered all architecture diagrams with Mermaid dark theme (`-t dark -b transparent`) ensuring clear contrast for edge arrows and labels on dark backgrounds.
+
+---
+
 ## [1.3.1] — 2026-10-06
 
 ### Fixed
