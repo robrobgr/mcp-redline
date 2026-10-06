@@ -6,16 +6,16 @@
   <title>mcp-redline // Deterministic Document Citation & Claim Verification MCP Server</title>
   
   <!-- Offline Local Fonts & Material Symbols -->
-  <link rel="stylesheet" href="fonts/fonts.css?v=1.3.2" />
+  <link rel="stylesheet" href="fonts/fonts.css?v=1.3.3" />
   
   <!-- Offline Local Pre-compiled Tailwind CSS -->
-  <link rel="stylesheet" href="dist/tailwind.css?v=1.3.2" />
+  <link rel="stylesheet" href="dist/tailwind.css?v=1.3.3" />
 
   <!-- Bilingual i18n Translation Dictionary -->
-  <script type="module" src="i18n.js?v=1.3.2"></script>
+  <script type="module" src="i18n.js?v=1.3.3"></script>
 
   <!-- Genuine Deterministic Verification Engine (Bundled directly from src/ via esbuild) -->
-  <script src="dist/engine.bundle.js?v=1.3.2"></script>
+  <script src="dist/engine.bundle.js?v=1.3.3"></script>
 
   <style>
     .material-symbols-outlined {
@@ -605,7 +605,7 @@
         </button>
       </div>
       <div class="p-6 overflow-auto flex flex-col items-center justify-center bg-zinc-950 flex-1 space-y-4">
-        <img id="arch-img" src="assets/01_verify_flow.en.svg" alt="Architecture Diagram" class="max-h-[70vh] object-contain rounded border border-brand-border/40 p-2 bg-zinc-900/60 shadow-xl"/>
+        <img id="arch-img" src="assets/01_verify_flow.en.svg?v=1.3.3" alt="Architecture Diagram" class="max-h-[70vh] object-contain rounded border border-brand-border/40 p-2 bg-zinc-900/60 shadow-xl"/>
         <p id="arch-description" class="text-xs text-zinc-400 font-mono text-center max-w-3xl" data-i18n="arch_desc_1">
           Diagram 1: Verification algorithm 'verify' without language model involvement. Pure deterministic code eliminates hallucinations.
         </p>
@@ -821,8 +821,8 @@
 
   <!-- Load bundled dataset -->
   <script type="module">
-    import { CORPUS_DOCS, SCENARIOS } from './data.js?v=1.3.2';
-    import { I18N } from './i18n.js?v=1.3.2';
+    import { CORPUS_DOCS, SCENARIOS } from './data.js?v=1.3.3';
+    import { I18N } from './i18n.js?v=1.3.3';
 
     // State & URL Language Precedence
     const urlParams = new URLSearchParams(window.location.search);
@@ -1989,8 +1989,8 @@
       activeArchTab = tabIdx;
       const langSuffix = currentLang === 'pl' ? 'pl' : 'en';
       const archFiles = [
-        `assets/01_verify_flow.${langSuffix}.svg`,
-        `assets/02_ciso_data_boundary.${langSuffix}.svg`,
+        `assets/01_verify_flow.${langSuffix}.svg?v=1.3.3`,
+        `assets/02_ciso_data_boundary.${langSuffix}.svg?v=1.3.3`,
         ];
       archImg.src = archFiles[tabIdx - 1];
       const i18nObj = I18N[currentLang] || I18N.en;

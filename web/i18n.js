@@ -156,7 +156,7 @@ const I18N = {
     story_act_2_step4_title: "4. Atomic Matching of Numbers & Currencies",
     story_act_2_step4_body: "Numbers are numerically and currency-isolated. £48,000 GBP will never match €48,000 EUR, and 50 cannot attach to 15,250,000.",
     story_act_2_step5_title: "5. Predicate Coverage & Contradiction Detection",
-    story_act_2_step5_body: "Requiring concept coverage of at least 0.6 (fragment + context) and 0.5 (quoted unit itself) to confirm, with a 0.45 threshold for contradiction, reduces phantom entities (e.g. a fictional fleet of 50 cargo vessels). Negative legal clauses (null and void, prohibited, shall not exceed) immediately cut claims with UNSUPPORTED.",
+    story_act_2_step5_body: "Requiring concept coverage of at least 0.6 (fragment + context) and 0.5 (quoted unit itself) to confirm, with a 0.45 threshold for contradiction, reduces phantom entities (e.g. a fictional fleet of 50 cargo vessels). Negative legal clauses (null and void, prohibited, shall not exceed) immediately mark claims as CONTRADICTED.",
     story_act_2_conclusion: "Cardinal Rule: The mechanism verifying hallucinations cannot itself be susceptible to hallucinations.",
 
     story_act_3_title: "ACT 3: WHAT IF THE DIGITAL AUDITOR MAKES A MISTAKE? (FINANCIAL RISK ASYMMETRY)",
@@ -329,7 +329,7 @@ const I18N = {
     story_act_2_step4_title: "4. Atomowe Dopasowanie Liczb & Walut",
     story_act_2_step4_body: "Liczby są izolowane numerycznie. 48 000 GBP nie zostanie pomylone z 48 000 EUR, a 50 nie połączy się z 15 250 000.",
     story_act_2_step5_title: "5. Pokrycie Pojęciowe i Badanie Sprzeczności (Predicate Coverage)",
-    story_act_2_step5_body: "Wymóg pokrycia pojęć minimum 0.6 (fragment + kontekst) oraz 0.5 (sam fragment) przy potwierdzeniu, z progiem 0.45 dla zaprzeczenia, ogranicza halucynację bytów (np. floty 50 panamskich statków). Klauzule negacyjne (null and void, prohibited, shall not exceed) odcinają roszczenia z wynikiem UNSUPPORTED.",
+    story_act_2_step5_body: "Wymóg pokrycia pojęć minimum 0.6 (fragment + kontekst) oraz 0.5 (sam fragment) przy potwierdzeniu, z progiem 0.45 dla zaprzeczenia, ogranicza halucynację bytów (np. floty 50 panamskich statków). Klauzule negacyjne (null and void, prohibited, shall not exceed) natychmiast oznaczają twierdzenie jako CONTRADICTED.",
     story_act_2_conclusion: "Zasada kardynalna: Mechanizm weryfikujący halucynacje sam nie może podlegać ryzyku halucynacji.",
 
     story_act_3_title: "AKT 3: CO JEŚLI CYFROWY REWIDENT SIĘ POMYLI? (ASYMETRIA RYZYKA FINANSOWEGO)",

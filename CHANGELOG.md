@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.3] — 2026-10-06
+
+### Fixed
+- **Diagram versioning:** Appended version query string (`?v=1.3.3`) to all SVG diagram URLs in `web/index.html` (including default `#arch-img` src and dynamic `setArchTab` paths) via build-time injection.
+- **Story Mode contradiction precision:** In `story_act_2_step5_body` (both EN and PL), corrected the description of negative legal clauses to state that they immediately mark claims as `CONTRADICTED` (*oznaczają twierdzenie jako CONTRADICTED*) rather than `UNSUPPORTED`.
+
+---
+
 ## [1.3.2] — 2026-10-06
 
 ### Fixed

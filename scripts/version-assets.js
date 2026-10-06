@@ -25,6 +25,11 @@ html = html.replace(/src="dist\/engine\.bundle\.js(?:\?v=[^"]*)?"/g, `src="dist/
 html = html.replace(/from '\.\/data\.js(?:\?v=[^']*)?'/g, `from './data.js?v=${version}'`);
 // import ... from './i18n.js(?v=...)?'
 html = html.replace(/from '\.\/i18n\.js(?:\?v=[^']*)?'/g, `from './i18n.js?v=${version}'`);
+// #arch-img default src: assets/01_verify_flow.en.svg(?v=...)?
+html = html.replace(/src="assets\/01_verify_flow\.en\.svg(?:\?v=[^"]*)?"/g, `src="assets/01_verify_flow.en.svg?v=${version}"`);
+// archFiles in setArchTab: `assets/01_verify_flow.${langSuffix}.svg(?v=...)?`
+html = html.replace(/`assets\/01_verify_flow\.\$\{langSuffix\}\.svg(?:\?v=[^`]*)?`/g, `\`assets/01_verify_flow.\${langSuffix}.svg?v=${version}\``);
+html = html.replace(/`assets\/02_ciso_data_boundary\.\$\{langSuffix\}\.svg(?:\?v=[^`]*)?`/g, `\`assets/02_ciso_data_boundary.\${langSuffix}.svg?v=${version}\``);
 
 fs.writeFileSync(htmlPath, html, 'utf-8');
 console.log(`[version-assets] Injected ?v=${version} into web/index.html assets.`);
