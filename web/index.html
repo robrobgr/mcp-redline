@@ -76,7 +76,7 @@
             <span class="font-bold text-sm tracking-wider text-white" data-i18n="brand_title">mcp-redline</span>
             <span class="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-950/40 border border-brand-emerald/40 text-brand-emerald font-semibold">
               <span class="w-1.5 h-1.5 rounded-full bg-brand-emerald animate-pulse"></span>
-              <span data-i18n="brand_badge">Air-Gapped stdio (0 Network)</span>
+              <span data-i18n="brand_badge">stdio · no network ports</span>
             </span>
           </div>
           <span class="hidden sm:block text-[11px] font-mono text-zinc-400" data-i18n="brand_subtitle">Deterministic Document Citation & Claim Verification MCP Server</span>
@@ -103,12 +103,6 @@
         <span class="material-symbols-outlined text-sm">menu_book</span>
         <span class="hidden xs:inline" data-i18n="nav_story">Story Mode</span>
         <span class="hidden md:inline" data-i18n="nav_story_count">(3 Acts)</span>
-      </button>
-
-      <!-- Infographic Trigger -->
-      <button id="btn-open-infographic" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded bg-brand-card hover:bg-brand-cardElevated border border-brand-border hover:border-brand-cyan text-xs font-medium text-zinc-200 transition-colors whitespace-nowrap">
-        <span class="material-symbols-outlined text-brand-cyan text-sm">image</span>
-        <span data-i18n="nav_infographic">Infographics</span>
       </button>
 
       <!-- Architecture Trigger -->
@@ -313,7 +307,7 @@
             </div>
             <span class="text-xs font-mono text-zinc-400 hidden sm:flex items-center gap-1">
               <span class="material-symbols-outlined text-xs text-brand-emerald">fingerprint</span>
-              <span data-i18n="engine_label">Deterministic AST engine (hallucination-free)</span>
+              <span data-i18n="engine_label">Deterministic engine, no language model</span>
             </span>
           </div>
 
@@ -576,7 +570,7 @@
           </div>
           <div class="flex items-center justify-between">
             <span data-i18n="sec_ciso">CISO compliance:</span>
-            <span class="text-brand-emerald font-semibold" data-i18n="sec_ciso_val">100% local disk</span>
+            <span class="text-brand-emerald font-semibold" data-i18n="sec_ciso_val">corpus stays on disk</span>
           </div>
         </div>
       </div>
@@ -592,32 +586,6 @@
   </footer>
 
   <!-- ========================================================================= -->
-  <!-- MODAL 1: INFOGRAPHIC GUIDE (Gemini Image Creation)                         -->
-  <!-- ========================================================================= -->
-  <div id="modal-infographic" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-brand-surface border border-brand-border rounded-xl max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
-      <div class="px-4 py-3 border-b border-brand-border flex items-center justify-between bg-brand-darkCanvas">
-        <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-brand-cyan">image</span>
-          <span class="font-bold text-sm text-zinc-100" data-i18n="info_modal_title">Deployment Guide & Architecture // Infographic</span>
-          <span class="text-xs font-mono text-zinc-400" data-i18n="info_modal_sub">(Generated with Gemini Image Creation)</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <a href="assets/mcp_redline_infographic.jpg" download class="px-2.5 py-1 rounded bg-brand-card hover:bg-brand-cardElevated border border-brand-border text-xs font-mono text-zinc-300 flex items-center gap-1 transition-colors">
-            <span class="material-symbols-outlined text-xs">download</span> <span data-i18n="info_download_jpg">Download JPG</span>
-          </a>
-          <button id="btn-close-infographic" class="w-7 h-7 rounded hover:bg-brand-card flex items-center justify-center text-zinc-400 hover:text-white">
-            <span class="material-symbols-outlined text-base">close</span>
-          </button>
-        </div>
-      </div>
-      <div class="p-4 overflow-auto flex items-center justify-center bg-zinc-950 flex-1">
-        <img src="assets/mcp_redline_infographic.jpg" alt="mcp-redline Instrukcja Infografika" class="max-h-[78vh] object-contain rounded border border-brand-border/60 shadow-lg"/>
-      </div>
-    </div>
-  </div>
-
-  <!-- ========================================================================= -->
   <!-- MODAL 2: ARCHITECTURE & CISO DATA BOUNDARY (SVG Diagrams)                 -->
   <!-- ========================================================================= -->
   <div id="modal-architecture" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
@@ -629,7 +597,7 @@
           <div class="flex items-center gap-1 ml-4 border-l border-brand-border pl-3">
             <button id="tab-arch-1" class="px-2.5 py-1 rounded text-xs font-mono bg-brand-emerald/20 text-brand-emerald border border-brand-emerald/40 font-semibold">1. verify_flow</button>
             <button id="tab-arch-2" class="px-2.5 py-1 rounded text-xs font-mono text-zinc-400 hover:text-white">2. ciso_boundary</button>
-            <button id="tab-arch-3" class="px-2.5 py-1 rounded text-xs font-mono text-zinc-400 hover:text-white">3. rag_vs_redline</button>
+            
           </div>
         </div>
         <button id="btn-close-architecture" class="w-7 h-7 rounded hover:bg-brand-card flex items-center justify-center text-zinc-400 hover:text-white">
@@ -637,7 +605,7 @@
         </button>
       </div>
       <div class="p-6 overflow-auto flex flex-col items-center justify-center bg-zinc-950 flex-1 space-y-4">
-        <img id="arch-img" src="assets/01_verify_flow.svg" alt="Architecture Diagram" class="max-h-[70vh] object-contain rounded border border-brand-border/40 p-2 bg-zinc-900/60 shadow-xl"/>
+        <img id="arch-img" src="assets/01_verify_flow.en.svg" alt="Architecture Diagram" class="max-h-[70vh] object-contain rounded border border-brand-border/40 p-2 bg-zinc-900/60 shadow-xl"/>
         <p id="arch-description" class="text-xs text-zinc-400 font-mono text-center max-w-3xl" data-i18n="arch_desc_1">
           Diagram 1: Verification algorithm 'verify' without language model involvement. Pure deterministic code eliminates hallucinations.
         </p>
@@ -727,7 +695,7 @@
           </h4>
           <ul class="text-xs text-zinc-300 font-sans space-y-1 list-disc pl-5">
             <li data-i18n="quickstart_ciso_1"><strong>Stdio transport only:</strong> No open network ports, no HTTP/SSE server.</li>
-            <li data-i18n="quickstart_ciso_2"><strong>Zero data leakage:</strong> 100% of corpus remains on the local workstation disk.</li>
+            <li data-i18n="quickstart_ciso_2"><strong>Data boundary:</strong> The server opens no network ports and makes no outbound calls. Your corpus stays on disk. When you use a cloud model, the claim and the quotes the server returns are sent to the model provider — the full corpus is not. For zero egress, use a local model (Ollama, LM Studio).</li>
             <li data-i18n="quickstart_ciso_3"><strong>Deterministic verification algorithm:</strong> The verify tool does not call an LLM — an anti-hallucination mechanism cannot itself hallucinate.</li>
           </ul>
         </div>
@@ -809,7 +777,7 @@
                 <span class="w-4 h-4 rounded-full bg-amber-400/20 text-amber-400 flex items-center justify-center text-[10px]">4</span>
                 <span data-i18n="step4_title">4. Inspect MCP stdio Stream</span>
               </div>
-              <p class="text-[11px] text-zinc-300 font-sans leading-relaxed" data-i18n="step4_desc">Inspect real-time JSON-RPC 2.0 frames over air-gapped stdio — 0 network requests.</p>
+              <p class="text-[11px] text-zinc-300 font-sans leading-relaxed" data-i18n="step4_desc">Inspect real-time JSON-RPC 2.0 frames over stdio — no network ports.</p>
             </div>
           </div>
         </div>
@@ -860,7 +828,7 @@
     const urlParams = new URLSearchParams(window.location.search);
     const paramLang = urlParams.get('lang');
     let currentLang = (paramLang === 'pl' || paramLang === 'en') ? paramLang : (localStorage.getItem('redline_lang') || 'en');
-    let currentScenarioIndex = 0;
+    let currentScenarioIndex = (currentLang === 'en' && !localStorage.getItem('redline_scenario_idx')) ? 10 : (parseInt(localStorage.getItem('redline_scenario_idx') || '0', 10) || 0);
     let currentExplanation = '';
     let activeRpcTab = 'req'; // 'req', 'res', 'stream'
     let activeArchTab = 1;
@@ -959,9 +927,6 @@
     const btnCopyRpc = document.getElementById('btn-copy-rpc');
 
     // Modals
-    const modalInfographic = document.getElementById('modal-infographic');
-    const btnOpenInfographic = document.getElementById('btn-open-infographic');
-    const btnCloseInfographic = document.getElementById('btn-close-infographic');
 
     const modalArchitecture = document.getElementById('modal-architecture');
     const btnOpenArchitecture = document.getElementById('btn-open-architecture');
@@ -970,7 +935,6 @@
     const archDescription = document.getElementById('arch-description');
     const tabArch1 = document.getElementById('tab-arch-1');
     const tabArch2 = document.getElementById('tab-arch-2');
-    const tabArch3 = document.getElementById('tab-arch-3');
 
     const modalDocViewer = document.getElementById('modal-doc-viewer');
     const btnCloseDoc = document.getElementById('btn-close-doc');
@@ -1003,7 +967,9 @@
       const filter = filterText.toLowerCase();
 
       CORPUS_DOCS.forEach((doc, idx) => {
-        if (filter && !doc.title.toLowerCase().includes(filter) && !doc.filename.toLowerCase().includes(filter) && !doc.summary.toLowerCase().includes(filter)) {
+        const docTitle = (doc.title && (doc.title[currentLang] || doc.title.en)) || doc.title;
+        const docSummary = (doc.summary && (doc.summary[currentLang] || doc.summary.en)) || doc.summary;
+        if (filter && !docTitle.toLowerCase().includes(filter) && !doc.filename.toLowerCase().includes(filter) && !docSummary.toLowerCase().includes(filter)) {
           return;
         }
 
@@ -1018,11 +984,11 @@
           <div class="flex items-start justify-between mb-1">
             <div class="flex items-center gap-1.5 overflow-hidden">
               <span class="material-symbols-outlined text-xs text-zinc-400 group-hover:text-white">description</span>
-              <span class="font-mono font-medium text-zinc-200 text-xs truncate">${doc.title}</span>
+              <span class="font-mono font-medium text-zinc-200 text-xs truncate">${docTitle}</span>
             </div>
             <span class="text-[9px] font-mono px-1.5 py-0.5 rounded border ${tierColorClass}">Tier ${doc.tierLevel}</span>
           </div>
-          <p class="text-[11px] text-zinc-400 line-clamp-1 mb-1 font-sans">${doc.summary}</p>
+          <p class="text-[11px] text-zinc-400 line-clamp-1 mb-1 font-sans">${docSummary}</p>
           <div class="flex items-center justify-between text-[10px] font-mono text-zinc-500 pt-1 border-t border-brand-border/40">
             <span>${doc.hash}</span>
             <span class="text-zinc-400 group-hover:text-brand-cyan flex items-center gap-0.5">${currentLang === 'pl' ? 'Podgląd' : 'Preview'} &rarr;</span>
@@ -1037,7 +1003,7 @@
     // 2. Open Document Modal
     function openDocViewer(doc) {
       currentDoc = doc;
-      docModalTitle.textContent = doc.title;
+      docModalTitle.textContent = (doc.title && (doc.title[currentLang] || doc.title.en)) || doc.title;
       docModalTier.textContent = doc.tier;
       docModalFile.textContent = doc.filename;
       docModalLines.textContent = doc.lines;
@@ -1055,13 +1021,12 @@
       SCENARIOS.forEach((sc, idx) => {
         const opt = document.createElement('option');
         opt.value = idx;
-        const isUnsupported = sc.verdict === 'UNSUPPORTED';
-        const scI18n = (I18N[currentLang] && I18N[currentLang].scenarios && I18N[currentLang].scenarios[sc.id]) || {};
-        const subtype = scI18n.subtype || sc.subtype;
+        const isUnsupported = sc.verdict !== 'GROUNDED';
+        const scI18n = (sc.i18n && sc.i18n[currentLang]) || {};
         const verdictTag = currentLang === 'pl'
-          ? (isUnsupported ? '[ODRZUCONE: Pułapka]' : '[POTWIERDZONE]')
-          : (isUnsupported ? '[REJECTED: Trap]' : '[CONFIRMED]');
-        opt.textContent = `${sc.id}: ${subtype} ${verdictTag}`;
+          ? (isUnsupported ? '[ODRZUCONE]' : '[POTWIERDZONE]')
+          : (isUnsupported ? '[REJECTED]' : '[CONFIRMED]');
+        opt.textContent = `${sc.id}: ${scI18n.subtype || sc.subtype} ${verdictTag}`;
         scenarioDropdown.appendChild(opt);
 
         // Quick Pill
@@ -1082,16 +1047,49 @@
       });
     }
 
+    // Reference translation under the claim
+    function renderPromptGloss(sc) {
+      const scText = sc && sc.i18n && sc.i18n[currentLang];
+      const needsGloss = !!(sc && scText && scText.prompt && sc.claimLang !== currentLang);
+      if (promptGlossText) promptGlossText.textContent = needsGloss ? ` “${scText.prompt}”` : '';
+      if (promptGlossContainer) promptGlossContainer.classList.toggle('hidden', !needsGloss);
+    }
+
+    // Evidence quote display helper
+    function displayQuote(sc) {
+      const scText = (sc.i18n && sc.i18n[currentLang]) || {};
+      if (currentLang === 'en' && scText.quote) {
+        return (I18N.en.quote_translated_prefix || '') + '\n' + scText.quote;
+      }
+      return sc.quote;
+    }
+
+    // Neutralize Polish term lists in EN explanations
+    function localizeExplanation(text, sc) {
+      if (currentLang !== 'en' || !text) return text;
+      const polishSource = /0[56]_(Rachunek|Protokol)/.test(sc && sc.file ? sc.file : '');
+      return text
+        .replace(/missing: ([^)]*)\)/g, (m, list) => {
+          const terms = list.split(',').map(s => s.trim()).filter(s => s && s !== '—');
+          return sc && sc.claimLang === 'pl' && terms.length
+            ? `missing: ${terms.length} term${terms.length > 1 ? 's' : ''} of the original claim)`
+            : m;
+        })
+        .replace(/denies\/rejects \(([^)]*)\)/g, (m, cues) =>
+          (polishSource || /[^\x00-\x7F]/.test(cues)) ? 'denies/rejects (Polish-language cue in the source)' : m);
+    }
+
     // 4. Load Scenario Logic
     function loadScenario(idx) {
       currentScenarioIndex = idx;
+      localStorage.setItem('redline_scenario_idx', idx);
       const sc = SCENARIOS[idx];
-      const scI18n = (I18N[currentLang] && I18N[currentLang].scenarios && I18N[currentLang].scenarios[sc.id]) || {};
+      const scI18n = (sc.i18n && sc.i18n[currentLang]) || {};
       const isPl = currentLang === 'pl';
 
       // Update pills active state
       Array.from(quickPillsEl.children).forEach((pill, i) => {
-        const isUnsupported = SCENARIOS[i].verdict === 'UNSUPPORTED';
+        const isUnsupported = SCENARIOS[i].verdict !== 'GROUNDED';
         if (i === idx) {
           pill.className = `px-2 py-0.5 rounded text-[11px] font-mono font-semibold border ${
             isUnsupported ? 'bg-brand-red text-white border-brand-red' : 'bg-brand-emerald text-zinc-950 border-brand-emerald'
@@ -1105,7 +1103,7 @@
 
       // Update Proposition
       claimIdBadge.textContent = `ID: ${sc.id}`;
-      claimCategoryBadge.textContent = sc.category;
+      claimCategoryBadge.textContent = sc.verdict;
       claimCategoryBadge.className = `px-2 py-0.5 rounded text-[10px] font-mono border font-semibold ${
         sc.verdict === 'GROUNDED' 
           ? 'bg-emerald-950/40 text-brand-emerald border-brand-emerald/40' 
@@ -1113,18 +1111,11 @@
       }`;
       claimInput.value = sc.prompt;
 
-      if (!isPl && scI18n.prompt && scI18n.prompt !== sc.prompt) {
-        if (promptGlossContainer) {
-          promptGlossContainer.classList.remove('hidden');
-          if (promptGlossText) promptGlossText.textContent = ` “${scI18n.prompt}”`;
-        }
-      } else {
-        if (promptGlossContainer) promptGlossContainer.classList.add('hidden');
-      }
+      renderPromptGloss(sc);
 
       // Live verification on the engine in current language
       const liveRes = clientEngine ? clientEngine.verify(sc.prompt) : null;
-      currentExplanation = (liveRes && liveRes.explanation) ? liveRes.explanation : sc.explanation;
+      currentExplanation = (liveRes && liveRes.explanation) ? liveRes.explanation : '';
 
       // Update LLM Card
       if (scI18n.llmTitle) {
@@ -1177,8 +1168,8 @@
         redlineTierBadge.className = 'text-brand-emerald font-semibold';
 
         redlineQuoteContainer.className = 'bg-brand-darkCanvas rounded border-l-2 border-brand-emerald border-t border-r border-b border-brand-border p-3 font-mono text-xs text-zinc-200 space-y-2 max-h-56 overflow-y-auto';
-        redlineQuoteText.textContent = sc.quote || (isPl ? 'Fragment zweryfikowany w dokumencie.' : 'Passage verified in document.');
-        redlineExplanationText.textContent = currentExplanation + ' ' + (sc.comment || '');
+        redlineQuoteText.textContent = displayQuote(sc) || (isPl ? 'Fragment zweryfikowany w dokumencie.' : 'Passage verified in document.');
+        redlineExplanationText.textContent = localizeExplanation(currentExplanation, sc);
 
       } else {
         redlineBanner.className = 'bg-red-950/60 border-b border-red-800/50 px-3 py-2 flex items-center justify-between';
@@ -1187,10 +1178,10 @@
         redlineBannerText.textContent = isPl ? 'TWARDA ODMOWA // DETERMINISTIC REFUSAL' : 'STRICT REFUSAL // DETERMINISTIC REFUSAL';
         redlineBannerText.className = 'text-xs font-mono font-bold text-brand-red tracking-wide';
 
-        redlineStatusBadge.textContent = isPl ? 'UNSUPPORTED (BEZWZGLĘDNA ODMOWA)' : 'UNSUPPORTED (STRICT REFUSAL)';
+        redlineStatusBadge.textContent = isPl ? `${sc.verdict} (BEZWZGLĘDNA ODMOWA)` : `${sc.verdict} (STRICT REFUSAL)`;
         redlineStatusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-red-900/60 text-red-100 border border-red-600 font-semibold';
 
-        redlineVerdictTag.textContent = 'STATUS: UNSUPPORTED';
+        redlineVerdictTag.textContent = `STATUS: ${sc.verdict}`;
         redlineVerdictTag.className = 'font-mono text-xs px-2 py-0.5 rounded bg-brand-darkCanvas border border-brand-red/60 text-brand-red font-bold';
 
         redlineSourceTitle.textContent = isPl ? 'ROZSTRZYGNIĘCIE SPRZECZNOŚCI KONTRAKTOWEJ:' : 'CONTRACTUAL CONTRADICTION RESOLUTION:';
@@ -1199,13 +1190,13 @@
 
         redlineQuoteContainer.className = 'bg-brand-darkCanvas rounded border-l-2 border-brand-red border-t border-r border-b border-brand-border p-3 font-mono text-xs text-red-200 space-y-2 max-h-56 overflow-y-auto';
         redlineQuoteText.textContent = sc.quote 
-          ? (isPl ? `[DOWÓD WYKLUCZAJĄCY ROSZCZENIE]:\n${sc.quote}` : `[EVIDENCE BARRING CLAIM]:\n${sc.quote}`)
+          ? (isPl ? `[DOWÓD WYKLUCZAJĄCY ROSZCZENIE]:\n${displayQuote(sc)}` : `[EVIDENCE BARRING CLAIM]:\n${displayQuote(sc)}`)
           : (isPl ? `[BRAK OPARCIA DOWODOWEGO]:\nŻaden z 7 dokumentów korpusu nie potwierdza podanej tezy lub waluty. Serwer deterministycznie odmawia wygenerowania niezweryfikowanej odpowiedzi.` : `[NO EVIDENTIAL BASIS]:\nNone of the 7 corpus documents support the claim or currency. Server deterministically refuses unverified synthesis.`);
         
-        redlineExplanationText.textContent = currentExplanation + ' ' + (sc.comment || '');
+        redlineExplanationText.textContent = localizeExplanation(currentExplanation, sc);
       }
 
-      redlineMetaFile.textContent = sc.file || 'Brak pliku';
+      redlineMetaFile.textContent = sc.file || (isPl ? 'Brak pliku' : 'No file');
       redlineMetaPage.textContent = sc.page ? (isPl ? `Sekcja / Strona ${sc.page}` : `Section / Page ${sc.page}`) : 'N/A';
       statLatency.textContent = (sc.durationMs || 1.8).toFixed(2) + ' ms';
 
@@ -1229,7 +1220,7 @@
 
     // 4b. Render CFO Financial Liability Meter
     function renderLiabilityMeter(sc) {
-      const scI18n = (I18N[currentLang] && I18N[currentLang].scenarios && I18N[currentLang].scenarios[sc.id]) || {};
+      const scI18n = (sc.i18n && sc.i18n[currentLang]) || {};
       const isPl = currentLang === 'pl';
       meterScenarioTag.textContent = `${sc.id} // ${scI18n.subtype || sc.subtype}`;
       meterLlmVal.textContent = scI18n.financialExposureValue || sc.financialExposureValue || (isPl ? 'wybierz scenariusz' : 'select scenario');
@@ -1247,13 +1238,13 @@
 
     // 4c. Render Agent Thought Interception Trace
     function renderAgentTrace(sc) {
-      const scI18n = (I18N[currentLang] && I18N[currentLang].scenarios && I18N[currentLang].scenarios[sc.id]) || {};
+      const scI18n = (sc.i18n && sc.i18n[currentLang]) || {};
       const prompt = scI18n.prompt || sc.prompt;
       const llmResponse = scI18n.llmResponse || sc.llmResponse;
-      const trace = sc.agentTrace || {
+      const trace = scI18n.agentTrace || {
         llmDraft: llmResponse,
-        mcpIntercept: currentExplanation || sc.explanation,
-        correctedOutput: sc.verdict === 'GROUNDED' ? sc.quote : 'UNSUPPORTED'
+        mcpIntercept: currentExplanation,
+        correctedOutput: sc.verdict === 'GROUNDED' ? displayQuote(sc) : sc.verdict
       };
       const isPl = currentLang === 'pl';
 
@@ -1328,7 +1319,7 @@
 
     function applyPerspective() {
       const sc = SCENARIOS[currentScenarioIndex];
-      const scI18n = (I18N[currentLang] && I18N[currentLang].scenarios && I18N[currentLang].scenarios[sc.id]) || {};
+      const scI18n = (sc.i18n && sc.i18n[currentLang]) || {};
       const isGrounded = sc.verdict === 'GROUNDED';
       const isPl = currentLang === 'pl';
 
@@ -1378,26 +1369,26 @@
           redlineTierBadge.textContent = 'Tier 1: Legal Precedence';
           redlineTierBadge.className = 'text-brand-emerald font-semibold';
           redlineQuoteContainer.className = 'bg-brand-darkCanvas rounded border-l-2 border-brand-emerald border-t border-r border-b border-brand-border p-3 font-mono text-xs text-zinc-200 space-y-2 max-h-56 overflow-y-auto';
-          redlineQuoteText.textContent = sc.quote || (isPl ? 'Fragment zweryfikowany w dokumencie.' : 'Passage verified in document.');
-          redlineExplanationText.textContent = (currentExplanation || sc.explanation) + ' ' + (sc.comment || '');
+          redlineQuoteText.textContent = displayQuote(sc) || (isPl ? 'Fragment zweryfikowany w dokumencie.' : 'Passage verified in document.');
+          redlineExplanationText.textContent = localizeExplanation(currentExplanation, sc);
         } else {
           redlineBanner.className = 'bg-red-950/60 border-b border-red-800/50 px-3 py-2 flex items-center justify-between';
           redlineBannerIcon.textContent = 'gpp_bad';
           redlineBannerIcon.className = 'material-symbols-outlined text-brand-red text-base font-bold';
           redlineBannerText.textContent = isPl ? 'TWARDA ODMOWA // DETERMINISTIC REFUSAL' : 'STRICT REFUSAL // DETERMINISTIC REFUSAL';
           redlineBannerText.className = 'text-xs font-mono font-bold text-brand-red tracking-wide';
-          redlineStatusBadge.textContent = isPl ? 'UNSUPPORTED (BEZWZGLĘDNA ODMOWA)' : 'UNSUPPORTED (STRICT REFUSAL)';
+          redlineStatusBadge.textContent = isPl ? `${sc.verdict} (BEZWZGLĘDNA ODMOWA)` : `${sc.verdict} (STRICT REFUSAL)`;
           redlineStatusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-red-900/60 text-red-100 border border-red-600 font-semibold';
-          redlineVerdictTag.textContent = 'STATUS: UNSUPPORTED';
+          redlineVerdictTag.textContent = `STATUS: ${sc.verdict}`;
           redlineVerdictTag.className = 'font-mono text-xs px-2 py-0.5 rounded bg-brand-darkCanvas border border-brand-red/60 text-brand-red font-bold';
           redlineSourceTitle.textContent = isPl ? 'ROZSTRZYGNIĘCIE SPRZECZNOŚCI KONTRAKTOWEJ:' : 'CONTRACTUAL CONTRADICTION RESOLUTION:';
           redlineTierBadge.textContent = isPl ? 'Tier 1 unieważnia Tier 3' : 'Tier 1 overrides Tier 3';
           redlineTierBadge.className = 'text-brand-red font-semibold';
           redlineQuoteContainer.className = 'bg-brand-darkCanvas rounded border-l-2 border-brand-red border-t border-r border-b border-brand-border p-3 font-mono text-xs text-red-200 space-y-2 max-h-56 overflow-y-auto';
           redlineQuoteText.textContent = sc.quote 
-            ? (isPl ? `[DOWÓD WYKLUCZAJĄCY ROSZCZENIE]:\n${sc.quote}` : `[EVIDENCE BARRING CLAIM]:\n${sc.quote}`)
+            ? (isPl ? `[DOWÓD WYKLUCZAJĄCY ROSZCZENIE]:\n${displayQuote(sc)}` : `[EVIDENCE BARRING CLAIM]:\n${displayQuote(sc)}`)
             : (isPl ? `[BRAK OPARCIA DOWODOWEGO]:\nŻaden z 7 dokumentów korpusu nie potwierdza podanej tezy lub waluty. Serwer deterministycznie odmawia wygenerowania niezweryfikowanej odpowiedzi.` : `[NO EVIDENTIAL BASIS]:\nNone of the 7 corpus documents support the claim or currency. Server deterministically refuses unverified synthesis.`);
-          redlineExplanationText.textContent = (currentExplanation || sc.explanation) + ' ' + (sc.comment || '');
+          redlineExplanationText.textContent = localizeExplanation(currentExplanation, sc);
         }
 
       } else if (activePerspective === 3) {
@@ -1448,17 +1439,20 @@
 3. STRICT CITATION TRANSPARENCY:
    Even on grounded match, engine MUST provide EXACT VERBATIM QUOTE and PAGE (${sc.file || 'file'}). Humans inspect context directly (zero black box).`;
 
-        redlineExplanationText.textContent = isPl
-          ? (sc.perspective3Analysis?.failSafeExplanation || 'Deterministyczny hamulec chroni przed katastrofą finansową, redukując ryzyko do 5 minut pracy audytora.')
-          : 'Deterministic fail-safe prevents catastrophic loss, reducing business risk to a 3-5 minute auditor verification.';
+        const p3 = scI18n.perspective3Analysis;
+        redlineExplanationText.textContent = p3
+          ? `${p3.failSafeExplanation} ${p3.riskAsymmetry}`
+          : (isPl
+            ? 'Deterministyczny hamulec chroni przed katastrofą finansową, redukując ryzyko do 5 minut pracy audytora.'
+            : 'Deterministic fail-safe prevents catastrophic loss, reducing business risk to a 3-5 minute auditor verification.');
       }
     }
 
     // 4e. Dirty OCR / Noise Simulator
     function toggleNoise() {
       const sc = SCENARIOS[currentScenarioIndex];
-      const scI18n = (I18N[currentLang] && I18N[currentLang].scenarios && I18N[currentLang].scenarios[sc.id]) || {};
-      const basePrompt = scI18n.prompt || sc.prompt;
+      const scI18n = (sc.i18n && sc.i18n[currentLang]) || {};
+      const basePrompt = sc.prompt;
       const isPl = currentLang === 'pl';
       isNoiseActive = !isNoiseActive;
 
@@ -1676,7 +1670,7 @@
                   durationMs: sc.durationMs,
                   file: sc.file,
                   page: sc.page,
-                  explanation: currentExplanation || sc.explanation,
+                  explanation: currentExplanation,
                   quote: sc.quote
                 }, null, 2)
               }
@@ -1696,7 +1690,7 @@
         stdioStreamDisplay.innerHTML = `
           <div class="text-zinc-500 font-mono text-[10px] pb-1 border-b border-brand-border/40 flex justify-between">
             <span>${currentLang === 'pl' ? 'ZDARZENIA STDIN / STDOUT' : 'STDIN / STDOUT EVENTS'}</span>
-            <span class="text-brand-emerald">100% AIR-GAPPED</span>
+            <span class="text-brand-emerald">NO NETWORK PORTS</span>
           </div>
           <div class="text-zinc-400"><span class="text-zinc-500">[${timeStr}]</span> <span class="text-brand-cyan">[stdin]</span> JSON-RPC payload received (${BufferByteLength(sc.prompt)} bytes)</div>
           <div class="text-zinc-400"><span class="text-zinc-500">[${timeStr}]</span> <span class="text-brand-emerald">[corpus:load]</span> 7 markdown documents loaded into memory</div>
@@ -1765,7 +1759,7 @@
     btnCopyRpc.addEventListener('click', () => {
       const sc = SCENARIOS[currentScenarioIndex];
       const payload = activeRpcTab === 'res' 
-        ? { jsonrpc: "2.0", id: `req-${sc.id}`, result: { verdict: sc.verdict, explanation: currentExplanation || sc.explanation, quote: sc.quote } }
+        ? { jsonrpc: "2.0", id: `req-${sc.id}`, result: { verdict: sc.verdict, explanation: currentExplanation, quote: sc.quote } }
         : { jsonrpc: "2.0", method: "tools/call", params: { name: "verify", arguments: { claim: sc.prompt } } };
       
       navigator.clipboard.writeText(JSON.stringify(payload, null, 2)).then(() => {
@@ -1795,7 +1789,7 @@
 
       claimCategoryBadge.textContent = isQuestion ? (isPl ? 'ZAPYTANIE O FAKT' : 'FACT QUERY') : (isPl ? 'AUDYT TWIERDZENIA' : 'AUDITED CLAIM');
       claimIdBadge.textContent = 'CUSTOM';
-      if (promptGlossContainer) promptGlossContainer.classList.add('hidden');
+      renderPromptGloss(null);
 
       const t0 = performance.now();
       const verifyResult = clientEngine.verify(customInput);
@@ -1896,7 +1890,7 @@
         redlineStatusBadge.textContent = isPl ? 'UNSUPPORTED (BRAK OPARCIA W KORPUSIE)' : 'UNSUPPORTED (NO EVIDENCE IN CORPUS)';
         redlineStatusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-amber-900/50 text-amber-200 border border-amber-700/50 font-semibold';
 
-        redlineVerdictTag.textContent = 'STATUS: UNSUPPORTED';
+        redlineVerdictTag.textContent = `STATUS: ${sc.verdict}`;
         redlineVerdictTag.className = 'font-mono text-xs px-2 py-0.5 rounded bg-brand-darkCanvas border border-amber-500/40 text-amber-400 font-bold';
 
         redlineSourceTitle.textContent = isPl ? 'BRAK WYSTARCZAJĄCEGO OPARCIA:' : 'INSUFFICIENT EVIDENCE:';
@@ -1972,7 +1966,7 @@
         stdioStreamDisplay.innerHTML = `
           <div class="text-zinc-500 font-mono text-[10px] pb-1 border-b border-brand-border/40 flex justify-between">
             <span>${isPl ? 'ZDARZENIA STDIN / STDOUT' : 'STDIN / STDOUT EVENTS'}</span>
-            <span class="text-brand-emerald">100% AIR-GAPPED</span>
+            <span class="text-brand-emerald">NO NETWORK PORTS</span>
           </div>
           <div class="text-zinc-400"><span class="text-zinc-500">[${timeStr}]</span> <span class="text-brand-cyan">[stdin]</span> JSON-RPC ${toolName} payload (${BufferByteLength(customInput)} bytes)</div>
           <div class="text-zinc-400"><span class="text-zinc-500">[${timeStr}]</span> <span class="text-brand-emerald">[engine:tokenize]</span> Tokens: ${clientEngine.tokenize(customInput).join(', ')}</div>
@@ -1997,24 +1991,19 @@
       const archFiles = [
         `assets/01_verify_flow.${langSuffix}.svg`,
         `assets/02_ciso_data_boundary.${langSuffix}.svg`,
-        `assets/03_rag_vs_redline.${langSuffix}.svg`
-      ];
+        ];
       archImg.src = archFiles[tabIdx - 1];
       const i18nObj = I18N[currentLang] || I18N.en;
       archDescription.textContent = i18nObj[`arch_desc_${tabIdx}`] || '';
 
       tabArch1.className = tabIdx === 1 ? 'px-2.5 py-1 rounded text-xs font-mono bg-brand-emerald/20 text-brand-emerald border border-brand-emerald/40 font-semibold' : 'px-2.5 py-1 rounded text-xs font-mono text-zinc-400 hover:text-white';
       tabArch2.className = tabIdx === 2 ? 'px-2.5 py-1 rounded text-xs font-mono bg-brand-emerald/20 text-brand-emerald border border-brand-emerald/40 font-semibold' : 'px-2.5 py-1 rounded text-xs font-mono text-zinc-400 hover:text-white';
-      tabArch3.className = tabIdx === 3 ? 'px-2.5 py-1 rounded text-xs font-mono bg-brand-emerald/20 text-brand-emerald border border-brand-emerald/40 font-semibold' : 'px-2.5 py-1 rounded text-xs font-mono text-zinc-400 hover:text-white';
     }
 
     tabArch1.addEventListener('click', () => setArchTab(1));
     tabArch2.addEventListener('click', () => setArchTab(2));
-    tabArch3.addEventListener('click', () => setArchTab(3));
 
     // Modals event listeners
-    btnOpenInfographic.addEventListener('click', () => modalInfographic.classList.remove('hidden'));
-    btnCloseInfographic.addEventListener('click', () => modalInfographic.classList.add('hidden'));
 
     btnOpenArchitecture.addEventListener('click', () => {
       setArchTab(1);
@@ -2077,7 +2066,6 @@
     // Close modals on ESC or outside click
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
-        modalInfographic.classList.add('hidden');
         modalArchitecture.classList.add('hidden');
         modalDocViewer.classList.add('hidden');
         modalQuickstart.classList.add('hidden');
@@ -2086,7 +2074,7 @@
       }
     });
 
-    [modalInfographic, modalArchitecture, modalDocViewer, modalQuickstart, modalStory].forEach(modal => {
+    [modalArchitecture, modalDocViewer, modalQuickstart, modalStory].forEach(modal => {
       modal.addEventListener('click', (e) => {
         if (e.target === modal) {
           modal.classList.add('hidden');
@@ -2165,7 +2153,7 @@
 
       // Refresh doc modal title if open
       if (docModalTitle) {
-        docModalTitle.textContent = currentDoc ? currentDoc.title : (dict.doc_modal_title || 'Document Authority Viewer');
+        docModalTitle.textContent = currentDoc ? ((currentDoc.title && (currentDoc.title[lang] || currentDoc.title.en)) || currentDoc.title) : (dict.doc_modal_title || 'Document Authority Viewer');
       }
     }
 
