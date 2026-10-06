@@ -1,29 +1,10 @@
 flowchart TD
-    classDef clientStyle fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
-    classDef mcpStyle fill:#0f172a,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
-    classDef noLlmStyle fill:#064e3b,stroke:#34d399,stroke-width:3px,color:#ecfdf5,stroke-dasharray: 4 2;
-    classDef resultGrounded fill:#065f46,stroke:#10b981,stroke-width:2px,color:#ffffff;
-    classDef resultRefused fill:#7f1d1d,stroke:#f87171,stroke-width:2px,color:#ffffff;
-
-    UserPrompt["User Query / Business Assertion"]:::clientStyle --> Agent["LLM Agent / Host (Claude, Gemini, Cursor)"]:::clientStyle
-    Agent -- "tools/call: verify(claim)" --> MCPTransport["stdio Transport (Local Process Stream)"]:::mcpStyle
-
-    subgraph DeterministicEngine [" MCP-REDLINE ENGINE — ZERO LANGUAGE MODELS (100% DETERMINISTIC) "]
-        MCPTransport --> ParseTokens["Extract entities, numbers, dates and key terms"]:::noLlmStyle
-        ParseTokens --> CorpusLookup["Scan local corpus across Authority Tiers"]:::noLlmStyle
-        CorpusLookup --> ConflictCheck{"Contractual contradiction or stricken clause?"}:::noLlmStyle
-        
-        ConflictCheck -- "YES (e.g. barred CPI indexation, rejected penalty)" --> UnsupportedReason["Generate hard refusal with verbatim clause quote"]:::noLlmStyle
-        ConflictCheck -- "NO" --> MatchMetrics{"Exact numbers match & concept coverage >= 55%?"}:::noLlmStyle
-        
-        MatchMetrics -- "YES (Full evidential match)" --> GroundedBuild["Retrieve verbatim quote & location (file, page)"]:::noLlmStyle
-        MatchMetrics -- "NO (Insufficient proof)" --> MissingReason["Flag insufficient evidential support in source"]:::noLlmStyle
-    end
-
-    GroundedBuild --> ResultGrounded["VERDICT: GROUNDED\n(Status, File, Page, Verbatim Quote)"]:::resultGrounded
-    UnsupportedReason --> ResultUnsupported["VERDICT: UNSUPPORTED / CONTRADICTED\n(Explicit Refusal + Contradiction Details)"]:::resultRefused
-    MissingReason --> ResultUnsupported
-
-    ResultGrounded -- "JSON-RPC return via stdout" --> Agent
-    ResultUnsupported -- "JSON-RPC return via stdout" --> Agent
-    Agent --> FinalResponse["Confident answer with proof OR unequivocal refusal to hallucinate"]:::clientStyle
+  A["verify(claim)"] --> B["Extract terms, numbers, currencies, years"]
+  B --> C["Find candidate sentences and table rows in the corpus"]
+  C --> D["Score concept coverage (IDF, PL/EN lexicon)"]
+  D --> E["Check numbers, currency, year, parties, negation within the clause"]
+  E --> F["Apply source tier: Tier 1 > Tier 2 > Tier 3"]
+  F --> G{"Verdict"}
+  G --> H["GROUNDED + verbatim quote"]
+  G --> I["CONTRADICTED + counter-quote"]
+  G --> J["UNSUPPORTED + reason"]

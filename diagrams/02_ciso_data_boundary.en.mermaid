@@ -1,29 +1,6 @@
 flowchart LR
-    classDef safeZone fill:#064e3b,stroke:#059669,stroke-width:3px,color:#ecfdf5;
-    classDef cloudZone fill:#450a0a,stroke:#dc2626,stroke-width:2px,stroke-dasharray: 4 2,color:#fef2f2;
-    classDef nodeSafe fill:#0f172a,stroke:#34d399,stroke-width:2px,color:#f8fafc;
-    classDef forbidden fill:#7f1d1d,stroke:#f87171,stroke-width:2px,color:#fee2e2;
-
-    subgraph HostMachine [" LOCAL WORKSTATION / ON-PREMISE HOST (TOTAL ISOLATION) "]
-        CorpusStorage[("Local Document Corpus\n- Contracts & Addenda\n- Invoices & Price Lists\n- P&L & Balance Sheets\n- Board Minutes")]:::nodeSafe
-        
-        ServerProcess["mcp-redline Server Process\n(Node.js / binary)\n- 100% offline code\n- 0 open network sockets\n- 0 telemetry"]:::nodeSafe
-        
-        ClientAgent["MCP Client / Agent\n(Claude Desktop / Cursor / Terminal)"]:::nodeSafe
-        
-        CorpusStorage <--> |Local disk read| ServerProcess
-        ServerProcess <--> |Local stdio stream (stdin / stdout)| ClientAgent
-    end
-
-    subgraph ExternalInternet [" EXTERNAL ENVIRONMENT / PUBLIC CLOUD "]
-        CloudLLM["External Cloud LLM API"]:::forbidden
-        TelemetryServers["Analytics / Telemetry Endpoints"]:::forbidden
-        RemoteDB["Remote Databases / Vector DB"]:::forbidden
-    end
-
-    ServerProcess -.-x |BLOCKED: Zero HTTP/REST/gRPC calls| CloudLLM
-    ServerProcess -.-x |BLOCKED: Zero logging or telemetry dispatch| TelemetryServers
-    ServerProcess -.-x |BLOCKED: Zero cloud database synchronization| RemoteDB
-
-    class HostMachine safeZone;
-    class ExternalInternet cloudZone;
+  subgraph WS["Your workstation"]
+    C["Corpus files"] --> S["mcp-redline server<br/>stdio, no network ports"]
+    S <-->|"stdin / stdout"| H["MCP client<br/>Claude Desktop, Cursor"]
+  end
+  H <-->|"claim + returned quotes"| M["Language model<br/>cloud provider or local"]
