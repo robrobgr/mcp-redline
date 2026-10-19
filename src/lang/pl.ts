@@ -8,15 +8,33 @@ const TOKEN_RE = /[\p{L}][\p{L}\p{N}]*(?:[-'’][\p{L}\p{N}]+)*/gu;
 const B = "(?<![\\p{L}\\p{N}])";
 const E = "(?![\\p{L}\\p{N}])";
 
+const ROMAN_MAP: Record<string, string> = {
+  i: "1", ii: "2", iii: "3", iv: "4", v: "5", vi: "6",
+};
+
 function tokenize(text: string): string[] {
+  const lower = text.toLowerCase();
   const out: string[] = [];
-  for (const t of text.toLowerCase().match(TOKEN_RE) || []) {
+  for (const t of lower.match(TOKEN_RE) || []) {
     out.push(t);
     if (t.includes("-")) {
       for (const part of t.split("-")) {
         if (/^[\p{L}]+$/u.test(part)) out.push(part);
       }
     }
+  }
+  const compRe = /(?<![\p{L}\p{N}])(etap\p{L}*|faz\p{L}*|aneks\p{L}*|załącznik\p{L}*)\s+(?:nr\.?\s*)?(i{1,3}|iv|vi?|[1-9])(?![\p{L}\p{N}])/gu;
+  let m: RegExpExecArray | null;
+  while ((m = compRe.exec(lower))) {
+    const rawHead = m[1];
+    const rawIdx = m[2];
+    const idx = ROMAN_MAP[rawIdx] || rawIdx;
+    const head = rawHead.startsWith("etap") || rawHead.startsWith("faz")
+      ? "etap"
+      : rawHead.startsWith("aneks")
+        ? "aneks"
+        : "zalacznik";
+    out.push(`${head}_${idx}`);
   }
   return out.filter((t) => t.length >= 2);
 }
@@ -27,6 +45,7 @@ function isAscii(s: string): boolean {
 
 function stemMatch(a: string, b: string): boolean {
   if (a === b) return true;
+  if (/\d/.test(a) || /\d/.test(b)) return false;
   if (a + "s" === b || b + "s" === a) return true;
   const m = Math.min(a.length, b.length);
   if (m <= 3) return false;

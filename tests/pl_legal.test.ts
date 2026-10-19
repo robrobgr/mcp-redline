@@ -105,7 +105,7 @@ describe("mcp-redline — Polish legal semantics (v1.4.0 failure classes)", () =
     assert.strictEqual(rForm.status, "GROUNDED");
   });
 
-  it("Class 4: Chronological supersession — later amendment overrides earlier contract", () => {
+  it("Class 4: Chronological supersession — later amendment overrides only the specific term it changes", () => {
     // 60 days confirmed in Aneks 1 (later doc)
     const rNew = engine.verify("Okres wypowiedzenia Umowy wynosi 60 dni.");
     assert.strictEqual(rNew.status, "GROUNDED");
@@ -116,6 +116,49 @@ describe("mcp-redline — Polish legal semantics (v1.4.0 failure classes)", () =
     assert.strictEqual(rOld.status, "CONTRADICTED");
     assert.strictEqual(rOld.file, "02_Aneks_2024-06-15.md");
     assert.ok(rOld.reasonCodes.includes("SUPERSEDED_BY_LATER_DOCUMENT"));
+
+    // Inline snippet corpus: amendment changes Stage II price; Stage I, Stage III, and conclusion date stay GROUNDED
+    const stageEngine = new RedlineEngine(undefined, "pl");
+    stageEngine.loadDocuments([
+      {
+        file: "01_Umowa_wdrozeniowa_2024-03-05.md",
+        content: [
+          "# Umowa wdrożeniowa z dnia 5 marca 2024 r.",
+          "Zawarta w Poznaniu pomiędzy Alfa S.A. (Zamawiający) a Beta sp. z o.o. (Dostawca).",
+          "## § 1 Wynagrodzenie",
+          "1. Wynagrodzenie za Etap I wynosi 150 000 PLN netto.",
+          "2. Wynagrodzenie za Etap II wynosi 300 000 PLN netto.",
+          "3. Wynagrodzenie za Etap III wynosi 450 000 PLN netto.",
+        ].join("\n"),
+      },
+      {
+        file: "02_Aneks_nr_1_2024-09-12.md",
+        content: [
+          "# Aneks nr 1 z dnia 12 września 2024 r. do Umowy wdrożeniowej",
+          "## § 1 Zmiana wynagrodzenia za Etap II",
+          "1. Wynagrodzenie za Etap II zmienia się na kwotę 350 000 PLN netto.",
+        ].join("\n"),
+      },
+    ]);
+
+    // Amended Stage II old price is contradicted by the amendment
+    const rStage2Old = stageEngine.verify("Wynagrodzenie za Etap II wynosi 300 000 PLN netto.");
+    assert.strictEqual(rStage2Old.status, "CONTRADICTED");
+    assert.ok(rStage2Old.reasonCodes.includes("SUPERSEDED_BY_LATER_DOCUMENT"));
+
+    // Unamended Stage I and Stage III prices stay GROUNDED
+    const rStage1 = stageEngine.verify("Wynagrodzenie za Etap I wynosi 150 000 PLN netto.");
+    assert.strictEqual(rStage1.status, "GROUNDED");
+
+    const rStage3 = stageEngine.verify("Wynagrodzenie za Etap III wynosi 450 000 PLN netto.");
+    assert.strictEqual(rStage3.status, "GROUNDED");
+
+    // Base agreement conclusion date and place stay GROUNDED (not overridden by amendment date)
+    const rConclusionDate = stageEngine.verify("Umowa wdrożeniowa została zawarta 5 marca 2024 r.");
+    assert.strictEqual(rConclusionDate.status, "GROUNDED");
+
+    const rConclusionPlace = stageEngine.verify("Umowa wdrożeniowa została zawarta w Poznaniu.");
+    assert.strictEqual(rConclusionPlace.status, "GROUNDED");
   });
 
   it("Class 5: Named dates & number matching", () => {

@@ -178,6 +178,7 @@ export function extractNumbers(
     "giu"
   );
   t = t.replace(clauseRefRe, " ");
+  t = t.replace(/(?<![\p{L}\p{N}])(?:aneks\p{L}*|załącznik\p{L}*|annex|amendment|addendum|stage|phase|etap\p{L}*)\s+(?:nr\.?\s*|no\.?\s*)?\d+(?![\p{L}\p{N}])/giu, " ");
   t = t.replace(/\d{1,2}:\d{2}/g, " ");
   t = t.replace(/\d+\/\d+/g, " ");
   t = t.replace(/^\s*(?:[>*#-]\s*)*\d+(?:\.\d+)+\.?\s/, " "); // 3.1 …
@@ -467,12 +468,18 @@ export class RedlineEngineCore {
       if (!line || /^-{3,}$/.test(line)) continue;
       if (/^#{1,6}\s/.test(line)) {
         const cleanHeader = line.replace(/^#{1,6}\s+/, "").trim();
-        const hasHeaderDate =
-          /\b20\d{2}\b/.test(cleanHeader) ||
-          ALL_PACKS.some((p) => p.numberFormat.headerDatePattern.test(cleanHeader));
+        const hasNamedHeaderDate = ALL_PACKS.some((p) => p.numberFormat.headerDatePattern.test(cleanHeader));
+        const hasHeaderDate = /\b20\d{2}\b/.test(cleanHeader) || hasNamedHeaderDate;
         if (hasHeaderDate && secPack.tokenize(cleanHeader).length >= 4) {
           const cur = currenciesIn(cleanHeader);
-          push(cleanHeader, cleanHeader, [], cur.size === 1 ? [...cur][0] : undefined);
+          let headerTokenText = cleanHeader;
+          if (/^(?:aneks|załącznik|protokół|amendment|addendum|annex)\b/iu.test(cleanHeader)) {
+            headerTokenText = headerTokenText.replace(/\s+(?:do\s+umowy|to\s+(?:the\s+)?(?:master\s+)?agreement)[\p{L}\p{N}\s./-]*/iu, " ");
+          }
+          if (hasNamedHeaderDate && /^(?:umow|aneks|porozumien|agreement|contract|amendment|addendum|annex)\b/iu.test(cleanHeader)) {
+            headerTokenText += " zawarta podpisano signed";
+          }
+          push(cleanHeader, headerTokenText, [], cur.size === 1 ? [...cur][0] : undefined);
         }
         continue;
       }
@@ -586,12 +593,14 @@ export class RedlineEngineCore {
     const isContractTerm = (t: string) => ALL_PACKS.some((p) => p.contractTerms.has(t));
     const isWeekday = (t: string) => ALL_PACKS.some((p) => p.weekdays.includes(t));
 
+    const hasCompoundIdx = toks.some((t) => /^(?:etap|aneks|zalacznik)_\d+$/.test(t));
     const negative = toks.some(isNeg);
     const content = new Set<string>();
     for (const t of toks) {
       for (const p of ALL_PACKS) {
         if (p.unprefix[t]) content.add(p.unprefix[t]);
       }
+      if (hasCompoundIdx && /^(?:ii|iii|iv|vi)$/.test(t)) continue;
       if (isNeg(t) || isStopword(t) || isGeneric(t) || currencyOf(t)) continue;
       if (this.parties.some((p) => p.tokens.includes(t))) continue; // who, not what: checked via partyMismatch
       content.add(t);
@@ -621,7 +630,11 @@ export class RedlineEngineCore {
       (t) => content.has(t) && !CANONICAL_MONTHS.includes(t) && !isWeekday(t) && !isContractTerm(t)
     );
     for (const t of content) {
-      if (DECISIVE_CONCEPT_GROUPS.some((g) => g.some((m) => memberMatch(m, t, claimPack))) && !proper.includes(t)) {
+      if (
+        (DECISIVE_CONCEPT_GROUPS.some((g) => g.some((m) => memberMatch(m, t, claimPack))) ||
+          /^(?:etap|aneks|zalacznik)_\d+$/.test(t)) &&
+        !proper.includes(t)
+      ) {
         proper.push(t);
       }
     }
@@ -907,11 +920,29 @@ export class RedlineEngineCore {
     // A value conflict with an equal-tier source while the exact value is confirmed elsewhere
     // just means the source mentions another figure (e.g. quarterly vs annual fee), UNLESS
     // the conflicting source has a later document date (e.g. amendment / annex).
+    const isMonthToken = (t: string) =>
+      CONCEPT_GROUPS.slice(-12).some((g) => g.some((m) => memberMatch(m, t, claimPack)));
+    const claimAsksAmendment = f.content.some((t) =>
+      /^(?:aneks|zalacznik|annex|amendment|addendum)/i.test(t)
+    );
+    const isChronologicalSupersession = (c: UnitScore, s: UnitScore) => {
+      if (c.unit.tier !== s.unit.tier || c.unit.docDate <= s.unit.docDate) return false;
+      if (!(c.valueConflict || c.antonymConflict)) return false;
+      if (c.contraCoverage < Math.max(THRESHOLDS.contradict, s.contraCoverage - THRESHOLDS.tieMargin)) return false;
+      // An amendment/protocol header or preamble never supersedes the base agreement's own conclusion metadata
+      if (!claimAsksAmendment && /^(?:aneks|załącznik|protokół|amendment|addendum|annex|zawarty\b)/iu.test(c.unit.text)) {
+        return false;
+      }
+      // Must match the same subject AND same attribute: every non-month content token matched by s must also be matched by c
+      const sMatchedNonMonth = f.content.filter(
+        (t) => !isMonthToken(t) && (s.matched.includes(t) || s.matched.includes(`${t}^`))
+      );
+      return sMatchedNonMonth.every((t) => c.matched.includes(t) || c.matched.includes(`${t}^`));
+    };
     const overrides = (c: UnitScore) =>
       !bestS ||
       (c.unit.tier < bestS.unit.tier && c.contraCoverage >= THRESHOLDS.override * bestS.contraCoverage) ||
-      (c.unit.tier === bestS.unit.tier && c.unit.docDate > bestS.unit.docDate && (c.valueConflict || c.antonymConflict) &&
-        c.contraCoverage >= THRESHOLDS.contradict) ||
+      isChronologicalSupersession(c, bestS) ||
       (c.unit.tier === bestS.unit.tier && polarityContra(c) && c.numbersOk &&
         c.contraCoverage >= bestS.contraCoverage - THRESHOLDS.tieMargin);
     const bestC = pick(contras.filter(overrides));

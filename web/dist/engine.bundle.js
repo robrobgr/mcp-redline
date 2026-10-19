@@ -93,15 +93,33 @@ var RedlineBundle = (() => {
   var TOKEN_RE = /[\p{L}][\p{L}\p{N}]*(?:[-'’][\p{L}\p{N}]+)*/gu;
   var B = "(?<![\\p{L}\\p{N}])";
   var E = "(?![\\p{L}\\p{N}])";
+  var ROMAN_MAP = {
+    i: "1",
+    ii: "2",
+    iii: "3",
+    iv: "4",
+    v: "5",
+    vi: "6"
+  };
   function tokenize(text) {
+    const lower = text.toLowerCase();
     const out = [];
-    for (const t of text.toLowerCase().match(TOKEN_RE) || []) {
+    for (const t of lower.match(TOKEN_RE) || []) {
       out.push(t);
       if (t.includes("-")) {
         for (const part of t.split("-")) {
           if (/^[\p{L}]+$/u.test(part)) out.push(part);
         }
       }
+    }
+    const compRe = /(?<![\p{L}\p{N}])(stage|phase|annex|amendment|addendum)\s+(?:no\.?\s*)?(i{1,3}|iv|vi?|[1-9])(?![\p{L}\p{N}])/gu;
+    let m;
+    while (m = compRe.exec(lower)) {
+      const rawHead = m[1];
+      const rawIdx = m[2];
+      const idx = ROMAN_MAP[rawIdx] || rawIdx;
+      const head = rawHead === "stage" || rawHead === "phase" ? "etap" : "aneks";
+      out.push(`${head}_${idx}`);
     }
     return out.filter((t) => t.length >= 2);
   }
@@ -110,6 +128,7 @@ var RedlineBundle = (() => {
   }
   function stemMatch(a, b) {
     if (a === b) return true;
+    if (/\d/.test(a) || /\d/.test(b)) return false;
     if (a + "s" === b || b + "s" === a) return true;
     const m = Math.min(a.length, b.length);
     if (m <= 3) return false;
@@ -522,15 +541,33 @@ var RedlineBundle = (() => {
   var TOKEN_RE2 = /[\p{L}][\p{L}\p{N}]*(?:[-'’][\p{L}\p{N}]+)*/gu;
   var B2 = "(?<![\\p{L}\\p{N}])";
   var E2 = "(?![\\p{L}\\p{N}])";
+  var ROMAN_MAP2 = {
+    i: "1",
+    ii: "2",
+    iii: "3",
+    iv: "4",
+    v: "5",
+    vi: "6"
+  };
   function tokenize2(text) {
+    const lower = text.toLowerCase();
     const out = [];
-    for (const t of text.toLowerCase().match(TOKEN_RE2) || []) {
+    for (const t of lower.match(TOKEN_RE2) || []) {
       out.push(t);
       if (t.includes("-")) {
         for (const part of t.split("-")) {
           if (/^[\p{L}]+$/u.test(part)) out.push(part);
         }
       }
+    }
+    const compRe = /(?<![\p{L}\p{N}])(etap\p{L}*|faz\p{L}*|aneks\p{L}*|załącznik\p{L}*)\s+(?:nr\.?\s*)?(i{1,3}|iv|vi?|[1-9])(?![\p{L}\p{N}])/gu;
+    let m;
+    while (m = compRe.exec(lower)) {
+      const rawHead = m[1];
+      const rawIdx = m[2];
+      const idx = ROMAN_MAP2[rawIdx] || rawIdx;
+      const head = rawHead.startsWith("etap") || rawHead.startsWith("faz") ? "etap" : rawHead.startsWith("aneks") ? "aneks" : "zalacznik";
+      out.push(`${head}_${idx}`);
     }
     return out.filter((t) => t.length >= 2);
   }
@@ -539,6 +576,7 @@ var RedlineBundle = (() => {
   }
   function stemMatch2(a, b) {
     if (a === b) return true;
+    if (/\d/.test(a) || /\d/.test(b)) return false;
     if (a + "s" === b || b + "s" === a) return true;
     const m = Math.min(a.length, b.length);
     if (m <= 3) return false;
@@ -1319,6 +1357,7 @@ var RedlineBundle = (() => {
       "giu"
     );
     t = t.replace(clauseRefRe, " ");
+    t = t.replace(/(?<![\p{L}\p{N}])(?:aneks\p{L}*|załącznik\p{L}*|annex|amendment|addendum|stage|phase|etap\p{L}*)\s+(?:nr\.?\s*|no\.?\s*)?\d+(?![\p{L}\p{N}])/giu, " ");
     t = t.replace(/\d{1,2}:\d{2}/g, " ");
     t = t.replace(/\d+\/\d+/g, " ");
     t = t.replace(/^\s*(?:[>*#-]\s*)*\d+(?:\.\d+)+\.?\s/, " ");
@@ -1547,10 +1586,18 @@ var RedlineBundle = (() => {
         if (!line || /^-{3,}$/.test(line)) continue;
         if (/^#{1,6}\s/.test(line)) {
           const cleanHeader = line.replace(/^#{1,6}\s+/, "").trim();
-          const hasHeaderDate = /\b20\d{2}\b/.test(cleanHeader) || ALL_PACKS.some((p) => p.numberFormat.headerDatePattern.test(cleanHeader));
+          const hasNamedHeaderDate = ALL_PACKS.some((p) => p.numberFormat.headerDatePattern.test(cleanHeader));
+          const hasHeaderDate = /\b20\d{2}\b/.test(cleanHeader) || hasNamedHeaderDate;
           if (hasHeaderDate && secPack.tokenize(cleanHeader).length >= 4) {
             const cur = currenciesIn(cleanHeader);
-            push(cleanHeader, cleanHeader, [], cur.size === 1 ? [...cur][0] : void 0);
+            let headerTokenText = cleanHeader;
+            if (/^(?:aneks|załącznik|protokół|amendment|addendum|annex)\b/iu.test(cleanHeader)) {
+              headerTokenText = headerTokenText.replace(/\s+(?:do\s+umowy|to\s+(?:the\s+)?(?:master\s+)?agreement)[\p{L}\p{N}\s./-]*/iu, " ");
+            }
+            if (hasNamedHeaderDate && /^(?:umow|aneks|porozumien|agreement|contract|amendment|addendum|annex)\b/iu.test(cleanHeader)) {
+              headerTokenText += " zawarta podpisano signed";
+            }
+            push(cleanHeader, headerTokenText, [], cur.size === 1 ? [...cur][0] : void 0);
           }
           continue;
         }
@@ -1658,12 +1705,14 @@ var RedlineBundle = (() => {
       const isGeneric = (t) => ALL_PACKS.some((p) => p.generic.has(t));
       const isContractTerm = (t) => ALL_PACKS.some((p) => p.contractTerms.has(t));
       const isWeekday = (t) => ALL_PACKS.some((p) => p.weekdays.includes(t));
+      const hasCompoundIdx = toks.some((t) => /^(?:etap|aneks|zalacznik)_\d+$/.test(t));
       const negative = toks.some(isNeg);
       const content = /* @__PURE__ */ new Set();
       for (const t of toks) {
         for (const p of ALL_PACKS) {
           if (p.unprefix[t]) content.add(p.unprefix[t]);
         }
+        if (hasCompoundIdx && /^(?:ii|iii|iv|vi)$/.test(t)) continue;
         if (isNeg(t) || isStopword(t) || isGeneric(t) || currencyOf(t)) continue;
         if (this.parties.some((p) => p.tokens.includes(t))) continue;
         content.add(t);
@@ -1693,7 +1742,7 @@ var RedlineBundle = (() => {
         (t) => content.has(t) && !CANONICAL_MONTHS3.includes(t) && !isWeekday(t) && !isContractTerm(t)
       );
       for (const t of content) {
-        if (DECISIVE_CONCEPT_GROUPS.some((g) => g.some((m) => memberMatch(m, t, claimPack))) && !proper.includes(t)) {
+        if ((DECISIVE_CONCEPT_GROUPS.some((g) => g.some((m) => memberMatch(m, t, claimPack))) || /^(?:etap|aneks|zalacznik)_\d+$/.test(t)) && !proper.includes(t)) {
           proper.push(t);
         }
       }
@@ -1962,7 +2011,23 @@ var RedlineBundle = (() => {
       const contras = scored.filter((s) => s.contraCoverage >= THRESHOLDS.contradict && s.full >= minFull && (s.valueConflict && !s.modalityMismatch || polarityContra(s)) && (f.proper.length === 0 || f.proper.every((t) => s.matched.some((m) => m.startsWith(t)))));
       const pick = (arr) => arr.slice().sort((a, b) => a.unit.tier - b.unit.tier || b.unit.docDate - a.unit.docDate || b.score - a.score)[0];
       const bestS = pick(supports);
-      const overrides = (c) => !bestS || c.unit.tier < bestS.unit.tier && c.contraCoverage >= THRESHOLDS.override * bestS.contraCoverage || c.unit.tier === bestS.unit.tier && c.unit.docDate > bestS.unit.docDate && (c.valueConflict || c.antonymConflict) && c.contraCoverage >= THRESHOLDS.contradict || c.unit.tier === bestS.unit.tier && polarityContra(c) && c.numbersOk && c.contraCoverage >= bestS.contraCoverage - THRESHOLDS.tieMargin;
+      const isMonthToken = (t) => CONCEPT_GROUPS.slice(-12).some((g) => g.some((m) => memberMatch(m, t, claimPack)));
+      const claimAsksAmendment = f.content.some(
+        (t) => /^(?:aneks|zalacznik|annex|amendment|addendum)/i.test(t)
+      );
+      const isChronologicalSupersession = (c, s) => {
+        if (c.unit.tier !== s.unit.tier || c.unit.docDate <= s.unit.docDate) return false;
+        if (!(c.valueConflict || c.antonymConflict)) return false;
+        if (c.contraCoverage < Math.max(THRESHOLDS.contradict, s.contraCoverage - THRESHOLDS.tieMargin)) return false;
+        if (!claimAsksAmendment && /^(?:aneks|załącznik|protokół|amendment|addendum|annex|zawarty\b)/iu.test(c.unit.text)) {
+          return false;
+        }
+        const sMatchedNonMonth = f.content.filter(
+          (t) => !isMonthToken(t) && (s.matched.includes(t) || s.matched.includes(`${t}^`))
+        );
+        return sMatchedNonMonth.every((t) => c.matched.includes(t) || c.matched.includes(`${t}^`));
+      };
+      const overrides = (c) => !bestS || c.unit.tier < bestS.unit.tier && c.contraCoverage >= THRESHOLDS.override * bestS.contraCoverage || isChronologicalSupersession(c, bestS) || c.unit.tier === bestS.unit.tier && polarityContra(c) && c.numbersOk && c.contraCoverage >= bestS.contraCoverage - THRESHOLDS.tieMargin;
       const bestC = pick(contras.filter(overrides));
       const contraReasonDetails = (c) => {
         const codes = [];
