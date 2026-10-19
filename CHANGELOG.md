@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.0] — 2026-10-19
+
+### Added
+- **Polish legal semantics:** Added reasoning support for five legal failure classes in Polish contracts:
+  - *Modality vs. fact:* Distinguishes contractual permissions/obligations (`może`, `ma prawo`, `zobowiązany`) from past factual actions (`naliczył`, `rozwiązał`, `usunął`, `zażądał`). Emits `MODALITY_MISMATCH` when a factual claim relies solely on an unexecuted permission.
+  - *Party and role semantics:* Extracts contractual roles (`zamawiający` as customer, `dostawca` as supplier) and checks subject/recipient binding. Emits `ROLE_MISMATCH` when parties or roles are inverted.
+  - *Polish morphological negation and antonyms:* Added morphological antonym detection for `nie-` prefixes (`wyłączna` vs `niewyłączna`, `określony` vs `nieoznaczony`, `istotna` vs `nieistotna`) and handled legal ad solemnitatem formulas (`pod rygorem nieważności`).
+  - *Chronological supersession:* Extracts document and amendment dates from filenames and headers (`YYYY-MM-DD`, `DD MMMM YYYY`). Later amendments in equal authority tiers override earlier agreements, emitting `SUPERSEDED_BY_LATER_DOCUMENT`.
+  - *Named date extraction & amendment replacement:* Added Polish and English named date parsing (`30 września 2025 r.`) with month-aware rival detection. Handles contractual replacement clauses (`zastępuje się okresem 60-dniowym`) to mark replaced figures as superseded.
+- **Reason codes & bilingual messages:** Added `MODALITY_MISMATCH`, `SUPERSEDED_BY_LATER_DOCUMENT`, and `ROLE_MISMATCH` to `src/messages.ts` with complete EN and PL explanations.
+- **Evaluation suite expansion:** Added `npm run eval:pl` targeting Polish legal corpus (`eval_pl/corpus`, `eval_pl/claims.json`).
+- **Comprehensive unit tests:** Added `tests/pl_legal.test.ts` covering all five legal semantics classes.
+
+### Changed
+- Refined `polarityContra` and `contras` filtering to require that negative units denying positive factual claims match the action predicate and that contradictions preserve decisive proper entities.
+- Defined `CONTRACT_TERMS` to prevent structural contract vocabulary (`umowa`, `etap`, `aneks`) from being misclassified as proper nouns.
+
+---
+
 ## [1.3.3] — 2026-10-06
 
 ### Fixed
