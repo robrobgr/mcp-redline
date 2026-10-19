@@ -58,11 +58,14 @@ npm run demo
 
 ## Benchmark & Evaluation
 
-Run the automated evaluation harness over 64 assertions:
+Run the automated evaluation harnesses over the English/bilingual corpus (64 claims) and the Polish legal case file corpus (44 claims):
 
 ```bash
-npm run eval
+npm run eval       # 64 claims (corpus/ + prompts_eval/claims.json)
+npm run eval:pl    # 44 Polish legal claims (eval_pl/corpus/ + eval_pl/claims.json)
 ```
+
+### English / Bilingual Benchmark (`prompts_eval`, n = 64)
 
 | Split | Claims (n) | 3-Class Accuracy | False GROUNDED | Facts Confirmed | Non-facts Refused |
 |---|---|---|---|---|---|
@@ -71,8 +74,14 @@ npm run eval
 | `holdout` | 23 | 87% (20/23) | **0** | 10/10 (100%) | 13/13 (100%) |
 | **TOTAL** | **64** | **91% (58/64)** | **0** | **32/32 (100%)** | **32/32 (100%)** |
 
+### Polish Legal Benchmark (`eval_pl`, n = 44)
+
+| Split | Claims (n) | 3-Class Accuracy | False GROUNDED | Facts Confirmed | Non-facts Refused |
+|---|---|---|---|---|---|
+| `dev` (`D01`–`D44`) | 44 | **100% (44/44)** | **0** | **17/17 (100%)** | **27/27 (100%)** |
+
 > [!NOTE]
-> **Safe Asymmetry:** All 6 discrepancies out of 64 are conservative refusals (`UNSUPPORTED` instead of `CONTRADICTED`, or one `CONTRADICTED` instead of `UNSUPPORTED`). False-GROUNDED rate is strictly 0.
+> **Safe Asymmetry:** All 6 discrepancies out of 64 on `prompts_eval` are conservative refusals (`UNSUPPORTED` instead of `CONTRADICTED`, or one `CONTRADICTED` instead of `UNSUPPORTED`). False-GROUNDED rate is strictly 0 across both suites.
 
 > [!WARNING]
 > **Contaminated Holdout Disclosure:**  
@@ -82,25 +91,27 @@ npm run eval
 
 ## How `verify` Works
 
-The engine contains **no corpus-specific heuristics or hardcoded trap rules**. Generality is validated against an independent synthetic corpus (lease agreement) in `tests/server.test.ts`.
+The engine is split into a language-neutral core ([`src/engine.ts`](src/engine.ts)) and per-language packs ([`src/lang/en.ts`](src/lang/en.ts), [`src/lang/pl.ts`](src/lang/pl.ts)) implementing `LanguagePack`. It contains **no corpus-specific heuristics or hardcoded trap rules**.
 
 1. **Verbatim Units:** Corpus is split into sentence units, key-value rows, and table lines. Every returned quote is an exact substring of the source file.
-2. **Weighted Concept Coverage:** Rare terms carry higher weight (IDF), supplemented by a bilingual PL/EN domain lexicon and lightweight stemming. Proper nouns must be present in the quoted unit itself.
-3. **Number & Currency Matching:** Numeric tokens are typed (money, percentage, year, count). Mismatched numbers or currencies produce immediate contradiction.
-4. **Negation Scope:** Polarity is evaluated within the specific clause governing the matched terms. An affirmative mention elsewhere does not contradict a valid negative fact.
-5. **Reported Speech vs Fact:** Mere proposals or meeting requests ("COO requested penalty...") do not confirm that an action occurred.
-6. **Party Binding:** Defined entity tokens (`("Supplier" or "Apex Meridian")`) prevent attributing terms of one party to another.
-7. **Authority Tiers:** Tier 1 (executed contracts, invoices, balance sheets) overrides Tier 2 (CRM) and Tier 3 (email correspondence).
-8. **Compound Claims:** Up to 3 adjacent units of a single record (e.g. invoice number, amount, payment bank) may be combined. Prose sentences are never stitched together.
+2. **Weighted Concept Coverage:** Rare terms carry higher weight (IDF), supplemented by language-pack lexicons and stemming. Proper nouns and stage/annex identifiers must be present in the quoted unit itself.
+3. **Whole-Token & Clause-Scoped Numbers:** Numeric tokens are typed (money, percentage, year, count) with strict whole-number boundaries across space/NBSP/separator thousand groups and scoped to the clause matching the claim's stage or annex qualifier.
+4. **Bidirectional Negation Scope:** Polarity is evaluated within the governing clause across verb negation (`not`, `nie`), prepositional antonymy (`bez X` vs `z X`, `without` vs `with`), and productive morphological `nie-`/`non-` prefixes, while ignoring legal validity formulas (`pod rygorem nieważności`).
+5. **Modality vs. Completed Events:** Contractual norms, permissions, obligations, and payment deadlines (`may`, `shall`, `może`, `zobowiązuje się`, `płatne w terminie`) never ground claims of completed events in active past, passive participle (`zostało zapłacone`), or impersonal (`naliczono`, `odebrano`) form (`MODALITY_MISMATCH`).
+6. **Multi-Slot Party & Role Binding:** Defined entity names and contractual roles (`Supplier`/`Dostawca`, `Customer`/`Zamawiający`) are bound across nominative subject, dative/prepositional recipient, and genitive possessor slots (`ROLE_MISMATCH`).
+7. **Authority Tiers & Term-Level Chronology:** Tier 1 (executed contracts, amendments, protocols, invoices) overrides Tier 2 (CRM) and Tier 3 (email). Within the same tier, a later amendment supersedes an earlier agreement only on clauses sharing the same subject and attribute (`SUPERSEDED_BY_LATER_DOCUMENT`).
+8. **Event–Date Binding:** Dates are bound to their event category (`signing`, `readiness`, `acceptance`, `issuance`, `delivery`, `deadline`, `effective`) so one date on a stage or annex never grounds a claim about another event.
+9. **Compound Claims:** Up to 3 adjacent units of a single record (e.g. invoice number, amount, payment bank) may be combined. Prose sentences are never stitched together.
 
 ---
 
-## Limitations
+## Known Limitations
 
-* **Lexical matching, not deep semantic inference:** Paraphrases outside the domain lexicon result in `UNSUPPORTED` (a safe failure mode). Adapting to a new domain requires expanding `GROUPS` in `src/engine.ts`.
-* **Single assertion per verify:** Sentences combining facts from distinct documents are not combined into a synthetic composite; agents should split them into separate `verify` calls.
-* **Table column layout:** Numeric values are bound to table rows rather than individual header columns.
-* **Tier extraction:** Currently inferred from filename patterns (`Email`, `CRM`, etc.) rather than metadata frontmatter.
+* **Lexical and morphological matching, not deep semantic inference:** Paraphrases outside the language-pack lexicons (`src/lang/en.ts`, `src/lang/pl.ts`) result in `UNSUPPORTED` (a safe failure mode). Adapting to a new domain requires expanding `LEXICON_GROUPS` in the language pack.
+* **Single assertion per verify:** Sentences combining facts from distinct prose sentences or documents are not stitched into a synthetic composite; agents should split them into separate `verify` calls.
+* **Multi-hop arithmetic and conditional calculation:** The engine verifies explicit figures and replacement clauses (`replaces X with Y`), but does not compute derived totals, interest accruals, or multi-step arithmetic across clauses.
+* **Table column layout:** Numeric values in markdown tables are bound to table rows and header years rather than arbitrary multi-column matrix coordinates.
+* **Tier extraction:** Inferred from filename patterns (`Email`, `CRM`, etc.) rather than document frontmatter metadata.
 * **Section/Page indexing in markdown and prose:** In plain markdown and prose documents without physical pagination, the `page` field returned in results refers to logical sections (delimited by headers `#`, `##`, `###`) rather than physical printed page numbers.
 
 ---

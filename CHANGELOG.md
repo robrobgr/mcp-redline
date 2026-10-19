@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.1] — 2026-10-19
+
+### Added
+- **Language-pack architecture (`src/lang/{index,en,pl}.ts`):** Extracted all language-specific tokenization, stemming, stopwords, negation morphology, legal formulas, modality/completed-event verb patterns, role lexicons, event–date categories, number/date formats, and message catalogs into dedicated `en` and `pl` language packs implementing `LanguagePack`, leaving `src/engine.ts` as a language-neutral verification core.
+- **Expanded Polish legal evaluation benchmark (`eval_pl/claims.json`):** Extended the Polish legal dev suite from 32 to 44 claims (`D01`–`D44`), testing general legal-semantic edge cases across modality, supersession, negation, party roles, and event–date binding (44/44 accuracy, 0 false `GROUNDED`).
+
+### Fixed
+- **General modality vs. completed-event detection:** Extended normative/modal cue detection (`jest płatne w terminie`, `w terminie N dni od`, `uprawnia do`, `podlega`, future tense) and completed-event detection across active past tense (`-ł/-ła/-li`), passive constructions (`został/została/zostało/zostały` + past participle `-ny/-na/-ne/-ty/-ta/-te`), and impersonal past forms (`-no/-to`, e.g. `naliczono`, `odebrano`, `wysłano`, `zasądzono`). Norms and payment deadlines never ground claims that an event occurred (`MODALITY_MISMATCH`).
+- **Term-level chronological supersession:** Restricted same-tier chronological override (`isChronologicalSupersession`) so that a later amendment or protocol overrides an earlier contract only when it matches the same subject and attribute terms, and prevented amendment headers/preambles from overriding the base contract's conclusion date or place.
+- **Whole-token and clause-scoped number matching:** Enforced whole-number boundaries across space/NBSP/separator thousand groups so a suffix (e.g. `280 000`) never matches inside a larger number (`1 280 000`), and scoped number comparison to the specific clause matching the claim's stage/annex qualifier.
+- **Bidirectional prepositional, verb, and morphological negation:** Added prepositional antonym extraction (`bez X` vs `z X`, `without X` vs `with X`), bidirectional verb negation (`nie <verb>` vs `<verb>`), and productive Polish `nie-` prefix stripping on adjectives, participles, and nouns.
+- **Multi-slot party role binding:** Extended `extractRoles` to bind `supplier` (`dostawca`, `wykonawca`) and `customer` (`zamawiający`, `klient`) across nominative subject, dative/prepositional recipient (`wobec`, `na rzecz`, `przez`), and genitive possessor slots (`zgody Dostawcy` vs `zgody Zamawiającego`), emitting `CONTRADICTED` (`ROLE_MISMATCH`) on role inversion.
+- **Event–date binding:** Bound dates to their specific event categories (`signing`, `readiness`, `acceptance`, `issuance`, `delivery`, `deadline`, `effective`) so that a readiness notice date, acceptance date, signing date, or completion deadline cannot cross-match or falsely ground a different event on the same stage or annex.
+
+---
+
 ## [1.4.0] — 2026-10-19
 
 ### Added

@@ -111,6 +111,7 @@ ${results.map(row).join("\n")}
 
 Raw responses (with verbatim quotes and explanations): [\`results_raw.json\`](results_raw.json).
 ${fs.existsSync(path.join(outDir, "HOLDOUT_LOG.md")) ? "\n" + fs.readFileSync(path.join(outDir, "HOLDOUT_LOG.md"), "utf-8") : ""}`;
+  fs.writeFileSync(path.join(outDir, "EVALUATION_REPORT.md"), md);
   const relOut = path.relative(root, outDir);
   console.log(`\nSaved ${path.join(relOut, "results_raw.json")} and ${path.join(relOut, "EVALUATION_REPORT.md")}`);
 }
