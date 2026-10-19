@@ -14,6 +14,9 @@ export const REASON_CODES = {
   POLARITY_MISMATCH: "POLARITY_MISMATCH",
   NEGATED: "NEGATED",
   PARTY_MISMATCH: "PARTY_MISMATCH",
+  ROLE_MISMATCH: "ROLE_MISMATCH",
+  MODALITY_MISMATCH: "MODALITY_MISMATCH",
+  SUPERSEDED_BY_LATER_DOCUMENT: "SUPERSEDED_BY_LATER_DOCUMENT",
   HIGHER_TIER_OVERRIDE: "HIGHER_TIER_OVERRIDE",
   HIGHER_TIER_CONFLICT: "HIGHER_TIER_CONFLICT",
   LOWER_TIER_CONFLICT: "LOWER_TIER_CONFLICT",
@@ -60,6 +63,9 @@ export interface MessageCatalog {
   reason_compound_claim: (count: number) => string;
   reason_lower_tier_match: () => string;
   reason_lower_tier_claims_otherwise: (file: string, tier: number) => string;
+  reason_modality_mismatch: () => string;
+  reason_superseded_by_later: (file: string) => string;
+  reason_role_mismatch: () => string;
 }
 
 export const MESSAGES: Record<SupportedLang, MessageCatalog> = {
@@ -106,6 +112,12 @@ export const MESSAGES: Record<SupportedLang, MessageCatalog> = {
       "matches source of lower or equal tier",
     reason_lower_tier_claims_otherwise: (file, tier) =>
       `lower tier source (${file}, Tier ${tier}) claims otherwise`,
+    reason_modality_mismatch: () =>
+      "modality mismatch: source expresses right, obligation, deliberation or future intent, but does not confirm factual occurrence",
+    reason_superseded_by_later: (file) =>
+      `superseded by later amendment or agreement (${file})`,
+    reason_role_mismatch: () =>
+      "role mismatch: parties or roles swapped between claim and source",
   },
   pl: {
     unsupported_no_terms: () =>
@@ -150,5 +162,11 @@ export const MESSAGES: Record<SupportedLang, MessageCatalog> = {
       "zgodne ze źródłem o niższej lub równej randze",
     reason_lower_tier_claims_otherwise: (file, tier) =>
       `źródło o niższej randze (${file}, Tier ${tier}) twierdzi inaczej`,
+    reason_modality_mismatch: () =>
+      "niezgodność modalności: źródło wyraża prawo, zobowiązanie, zamiar lub rozważanie, ale nie potwierdza zaistnienia faktu",
+    reason_superseded_by_later: (file) =>
+      `zastąpione przez późniejszy aneks lub dokument (${file})`,
+    reason_role_mismatch: () =>
+      "niezgodność ról stron: role podmiotów zamienione między twierdzeniem a źródłem",
   },
 };
