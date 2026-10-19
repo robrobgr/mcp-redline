@@ -101,6 +101,16 @@ function negationCues(text: string): string[] {
   return tokenize(cleaned).filter(isNegCue);
 }
 
+function stripNegPrefix(token: string): string | undefined {
+  return UNPREFIX[token];
+}
+
+const PREP_NEGATION_WORDS = new Set<string>();
+
+function extractPrepNegatedTerms(_text: string): Set<string> {
+  return new Set<string>();
+}
+
 const ANTONYM_PAIRS: AntonymPair[] = [
   { pos: "exclusive", neg: "nonexclusive" },
   { pos: "revocable", neg: "irrevocable" },
@@ -299,6 +309,9 @@ export const enPack: LanguagePack = {
   legalFormulasRegex: LEGAL_FORMULAS_REGEX,
   isNegCue,
   negationCues,
+  stripNegPrefix,
+  prepNegationWords: PREP_NEGATION_WORDS,
+  extractPrepNegatedTerms,
   antonymPairs: ANTONYM_PAIRS,
   modalityCues: MODALITY_CUES,
   completedEventCues: COMPLETED_EVENT_CUES,

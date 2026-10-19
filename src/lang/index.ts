@@ -49,6 +49,9 @@ export interface LanguagePack {
   legalFormulasRegex: RegExp;
   isNegCue: (token: string) => boolean;
   negationCues: (text: string) => string[];
+  stripNegPrefix: (token: string) => string | undefined;
+  prepNegationWords: Set<string>;
+  extractPrepNegatedTerms: (text: string) => Set<string>;
   antonymPairs: AntonymPair[];
   modalityCues: string[];
   completedEventCues: string[];

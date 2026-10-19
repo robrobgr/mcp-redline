@@ -116,6 +116,50 @@ function negationCues(text: string): string[] {
   return tokenize(cleaned).filter(isNegCue);
 }
 
+const NIE_ROOT_PREFIXES = [
+  "niemc", "niemie", "niemal", "niestet", "nieb", "niech", "niekied",
+  "nieco", "niektór", "niebaw", "niedawn", "niedług", "niedźwied", "niewiast", "niewol", "niec",
+];
+
+function stripNegPrefix(token: string): string | undefined {
+  if (UNPREFIX[token]) return UNPREFIX[token];
+  if (token.startsWith("nie") && token.length >= 7 && !NIE_ROOT_PREFIXES.some((p) => token.startsWith(p))) {
+    return token.slice(3);
+  }
+  return undefined;
+}
+
+const PREP_NEGATION_WORDS = new Set(["bez"]);
+
+const PREP_NEG_SKIP = new Set([
+  "żaden", "żadna", "żadne", "żadnych", "żadnego", "żadnej",
+  "jakichkolwiek", "jakiejkolwiek", "jakiegokolwiek",
+  "dodatkowych", "dodatkowego", "dodatkowej",
+  "uprzedniej", "uprzedniego", "osobnej", "osobnego", "odrębnej", "odrębnego",
+]);
+
+function extractPrepNegatedTerms(text: string): Set<string> {
+  const cleaned = text.replace(LEGAL_FORMULAS_REGEX, " ");
+  const out = new Set<string>();
+  for (const clause of cleaned.split(/[,;:()—–]|\s-\s/)) {
+    const toks = tokenize(clause).filter((t) => !/^(?:etap|aneks|zalacznik)_\d+$/.test(t));
+    for (let i = 0; i < toks.length; i++) {
+      if (toks[i] === "bez") {
+        let collected = 0;
+        for (let j = i + 1; j < toks.length && collected < 2; j++) {
+          const w = toks[j];
+          if (w === "bez") break;
+          if (STOPWORDS.has(w) || PREP_NEG_SKIP.has(w)) continue;
+          if (isFactualText(w) || isModalText(w)) break;
+          out.add(w);
+          collected++;
+        }
+      }
+    }
+  }
+  return out;
+}
+
 const ANTONYM_PAIRS: AntonymPair[] = [
   { pos: "wyłączn", neg: "niewyłączn" },
   { pos: "określon", neg: "nieoznaczon", alts: ["nieokreślon"] },
@@ -361,9 +405,14 @@ const LEXICON_GROUPS: Record<string, string[]> = {
   require: ["wymag", "wymóg", "rygor", "rygorem", "obowiązk"],
   notice: ["oświadczen", "zawiadomien", "deklaracj"],
   deliver: ["doręcz", "doręczen"],
-  receive: ["odebra", "odebran", "odbior"],
+  receive: ["odebra", "odebran", "odbior", "odbiór"],
   issue: ["wystawi", "wystawion"],
   definite: ["określon", "oznaczon"],
+  defect: ["=wad", "=wada", "=wady", "=wadę", "=wadą", "=wadami", "=wadach", "usterk"],
+  reservation: ["zastrzeż"],
+  suspend: ["wstrzym"],
+  consent: ["=zgod", "=zgoda", "=zgody", "=zgodę", "=zgodą"],
+  subcontractor: ["podwykonaw"],
   month_01: ["stycz"],
   month_02: ["lut"],
   month_03: ["=marca", "=marzec"],
@@ -395,6 +444,9 @@ export const plPack: LanguagePack = {
   legalFormulasRegex: LEGAL_FORMULAS_REGEX,
   isNegCue,
   negationCues,
+  stripNegPrefix,
+  prepNegationWords: PREP_NEGATION_WORDS,
+  extractPrepNegatedTerms,
   antonymPairs: ANTONYM_PAIRS,
   modalityCues: MODALITY_CUES,
   completedEventCues: COMPLETED_EVENT_CUES,

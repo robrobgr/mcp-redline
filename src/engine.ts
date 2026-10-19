@@ -41,6 +41,7 @@ export interface Unit {
   modal: boolean;
   factual: boolean;
   roles: { subject?: "supplier" | "customer"; recipient?: "supplier" | "customer" };
+  prepNegatedTerms: Set<string>;
 }
 
 export interface SourceInfo { file: string; type: string; pages: number; title: string; tier: number; lang?: SupportedLang }
@@ -114,20 +115,27 @@ const CANONICAL_MONTHS = getLanguagePack("en").canonicalMonths;
 
 const TOKEN_RE = /[\p{L}][\p{L}\p{N}]*(?:[-'’][\p{L}\p{N}]+)*/gu;
 
-function checkAntonymConflict(claimToks: string[], unitToks: string[], packs: LanguagePack[]): boolean {
+function hasAntonymMatch(a: string, b: string, packs: LanguagePack[]): boolean {
   const pairs: AntonymPair[] = packs.flatMap((p) => p.antonymPairs);
   for (const pair of pairs) {
     const negs = [pair.neg, ...(pair.alts || [])];
-    const claimHasPos = claimToks.some((t) => t.startsWith(pair.pos) && !negs.some((n) => t.startsWith(n)));
-    const claimHasNeg = claimToks.some((t) => negs.some((n) => t.startsWith(n)));
-    const unitHasPos = unitToks.some((t) => t.startsWith(pair.pos) && !negs.some((n) => t.startsWith(n)));
-    const unitHasNeg = unitToks.some((t) => negs.some((n) => t.startsWith(n)));
-
-    if ((claimHasPos && unitHasNeg) || (claimHasNeg && unitHasPos)) {
-      return true;
-    }
+    const aPos = a.startsWith(pair.pos) && !negs.some((n) => a.startsWith(n));
+    const aNeg = negs.some((n) => a.startsWith(n));
+    const bPos = b.startsWith(pair.pos) && !negs.some((n) => b.startsWith(n));
+    const bNeg = negs.some((n) => b.startsWith(n));
+    if ((aPos && bNeg) || (aNeg && bPos)) return true;
+  }
+  for (const p of packs) {
+    const aStem = p.stripNegPrefix(a);
+    const bStem = p.stripNegPrefix(b);
+    if (aStem && !bStem && p.stemMatch(aStem, b)) return true;
+    if (bStem && !aStem && p.stemMatch(bStem, a)) return true;
   }
   return false;
+}
+
+function checkAntonymConflict(claimToks: string[], unitToks: string[], packs: LanguagePack[]): boolean {
+  return claimToks.some((c) => unitToks.some((u) => hasAntonymMatch(c, u, packs)));
 }
 
 function memberMatch(member: string, word: string, pack: LanguagePack): boolean {
@@ -316,6 +324,7 @@ interface ClaimFeatures {
   factual: boolean;
   roles: { subject?: "supplier" | "customer"; recipient?: "supplier" | "customer" };
   negatedTerms: Set<string>;
+  prepNegatedTerms: Set<string>;
 }
 
 interface UnitScore {
@@ -441,6 +450,10 @@ export class RedlineEngineCore {
       const tokens = new Set([...rawToks, ...extraTokens]);
       tokens.forEach((t) => this.vocabulary.add(t));
       const textToks = secPack.tokenize(text);
+      const prepNegatedTerms = new Set<string>();
+      for (const p of ALL_PACKS) {
+        for (const t of p.extractPrepNegatedTerms(text)) prepNegatedTerms.add(t);
+      }
       units.push({
         file: sec.file,
         page: sec.page,
@@ -461,6 +474,7 @@ export class RedlineEngineCore {
         modal: ALL_PACKS.some((p) => p.isModalText(text)),
         factual: ALL_PACKS.some((p) => p.isFactualText(text)),
         roles: extractUnitRoles(text),
+        prepNegatedTerms,
       });
     };
 
@@ -660,6 +674,10 @@ export class RedlineEngineCore {
         }
       }
     }
+    const prepNegatedTerms = new Set<string>();
+    for (const p of ALL_PACKS) {
+      for (const t of p.extractPrepNegatedTerms(claim)) prepNegatedTerms.add(t);
+    }
     return {
       lang: claimLang,
       content: [...content],
@@ -674,6 +692,7 @@ export class RedlineEngineCore {
       factual,
       roles,
       negatedTerms,
+      prepNegatedTerms,
     };
   }
 
@@ -700,7 +719,6 @@ export class RedlineEngineCore {
     const n = W || 1;
     const coverage = cov / n;
     const unitCoverage = fullW / n;
-    const contraCoverage = (fullW + ctx) / n;
 
     // numbers
     const conflicts: string[] = [];
@@ -772,11 +790,39 @@ export class RedlineEngineCore {
       }
     }
 
-    const antonymConflict = checkAntonymConflict(f.content, [...u.tokens], ALL_PACKS);
+    let prepNegConflict = false;
+    for (const t of f.content) {
+      if (ALL_PACKS.some((p) => p.prepNegationWords.has(t))) continue;
+      const hits = f.alts.get(t)!;
+      if (![...u.tokens].some((x) => hits.has(x))) continue;
+      const claimPrepNeg = [...f.prepNegatedTerms].some((x) => hits.has(x) || x === t);
+      const unitPrepNeg = [...u.prepNegatedTerms].some((x) => hits.has(x));
+      if (claimPrepNeg !== unitPrepNeg) {
+        prepNegConflict = true;
+        break;
+      }
+    }
+
+    const antonymConflict = checkAntonymConflict(f.content, [...u.tokens], ALL_PACKS) || prepNegConflict;
     if (antonymConflict) {
       conflictCodes.push(REASON_CODES.POLARITY_MISMATCH);
       conflicts.push(msg.reason_polarity_source_neg("antonym"));
     }
+
+    let contraExtraW = 0;
+    let contraExtraFull = 0;
+    if (antonymConflict) {
+      for (const t of missing) {
+        if (
+          [...u.tokens].some((x) => hasAntonymMatch(t, x, ALL_PACKS)) ||
+          (prepNegConflict && ALL_PACKS.some((p) => p.prepNegationWords.has(t)))
+        ) {
+          contraExtraW += f.weight.get(t) || 0;
+          contraExtraFull++;
+        }
+      }
+    }
+    const contraCoverage = (fullW + contraExtraW + ctx) / n;
 
     const modalityMismatch = f.factual && !f.modal && u.modal && !u.factual;
 
@@ -804,7 +850,7 @@ export class RedlineEngineCore {
     const supportCoverage = (cov + Math.max(0, numFound) * NW) / denom;
     const supportUnitCoverage = (fullW + Math.max(0, numFound) * NW) / denom;
     const score = coverage + (3 - u.tier) * 0.02 + (numbersOk && f.numbers.length ? 0.1 : 0);
-    return { unit: u, unitNegative, coverage, unitCoverage, contraCoverage, supportCoverage, supportUnitCoverage, valueConflict: conflicts.length > 0, full, matched, missing, numbersOk, conflicts, conflictCodes, polarityFlip, score, antonymConflict, roleMismatch, roleContra, modalityMismatch };
+    return { unit: u, unitNegative, coverage, unitCoverage, contraCoverage, supportCoverage, supportUnitCoverage, valueConflict: conflicts.length > 0, full: full + contraExtraFull, matched, missing, numbersOk, conflicts, conflictCodes, polarityFlip, score, antonymConflict, roleMismatch, roleContra, modalityMismatch };
   }
 
   /** Two words denote the same concept (stem match or same lexicon group). */

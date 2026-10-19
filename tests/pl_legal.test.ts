@@ -103,6 +103,59 @@ describe("mcp-redline — Polish legal semantics (v1.4.0 failure classes)", () =
     // 'pod rygorem nieważności' grounds affirmative requirement
     const rForm = engine.verify("Wypowiedzenie Umowy wymaga zachowania okresu pod rygorem nieważności.");
     assert.strictEqual(rForm.status, "GROUNDED");
+
+    // Bidirectional prepositional ("bez <noun>" vs "z <noun>"), verb ("nie <verb>"), and morphological ("nie-") negation
+    const negEngine = new RedlineEngine(undefined, "pl");
+    negEngine.loadDocuments([
+      {
+        file: "01_Protokol_i_Licencja_2025-03-10.md",
+        content: [
+          "# Protokół i warunki licencji z dnia 10 marca 2025 r.",
+          "1. Odbioru modułu analitycznego dokonano bez zastrzeżeń.",
+          "2. Odbioru modułu księgowego dokonano z wadami.",
+          "3. Zgłoszenie uwag redakcyjnych nie wstrzymuje płatności faktury.",
+          "4. Awaria krytyczna wstrzymuje bieg terminu gwarancji.",
+          "5. Licencja na moduł testowy jest nieodpłatna i niezbywalna.",
+        ].join("\n"),
+      },
+    ]);
+
+    // "bez zastrzeżeń" vs "bez zastrzeżeń" -> GROUNDED
+    const rBezOk = negEngine.verify("Odbioru modułu analitycznego dokonano bez zastrzeżeń.");
+    assert.strictEqual(rBezOk.status, "GROUNDED");
+
+    // "bez zastrzeżeń" (source) vs "z zastrzeżeniami" (claim) -> CONTRADICTED
+    const rBezVsZ = negEngine.verify("Odbioru modułu analitycznego dokonano z zastrzeżeniami.");
+    assert.strictEqual(rBezVsZ.status, "CONTRADICTED");
+    assert.ok(rBezVsZ.reasonCodes.includes("POLARITY_MISMATCH"));
+
+    // "z wadami" (source) vs "bez wad" (claim) -> CONTRADICTED (reverse direction)
+    const rZVsBez = negEngine.verify("Odbioru modułu księgowego dokonano bez wad.");
+    assert.strictEqual(rZVsBez.status, "CONTRADICTED");
+    assert.ok(rZVsBez.reasonCodes.includes("POLARITY_MISMATCH"));
+
+    // "nie <verb>" (source) vs affirmative <verb> (claim) -> CONTRADICTED
+    const rVerbNegToPos = negEngine.verify("Zgłoszenie uwag redakcyjnych wstrzymuje płatność faktury.");
+    assert.strictEqual(rVerbNegToPos.status, "CONTRADICTED");
+    assert.ok(rVerbNegToPos.reasonCodes.includes("POLARITY_MISMATCH"));
+
+    // affirmative <verb> (source) vs "nie <verb>" (claim) -> CONTRADICTED
+    const rVerbPosToNeg = negEngine.verify("Awaria krytyczna nie wstrzymuje biegu terminu gwarancji.");
+    assert.strictEqual(rVerbPosToNeg.status, "CONTRADICTED");
+    assert.ok(rVerbPosToNeg.reasonCodes.includes("POLARITY_MISMATCH"));
+
+    // Morphological "nie-" prefix ("nieodpłatna", "niezbywalna") vs positive stem -> CONTRADICTED
+    const rMorph1 = negEngine.verify("Licencja na moduł testowy jest odpłatna.");
+    assert.strictEqual(rMorph1.status, "CONTRADICTED");
+    assert.ok(rMorph1.reasonCodes.includes("POLARITY_MISMATCH"));
+
+    const rMorph2 = negEngine.verify("Licencja na moduł testowy jest zbywalna.");
+    assert.strictEqual(rMorph2.status, "CONTRADICTED");
+    assert.ok(rMorph2.reasonCodes.includes("POLARITY_MISMATCH"));
+
+    // Morphological "nie-" matching "nie-" -> GROUNDED
+    const rMorphOk = negEngine.verify("Licencja na moduł testowy jest nieodpłatna.");
+    assert.strictEqual(rMorphOk.status, "GROUNDED");
   });
 
   it("Class 4: Chronological supersession — later amendment overrides only the specific term it changes", () => {
