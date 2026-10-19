@@ -38,16 +38,17 @@ Odpowiedź zawiera też `evidence` (pokrycie, dopasowane i brakujące pojęcia, 
 
 ## Jak działa `verify`
 
-W silniku **nie ma reguł pisanych pod konkretny korpus** (żadnych „pułapek” na sztywno). Testy obejmują osobny, syntetyczny korpus (umowa najmu), na którym silnik działa bez zmian.
+Silnik jest podzielony na neutralny językowo rdzeń ([`src/engine.ts`](src/engine.ts)) oraz paczki językowe ([`src/lang/en.ts`](src/lang/en.ts), [`src/lang/pl.ts`](src/lang/pl.ts)) implementujące interfejs `LanguagePack`. W silniku **nie ma reguł pisanych pod konkretny korpus** (żadnych „pułapek” na sztywno).
 
 1. **Jednostki dosłowne.** Korpus dzielony jest na zdania, pola „Klucz: wartość” i wiersze tabel. Każdy cytat jest dosłownym podciągiem pliku źródłowego (sprawdzane w testach).
-2. **Pokrycie pojęć** ważone rzadkością (IDF), z dwujęzycznym słownikiem domenowym PL/EN i lekkim stemmingiem. Nazwy własne i nazwy geograficzne muszą występować w samym cytowanym fragmencie.
-3. **Liczby** porównywane jako wartości z rodzajem (kwota + waluta, %, rok, liczba z jednostką). Inna wartość tego samego rodzaju lub inna waluta = konflikt.
-4. **Polaryzacja** liczona w członie zdania, którego dotyczy twierdzenie (`not`, `neither`, `deleted`, `rejected`, `nie`, `odrzucił`, `wykreślono`…). Wzmianka twierdząca nie obala prawdziwego twierdzenia przeczącego.
-5. **Mowa zależna nie jest faktem.** Fragment, który tylko relacjonuje wniosek lub żądanie („COO zawnioskował o karę…”), nie potwierdza, że coś się stało.
-6. **Strony umowy** odczytywane są z klauzuli definicji (`("Supplier" or "Apex Meridian")`). Fragment o innej stronie nie potwierdza twierdzenia.
-7. **Ranga źródeł:** Tier 1 (umowa, faktura, sprawozdanie, protokół) > Tier 2 (CRM) > Tier 3 (korespondencja). Sprzeczność w źródle o wyższej randze wygrywa z potwierdzeniem w niższej.
-8. **Twierdzenia złożone** (np. faktura: numer + kwota + bank) mogą być potwierdzone maks. 3 polami tego samego rekordu — nigdy przez sklejanie zdań prozy.
+2. **Pokrycie pojęć** ważone rzadkością (IDF), ze słownikiem domenowym PL/EN i lekkim stemmingiem. Nazwy własne, nazwy geograficzne oraz oznaczenia etapów/aneksów muszą występować w samym cytowanym fragmencie.
+3. **Liczby (całe tokeny i zakres członu zdania).** Liczby są porównywane jako pełne wartości z rodzajem (kwota + waluta, %, rok, liczba z jednostką) z zachowaniem granic grup tysięcznych (spacja, NBSP, kropka, przecinek) oraz w obrębie członu zdania właściwego dla danego etapu lub aneksu.
+4. **Dwukierunkowa negacja i antonimy.** Polaryzacja liczona jest w członie zdania dla przeczeń czasownikowych (`nie`, `not`), przyimkowych (`bez X` vs `z X`, `without` vs `with`) oraz produktywnych przedrostków morfologicznych (`nie-`, `non-`), z pominięciem formuł ważności czynności prawnych (`pod rygorem nieważności`).
+5. **Modalność i normy vs fakty dokonane.** Uprawnienia, zobowiązania, czas przyszły i terminy płatności w umowie (`może`, `ma prawo`, `zobowiązuje się`, `płatne w terminie`) nigdy nie potwierdzają twierdzeń o faktach dokonanych w stronie czynnej (`naliczył`), biernej (`zostało zasądzone`, `zostało zapłacone`) ani bezosobowej (`naliczono`, `odebrano`) — zwracane jest `UNSUPPORTED` (`MODALITY_MISMATCH`).
+6. **Wiązanie ról stron w przypadkach zależnych.** Nazwy i role stron (`Dostawca`/`Wykonawca` vs `Zamawiający`/`Klient`) są wiązane w mianowniku, celowniku/przyimkach adresata (`wobec`, `na rzecz`, `przez`) oraz dopełniaczu (`zgody Dostawcy` vs `zgody Zamawiającego`). Odwrócenie ról zwraca `CONTRADICTED` (`ROLE_MISMATCH`).
+7. **Ranga źródeł i chronologia na poziomie postanowień:** Tier 1 (umowa, aneks, protokół, faktura) > Tier 2 (CRM) > Tier 3 (korespondencja). W obrębie tego samego Tieru późniejszy aneks nadpisuje wcześniejszą umowę wyłącznie w zakresie tego samego przedmiotu i atrybutu (`SUPERSEDED_BY_LATER_DOCUMENT`), nie nadpisując daty ani miejsca zawarcia umowy głównej.
+8. **Wiązanie dat z kategorią zdarzenia.** Daty są wiązane z typem zdarzenia (`signing`, `readiness`, `acceptance`, `issuance`, `delivery`, `deadline`, `effective`), dzięki czemu data zgłoszenia gotowości, data odbioru, data podpisania aneksu i termin wykonania nie są ze sobą mylone.
+9. **Twierdzenia złożone** (np. faktura: numer + kwota + bank) mogą być potwierdzone maks. 3 polami tego samego rekordu — nigdy przez sklejanie zdań prozy.
 
 Progi są jawne w `THRESHOLDS` w `src/engine.ts`.
 
@@ -56,10 +57,13 @@ Progi są jawne w `THRESHOLDS` w `src/engine.ts`.
 ## Ewaluacja
 
 ```bash
-npm test        # testy jednostkowe (node:test)
-npm run eval    # 64 twierdzenia; kończy się błędem przy KAŻDYM fałszywym GROUNDED
+npm test                   # testy jednostkowe (node:test)
+npm run eval               # 64 twierdzenia (EN/PL); błąd przy każdym fałszywym GROUNDED
+npm run eval:pl            # 44 twierdzenia prawne PL (eval_pl/); błąd przy każdym fałszywym GROUNDED
 npm run eval -- --strict   # błąd przy jakiejkolwiek rozbieżności
 ```
+
+### Benchmark angielsko-polski (`prompts_eval`, n = 64)
 
 | Zbiór | Liczba twierdzeń | Dokładność 3-klasowa | Fałszywe GROUNDED | Potwierdzone fakty | Odrzucone niefakty |
 |---|---|---|---|---|---|
@@ -68,8 +72,14 @@ npm run eval -- --strict   # błąd przy jakiejkolwiek rozbieżności
 | `holdout` | 23 | 87% (20/23) | **0** | 10/10 (100%) | 13/13 (100%) |
 | **ŁĄCZNIE** | **64** | **91% (58/64)** | **0** | **32/32 (100%)** | **32/32 (100%)** |
 
+### Polski benchmark prawny (`eval_pl`, n = 44)
+
+| Zbiór | Liczba twierdzeń | Dokładność 3-klasowa | Fałszywe GROUNDED | Potwierdzone fakty | Odrzucone niefakty |
+|---|---|---|---|---|---|
+| `dev` (`D01`–`D44`) | 44 | **100% (44/44)** | **0** | **17/17 (100%)** | **27/27 (100%)** |
+
 > [!NOTE]
-> **Bezpieczna asymetria:** Wszystkie 6 rozbieżności (58/64) to konserwatywne odmowy (system zwrócił bezpieczne `UNSUPPORTED` zamiast `CONTRADICTED`, lub w jednym przypadku `CONTRADICTED` zamiast `UNSUPPORTED`). Ani razu silnik nie potwierdził fałszu (`false GROUNDED = 0`).
+> **Bezpieczna asymetria:** Wszystkie 6 rozbieżności (58/64) w zbiorze `prompts_eval` to konserwatywne odmowy (system zwrócił bezpieczne `UNSUPPORTED` zamiast `CONTRADICTED`, lub w jednym przypadku `CONTRADICTED` zamiast `UNSUPPORTED`). Ani razu silnik nie potwierdził fałszu (`false GROUNDED = 0`).
 
 > [!WARNING]
 > **Metodologiczna uwaga o skażonym holdoucie (Contaminated Holdout Disclosure):**  
@@ -78,13 +88,14 @@ npm run eval -- --strict   # błąd przy jakiejkolwiek rozbieżności
 
 ---
 
-## Ograniczenia
+## Znane ograniczenia
 
-* **Dopasowanie leksykalne, nie rozumienie.** Parafraza spoza słownika domenowego da `UNSUPPORTED` (bezpieczny błąd). Nowa domena wymaga rozszerzenia `GROUPS` w `src/engine.ts`.
-* **Jedno twierdzenie = jeden fakt.** Twierdzenia złożone z faktów z różnych zdań nie zostaną potwierdzone — model powinien rozbić je na osobne wywołania `verify`.
-* **Kolumny tabel:** wartość jest wiązana z wierszem, nie z kolumną. Kwota z kolumny 2023 może potwierdzić twierdzenie o 2024.
-* **Ranga źródła wynika z nazwy pliku** (`Email`/`CRM`) — docelowo pole w nagłówku dokumentu.
-* Część fałszywych twierdzeń kończy się `UNSUPPORTED` zamiast `CONTRADICTED` — bezpieczne, ale mniej informatywne.
+* **Dopasowanie leksykalno-morfologiczne, nie głębokie wnioskowanie.** Parafraza spoza słownika domenowego w paczce językowej (`src/lang/en.ts`, `src/lang/pl.ts`) da `UNSUPPORTED` (bezpieczna odmowa). Nowa domena wymaga rozszerzenia `LEXICON_GROUPS` w odpowiedniej paczce językowej.
+* **Jedno twierdzenie = jeden fakt.** Twierdzenia złożone z faktów z różnych zdań prozy lub różnych dokumentów nie zostaną sklejone — model powinien rozbić je na osobne wywołania `verify`.
+* **Brak obliczeń arytmetycznych i warunkowych.** Silnik weryfikuje jawnie zapisane kwoty i klauzule zastąpienia (`zastępuje się kwotą…`), ale nie wykonuje wieloetapowego sumowania, naliczania odsetek ani wnioskowania arytmetycznego między paragrafami.
+* **Kolumny tabel:** wartość w tabeli Markdown jest wiązana z wierszem i rokiem w nagłówku, a nie z dowolną współrzędną wielokolumnowej macierzy.
+* **Ranga źródła wynika z nazwy pliku** (`Email`/`CRM`) — docelowo pole metadanych w nagłówku dokumentu.
+* Część fałszywych twierdzeń przy niskim pokryciu słownikowym kończy się `UNSUPPORTED` zamiast `CONTRADICTED` — bezpieczne, ale mniej informatywne.
 
 ---
 
