@@ -224,6 +224,90 @@
    "expected": "GROUNDED",
    "category": "negacja",
    "claim": "Wynagrodzenie Dostawcy nie jest waloryzowane."
+  },
+  {
+   "id": "D33",
+   "split": "dev",
+   "expected": "UNSUPPORTED",
+   "category": "modalność",
+   "claim": "Kara umowna za opóźnienie Etapu III została naliczona."
+  },
+  {
+   "id": "D34",
+   "split": "dev",
+   "expected": "UNSUPPORTED",
+   "category": "modalność",
+   "claim": "Zawiadomienie o sile wyższej zostało wysłane."
+  },
+  {
+   "id": "D35",
+   "split": "dev",
+   "expected": "UNSUPPORTED",
+   "category": "modalność",
+   "claim": "Odszkodowanie przewyższające wysokość kar umownych zostało zasądzone."
+  },
+  {
+   "id": "D36",
+   "split": "dev",
+   "expected": "UNSUPPORTED",
+   "category": "modalność",
+   "claim": "Wynagrodzenie za Etap I zostało zapłacone w terminie 30 dni."
+  },
+  {
+   "id": "D37",
+   "split": "dev",
+   "expected": "GROUNDED",
+   "category": "chronologia",
+   "claim": "Wynagrodzenie za Etap III wynosi 480 000 PLN netto."
+  },
+  {
+   "id": "D38",
+   "split": "dev",
+   "expected": "GROUNDED",
+   "category": "chronologia",
+   "claim": "Umowa ramowa została zawarta w Warszawie."
+  },
+  {
+   "id": "D39",
+   "split": "dev",
+   "expected": "CONTRADICTED",
+   "category": "negacja",
+   "claim": "Etap II odebrano z wadami."
+  },
+  {
+   "id": "D40",
+   "split": "dev",
+   "expected": "CONTRADICTED",
+   "category": "negacja",
+   "claim": "Wady nieistotne wstrzymują odbiór Etapu."
+  },
+  {
+   "id": "D41",
+   "split": "dev",
+   "expected": "CONTRADICTED",
+   "category": "rola",
+   "claim": "Dostawca w terminie 10 dni roboczych dokonuje odbioru Etapu."
+  },
+  {
+   "id": "D42",
+   "split": "dev",
+   "expected": "CONTRADICTED",
+   "category": "rola",
+   "claim": "Powierzenie prac podwykonawcy wymaga zgody Dostawcy."
+  },
+  {
+   "id": "D43",
+   "split": "dev",
+   "expected": "CONTRADICTED",
+   "category": "data",
+   "claim": "Dostawca zgłosił gotowość do odbioru Etapu I 7 października 2024 r."
+  },
+  {
+   "id": "D44",
+   "split": "dev",
+   "expected": "CONTRADICTED",
+   "category": "data",
+   "claim": "Aneks nr 1 podpisano 30 kwietnia 2025 r."
   }
  ]
 }
