@@ -303,4 +303,47 @@ describe("mcp-redline — Polish legal semantics (v1.4.0 failure classes)", () =
     assert.strictEqual(rEnSuffixWrong.status, "CONTRADICTED");
     assert.ok(rEnSuffixWrong.reasonCodes.includes("NUMBER_MISMATCH"));
   });
+
+  it("Item 6: Event-date binding across readiness, acceptance, signing, and deadline dates", () => {
+    const dateEngine = new RedlineEngine(undefined, "pl");
+    dateEngine.loadDocuments([
+      {
+        file: "01_Protokol_Odbioru_Etapu_I.md",
+        content: [
+          "# Protokół odbioru Etapu I z dnia 28 marca 2025 r.",
+          "## 1. Przebieg czynności",
+          "1. Dostawca zgłosił gotowość do odbioru Etapu I w dniu 20 marca 2025 r.",
+          "2. Zamawiający dokonał odbioru Etapu I w dniu 28 marca 2025 r.",
+        ].join("\n"),
+      },
+      {
+        file: "02_Aneks_nr_1_2025-02-10.md",
+        content: [
+          "# Aneks nr 1 z dnia 10 lutego 2025 r. do Umowy wdrożeniowej",
+          "Zawarty pomiędzy Alfa S.A. a Beta sp. z o.o.",
+          "## § 1 Zmiana harmonogramu",
+          "1. Termin realizacji Etapu II zmienia się na dzień 31 maja 2025 r.",
+        ].join("\n"),
+      },
+    ]);
+
+    // Correct readiness date -> GROUNDED
+    const rReadinessOk = dateEngine.verify("Dostawca zgłosił gotowość do odbioru Etapu I 20 marca 2025 r.");
+    assert.strictEqual(rReadinessOk.status, "GROUNDED");
+
+    // Readiness claimed with the acceptance date -> CONTRADICTED
+    const rReadinessWrong = dateEngine.verify("Dostawca zgłosił gotowość do odbioru Etapu I 28 marca 2025 r.");
+    assert.strictEqual(rReadinessWrong.status, "CONTRADICTED");
+    assert.ok(rReadinessWrong.reasonCodes.includes("NUMBER_MISMATCH"));
+
+    // Correct annex signing date -> GROUNDED
+    const rSigningOk = dateEngine.verify("Aneks nr 1 podpisano 10 lutego 2025 r.");
+    assert.strictEqual(rSigningOk.status, "GROUNDED");
+
+    // Annex signing claimed with the completion deadline date -> CONTRADICTED
+    const rSigningWrong = dateEngine.verify("Aneks nr 1 podpisano 31 maja 2025 r.");
+    assert.strictEqual(rSigningWrong.status, "CONTRADICTED");
+    assert.ok(rSigningWrong.reasonCodes.includes("NUMBER_MISMATCH"));
+  });
 });
+

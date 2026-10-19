@@ -12,6 +12,7 @@ import {
   Currency,
   AntonymPair,
   RoleSlots,
+  DateEvent,
 } from "./lang/index.js";
 
 export * from "./messages.js";
@@ -43,6 +44,7 @@ export interface Unit {
   factual: boolean;
   roles: RoleSlots;
   prepNegatedTerms: Set<string>;
+  dateEvents: Set<DateEvent>;
 }
 
 export interface SourceInfo { file: string; type: string; pages: number; title: string; tier: number; lang?: SupportedLang }
@@ -326,6 +328,7 @@ interface ClaimFeatures {
   roles: RoleSlots;
   negatedTerms: Set<string>;
   prepNegatedTerms: Set<string>;
+  dateEvents: Set<DateEvent>;
 }
 
 interface UnitScore {
@@ -349,6 +352,7 @@ interface UnitScore {
   roleMismatch?: boolean;
   roleContra?: boolean;
   modalityMismatch?: boolean;
+  dateEventMismatch?: boolean;
 }
 
 export class RedlineEngineCore {
@@ -452,8 +456,10 @@ export class RedlineEngineCore {
       tokens.forEach((t) => this.vocabulary.add(t));
       const textToks = secPack.tokenize(text);
       const prepNegatedTerms = new Set<string>();
+      const dateEvents = new Set<DateEvent>();
       for (const p of ALL_PACKS) {
         for (const t of p.extractPrepNegatedTerms(text)) prepNegatedTerms.add(t);
+        for (const e of p.extractDateEvents(tokenText)) dateEvents.add(e);
       }
       units.push({
         file: sec.file,
@@ -476,6 +482,7 @@ export class RedlineEngineCore {
         factual: ALL_PACKS.some((p) => p.isFactualText(text)),
         roles: extractUnitRoles(text),
         prepNegatedTerms,
+        dateEvents,
       });
     };
 
@@ -676,8 +683,10 @@ export class RedlineEngineCore {
       }
     }
     const prepNegatedTerms = new Set<string>();
+    const dateEvents = new Set<DateEvent>();
     for (const p of ALL_PACKS) {
       for (const t of p.extractPrepNegatedTerms(claim)) prepNegatedTerms.add(t);
+      for (const e of p.extractDateEvents(claim)) dateEvents.add(e);
     }
     return {
       lang: claimLang,
@@ -694,11 +703,13 @@ export class RedlineEngineCore {
       roles,
       negatedTerms,
       prepNegatedTerms,
+      dateEvents,
     };
   }
 
   private scoreUnit(f: ClaimFeatures, u: Unit): UnitScore {
     const msg = getLanguagePack(this.lang).messages;
+    const claimPack = getLanguagePack(f.lang);
     const sectionUnits = this.sectionUnits.get(`${u.file}#${u.page}`) || [];
     let cov = 0, full = 0, ctx = 0;
     const matched: string[] = [], missing: string[] = [];
@@ -811,22 +822,39 @@ export class RedlineEngineCore {
       conflicts.push(msg.reason_polarity_source_neg("antonym"));
     }
 
+    const isMonthToken = (t: string) =>
+      CONCEPT_GROUPS.slice(-12).some((g) => g.some((m) => memberMatch(m, t, claimPack)));
+    const unitHasCalendarMonth = effectiveUnitNumbers.some((x) => !!x.word && CANONICAL_MONTHS.includes(x.word));
+
     let contraExtraW = 0;
     let contraExtraFull = 0;
-    if (antonymConflict) {
-      for (const t of missing) {
-        if (
-          [...u.tokens].some((x) => hasAntonymMatch(t, x, ALL_PACKS)) ||
-          (prepNegConflict && ALL_PACKS.some((p) => p.prepNegationWords.has(t)))
-        ) {
-          contraExtraW += f.weight.get(t) || 0;
-          contraExtraFull++;
-        }
+    for (const t of missing) {
+      if (
+        (antonymConflict &&
+          ([...u.tokens].some((x) => hasAntonymMatch(t, x, ALL_PACKS)) ||
+            (prepNegConflict && ALL_PACKS.some((p) => p.prepNegationWords.has(t))))) ||
+        (valueConflict && unitHasCalendarMonth && isMonthToken(t))
+      ) {
+        contraExtraW += f.weight.get(t) || 0;
+        contraExtraFull++;
       }
     }
     const contraCoverage = (fullW + contraExtraW + ctx) / n;
 
     const modalityMismatch = f.factual && !f.modal && u.modal && !u.factual;
+
+    let dateEventMismatch = false;
+    const hasClaimDate = f.numbers.some((n) => n.kind === "year" || (!!n.word && CANONICAL_MONTHS.includes(n.word)));
+    if (hasClaimDate && f.dateEvents.size > 0) {
+      if (u.dateEvents.size > 0 && ![...f.dateEvents].some((e) => u.dateEvents.has(e))) {
+        dateEventMismatch = true;
+      } else if (f.dateEvents.has("signing") && u.dateEvents.size === 0) {
+        const signingToks = f.content.filter((t) => ALL_PACKS.some((p) => p.extractDateEvents(t).has("signing")));
+        if (signingToks.length > 0 && !signingToks.some((t) => matched.includes(t))) {
+          dateEventMismatch = true;
+        }
+      }
+    }
 
     let roleMismatch = false;
     let roleContra = false;
@@ -855,7 +883,7 @@ export class RedlineEngineCore {
     const supportCoverage = (cov + Math.max(0, numFound) * NW) / denom;
     const supportUnitCoverage = (fullW + Math.max(0, numFound) * NW) / denom;
     const score = coverage + (3 - u.tier) * 0.02 + (numbersOk && f.numbers.length ? 0.1 : 0);
-    return { unit: u, unitNegative, coverage, unitCoverage, contraCoverage, supportCoverage, supportUnitCoverage, valueConflict, full: full + contraExtraFull, matched, missing, numbersOk, conflicts, conflictCodes, polarityFlip, score, antonymConflict, roleMismatch, roleContra, modalityMismatch };
+    return { unit: u, unitNegative, coverage, unitCoverage, contraCoverage, supportCoverage, supportUnitCoverage, valueConflict, full: full + contraExtraFull, matched, missing, numbersOk, conflicts, conflictCodes, polarityFlip, score, antonymConflict, roleMismatch, roleContra, modalityMismatch, dateEventMismatch };
   }
 
   /** Two words denote the same concept (stem match or same lexicon group). */
@@ -878,7 +906,8 @@ export class RedlineEngineCore {
     const pool = (this.sectionUnits.get(`${seed.unit.file}#${seed.unit.page}`) || []).filter((u) =>
       isField(u) && !this.partyMismatch(f.parties, u) && (u.negCues.length > 0) === f.negative &&
       !(u.hedged && u.negCues.length === 0 && !f.hedged) &&
-      !(f.factual && !f.modal && u.modal && !u.factual));
+      !(f.factual && !f.modal && u.modal && !u.factual) &&
+      !(f.dateEvents.size > 0 && u.dateEvents.size > 0 && ![...f.dateEvents].some((e) => u.dateEvents.has(e))));
     const hasTok = (u: Unit, t: string) => {
       const hits = f.alts.get(t)!;
       return [...u.tokens].some((x) => hits.has(x)) || (/\d/.test(t) && [...u.context].some((x) => hits.has(x)));
@@ -948,7 +977,7 @@ export class RedlineEngineCore {
     const supports = scored.filter((s) =>
       s.supportCoverage >= THRESHOLDS.support && s.supportUnitCoverage >= THRESHOLDS.supportUnit && s.full >= minFull &&
       s.numbersOk && s.conflicts.length === 0 && !s.polarityFlip && !this.partyMismatch(f.parties, s.unit) &&
-      !s.antonymConflict && !s.roleMismatch && !s.modalityMismatch &&
+      !s.antonymConflict && !s.roleMismatch && !s.modalityMismatch && !s.dateEventMismatch &&
       f.proper.every((t) => s.matched.includes(t) || s.matched.includes(`${t}^`)) &&
       !(s.unit.hedged && s.unit.negCues.length === 0 && !f.hedged));
     // Positive claim vs. negating source: must match the claim's core terms in the unit itself
@@ -968,7 +997,7 @@ export class RedlineEngineCore {
       }
     };
     const contras = scored.filter((s) =>
-      s.contraCoverage >= THRESHOLDS.contradict && s.full >= minFull && !s.modalityMismatch && (s.valueConflict || polarityContra(s)) &&
+      s.contraCoverage >= THRESHOLDS.contradict && s.full >= minFull && !s.modalityMismatch && !s.dateEventMismatch && (s.valueConflict || polarityContra(s)) &&
       (f.proper.length === 0 || f.proper.every((t) => s.matched.some((m) => m.startsWith(t)))));
 
     const pick = (arr: UnitScore[]) =>

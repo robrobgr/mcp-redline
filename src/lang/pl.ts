@@ -2,7 +2,7 @@
  * mcp-redline — Polish language pack.
  */
 import { MESSAGES } from "../messages.js";
-import type { LanguagePack, AntonymPair, Currency } from "./index.js";
+import type { LanguagePack, AntonymPair, Currency, DateEvent } from "./index.js";
 
 const TOKEN_RE = /[\p{L}][\p{L}\p{N}]*(?:[-'’][\p{L}\p{N}]+)*/gu;
 const B = "(?<![\\p{L}\\p{N}])";
@@ -323,6 +323,70 @@ function extractRoles(text: string): {
   return { subject, recipient, genitive, isPermissive };
 }
 
+function extractDateEvents(text: string): Set<DateEvent> {
+  const events = new Set<DateEvent>();
+  const lower = text.toLowerCase();
+
+  if (
+    /(?<![\p{L}\p{N}])(?:(?:zgłosi\p{L}*|zgłoszen\p{L}*|zgłasz\p{L}*)\s+(?:[\p{L}]+\s+)?gotowoś\p{L}*|gotowoś\p{L}*\s+do\s+odbioru)/iu.test(
+      lower
+    )
+  ) {
+    events.add("readiness");
+  }
+
+  const withoutReadinessOrDeadline = lower
+    .replace(/(?<![\p{L}\p{N}])gotowoś\p{L}*\s+do\s+odbioru/giu, " ")
+    .replace(/(?<![\p{L}\p{N}])termin\p{L}*\s+(?:realizacji\s+(?:i\s+)?)?odbioru/giu, " ");
+
+  if (
+    /(?<![\p{L}\p{N}])(?:protokół\s+odbioru|dokon\p{L}*\s+odbioru|odebra\p{L}*|odbiór\s+etapu|odbioru\s+etapu|odbiór\s+końcowy|odbioru\s+końcowego|potwierdza\s+odbiór|data\s+odbioru)(?![\p{L}\p{N}])/iu.test(
+      withoutReadinessOrDeadline
+    )
+  ) {
+    events.add("acceptance");
+  }
+
+  if (
+    /(?<![\p{L}\p{N}])(?:podpisa\p{L}*|zawart\p{L}*|zawarł\p{L}*|zawarto|sporządzon\p{L}*|data\s+zawarcia)(?![\p{L}\p{N}])/iu.test(
+      lower
+    ) ||
+    /^(?:#+\s*)?(?:umow\p{L}*|aneks\p{L}*|porozumien\p{L}*)\b[^\n]*?\bz\s+dnia\s+\d/iu.test(lower)
+  ) {
+    events.add("signing");
+  }
+
+  if (/(?<![\p{L}\p{N}])(?:wystawi\p{L}*|data\s+wystawienia)(?![\p{L}\p{N}])/iu.test(lower)) {
+    events.add("issuance");
+  }
+
+  if (
+    /(?<![\p{L}\p{N}])(?:doręcz\p{L}*|data\s+doręczenia|wpłynę\p{L}*|data\s+wpływu)(?![\p{L}\p{N}])/iu.test(
+      lower
+    )
+  ) {
+    events.add("delivery");
+  }
+
+  if (
+    /(?<![\p{L}\p{N}])(?:termin\p{L}*\s+(?:realizacji|wykonania|odbioru|płatności|końcowy)|upływa\p{L}*|zmienia\s+się\s+na\s+dzień|płatn\p{L}*\s+do\s+dnia)(?![\p{L}\p{N}])/iu.test(
+      lower
+    )
+  ) {
+    events.add("deadline");
+  }
+
+  if (
+    /(?<![\p{L}\p{N}])(?:wchodzi\s+w\s+życie|obowiązuje\s+od\s+dnia|z\s+mocą\s+od)(?![\p{L}\p{N}])/iu.test(
+      lower
+    )
+  ) {
+    events.add("effective");
+  }
+
+  return events;
+}
+
 const CANONICAL_MONTHS = [
   "january", "february", "march", "april", "may", "june",
   "july", "august", "september", "october", "november", "december",
@@ -490,6 +554,7 @@ export const plPack: LanguagePack = {
     customer: ["zamawiając", "klient"],
     extractRoles,
   },
+  extractDateEvents,
   monthNames: MONTH_NAMES,
   canonicalMonths: CANONICAL_MONTHS,
   numberFormat: {

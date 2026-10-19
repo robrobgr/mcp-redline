@@ -13,6 +13,15 @@ export interface AntonymPair {
   alts?: string[];
 }
 
+export type DateEvent =
+  | "signing"
+  | "readiness"
+  | "acceptance"
+  | "issuance"
+  | "delivery"
+  | "deadline"
+  | "effective";
+
 export interface RoleSlots {
   subject?: "supplier" | "customer";
   recipient?: "supplier" | "customer";
@@ -67,6 +76,7 @@ export interface LanguagePack {
   hedgePrefixes: string[];
   isHedge: (token: string) => boolean;
   roleLexicon: RoleLexicon;
+  extractDateEvents: (text: string) => Set<DateEvent>;
   monthNames: Record<string, number>;
   canonicalMonths: string[];
   numberFormat: NumberFormat;

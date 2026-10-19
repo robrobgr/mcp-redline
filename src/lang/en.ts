@@ -2,7 +2,7 @@
  * mcp-redline — English language pack.
  */
 import { MESSAGES } from "../messages.js";
-import type { LanguagePack, AntonymPair, Currency } from "./index.js";
+import type { LanguagePack, AntonymPair, Currency, DateEvent } from "./index.js";
 
 const TOKEN_RE = /[\p{L}][\p{L}\p{N}]*(?:[-'’][\p{L}\p{N}]+)*/gu;
 const B = "(?<![\\p{L}\\p{N}])";
@@ -292,6 +292,34 @@ const LEXICON_GROUPS: Record<string, string[]> = {
   month_12: ["december"],
 };
 
+function extractDateEvents(text: string): Set<DateEvent> {
+  const events = new Set<DateEvent>();
+  const lower = text.toLowerCase();
+
+  if (/(?<![\p{L}\p{N}])(?:readiness\s+notice|notified\s+readiness|ready\s+for\s+acceptance)(?![\p{L}\p{N}])/iu.test(lower)) {
+    events.add("readiness");
+  }
+  if (/(?<![\p{L}\p{N}])(?:acceptance\s+protocol|accepted\s+on|date\s+of\s+acceptance)(?![\p{L}\p{N}])/iu.test(lower)) {
+    events.add("acceptance");
+  }
+  if (/(?<![\p{L}\p{N}])(?:entered\s+into|signed|executed|concluded)(?![\p{L}\p{N}])/iu.test(lower)) {
+    events.add("signing");
+  }
+  if (/(?<![\p{L}\p{N}])(?:issued\s+on|issue\s+date|invoice\s+date)(?![\p{L}\p{N}])/iu.test(lower)) {
+    events.add("issuance");
+  }
+  if (/(?<![\p{L}\p{N}])(?:delivered\s+on|delivery\s+date|received\s+on)(?![\p{L}\p{N}])/iu.test(lower)) {
+    events.add("delivery");
+  }
+  if (/(?<![\p{L}\p{N}])(?:due\s+date|payable\s+(?:by|on)|deadline|expires?\s+on)(?![\p{L}\p{N}])/iu.test(lower)) {
+    events.add("deadline");
+  }
+  if (/(?<![\p{L}\p{N}])(?:takes?\s+effect\s+on|effective\s+from)(?![\p{L}\p{N}])/iu.test(lower)) {
+    events.add("effective");
+  }
+  return events;
+}
+
 export const enPack: LanguagePack = {
   lang: "en",
   tokenize,
@@ -324,6 +352,7 @@ export const enPack: LanguagePack = {
     customer: ["customer", "client", "licensee", "buyer"],
     extractRoles,
   },
+  extractDateEvents,
   monthNames: MONTH_NAMES,
   canonicalMonths: CANONICAL_MONTHS,
   numberFormat: {
