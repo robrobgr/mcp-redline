@@ -1,0 +1,229 @@
+{
+ "_readme": "Polish legal dev set for mcp-redline (fictional case file in corpus_pl/). split=dev: tuning allowed. Critical metric: false GROUNDED.",
+ "claims": [
+  {
+   "id": "D01",
+   "split": "dev",
+   "expected": "GROUNDED",
+   "category": "modalność",
+   "claim": "Każda ze Stron może wypowiedzieć Umowę w formie pisemnej."
+  },
+  {
+   "id": "D02",
+   "split": "dev",
+   "expected": "UNSUPPORTED",
+   "category": "modalność",
+   "claim": "Zamawiający naliczył karę umowną za opóźnienie Etapu III."
+  },
+  {
+   "id": "D03",
+   "split": "dev",
+   "expected": "GROUNDED",
+   "category": "modalność",
+   "claim": "Zamawiający może dochodzić odszkodowania przewyższającego kary umowne."
+  },
+  {
+   "id": "D04",
+   "split": "dev",
+   "expected": "UNSUPPORTED",
+   "category": "modalność",
+   "claim": "Zamawiający dochodzi odszkodowania przewyższającego kary umowne."
+  },
+  {
+   "id": "D05",
+   "split": "dev",
+   "expected": "UNSUPPORTED",
+   "category": "modalność",
+   "claim": "Zamawiający rozwiązał Umowę z powodu opóźnienia Etapu II."
+  },
+  {
+   "id": "D06",
+   "split": "dev",
+   "expected": "GROUNDED",
+   "category": "formuła_prawna",
+   "claim": "Oświadczenie o wypowiedzeniu Umowy wymaga formy pisemnej pod rygorem nieważności."
+  },
+  {
+   "id": "D07",
+   "split": "dev",
+   "expected": "GROUNDED",
+   "category": "formuła_prawna",
+   "claim": "Rozwiązanie Umowy ze skutkiem natychmiastowym wymaga bezskutecznego upływu 14-dniowego terminu wyznaczonego w wezwaniu."
+  },
+  {
+   "id": "D08",
+   "split": "dev",
+   "expected": "GROUNDED",
+   "category": "formuła_prawna",
+   "claim": "Licencja na oprogramowanie WMS jest niewyłączna."
+  },
+  {
+   "id": "D09",
+   "split": "dev",
+   "expected": "CONTRADICTED",
+   "category": "formuła_prawna",
+   "claim": "Licencja na oprogramowanie WMS jest wyłączna."
+  },
+  {
+   "id": "D10",
+   "split": "dev",
+   "expected": "GROUNDED",
+   "category": "negacja",
+   "claim": "Wady nieistotne nie wstrzymują odbioru Etapu."
+  },
+  {
+   "id": "D11",
+   "split": "dev",
+   "expected": "CONTRADICTED",
+   "category": "chronologia",
+   "claim": "Okres wypowiedzenia Umowy wynosi 90 dni."
+  },
+  {
+   "id": "D12",
+   "split": "dev",
+   "expected": "GROUNDED",
+   "category": "chronologia",
+   "claim": "Okres wypowiedzenia Umowy wynosi 60 dni."
+  },
+  {
+   "id": "D13",
+   "split": "dev",
+   "expected": "CONTRADICTED",
+   "category": "chronologia",
+   "claim": "Termin realizacji Etapu III upływa 30 września 2025 r."
+  },
+  {
+   "id": "D14",
+   "split": "dev",
+   "expected": "GROUNDED",
+   "category": "chronologia",
+   "claim": "Termin realizacji Etapu II to 30 kwietnia 2025 r."
+  },
+  {
+   "id": "D15",
+   "split": "dev",
+   "expected": "GROUNDED",
+   "category": "parafraza",
+   "claim": "Gwarancja Dostawcy trwa 24 miesiące od Odbioru Końcowego."
+  },
+  {
+   "id": "D16",
+   "split": "dev",
+   "expected": "GROUNDED",
+   "category": "negacja",
+   "claim": "Roszczenie o karę umowną za opóźnienie Etapu II w kwocie 31 200 PLN wykreślono."
+  },
+  {
+   "id": "D17",
+   "split": "dev",
+   "expected": "CONTRADICTED",
+   "category": "ranga_źródła",
+   "claim": "Zamawiający zaakceptował propozycję rabatu."
+  },
+  {
+   "id": "D18",
+   "split": "dev",
+   "expected": "UNSUPPORTED",
+   "category": "ranga_źródła",
+   "claim": "Dostawca udzielił rabatu 5% od wynagrodzenia za Etap III."
+  },
+  {
+   "id": "D19",
+   "split": "dev",
+   "expected": "GROUNDED",
+   "category": "parafraza",
+   "claim": "Poufność obowiązuje przez pięć lat po zakończeniu Umowy."
+  },
+  {
+   "id": "D20",
+   "split": "dev",
+   "expected": "CONTRADICTED",
+   "category": "data",
+   "claim": "Faktura za Etap II została doręczona 2 czerwca 2025 r."
+  },
+  {
+   "id": "D21",
+   "split": "dev",
+   "expected": "GROUNDED",
+   "category": "parafraza",
+   "claim": "Etap II odebrano bez wad."
+  },
+  {
+   "id": "D22",
+   "split": "dev",
+   "expected": "UNSUPPORTED",
+   "category": "rola",
+   "claim": "To Dostawca może dochodzić odszkodowania przewyższającego wysokość kar umownych."
+  },
+  {
+   "id": "D23",
+   "split": "dev",
+   "expected": "CONTRADICTED",
+   "category": "rola",
+   "claim": "Zamawiający udziela Dostawcy licencji na oprogramowanie WMS."
+  },
+  {
+   "id": "D24",
+   "split": "dev",
+   "expected": "GROUNDED",
+   "category": "data",
+   "claim": "Aneks nr 1 podpisano 15 stycznia 2025 r."
+  },
+  {
+   "id": "D25",
+   "split": "dev",
+   "expected": "CONTRADICTED",
+   "category": "data",
+   "claim": "Aneks nr 2 podpisano 16 maja 2025 r."
+  },
+  {
+   "id": "D26",
+   "split": "dev",
+   "expected": "CONTRADICTED",
+   "category": "data",
+   "claim": "Faktura FV/2025/06/041 została wystawiona 2 maja 2025 r."
+  },
+  {
+   "id": "D27",
+   "split": "dev",
+   "expected": "GROUNDED",
+   "category": "liczby",
+   "claim": "Wartość netto faktury wynosi 520 000,00 PLN."
+  },
+  {
+   "id": "D28",
+   "split": "dev",
+   "expected": "CONTRADICTED",
+   "category": "liczby",
+   "claim": "Łączne wynagrodzenie Dostawcy według umowy wynosi 1 340 000 PLN netto."
+  },
+  {
+   "id": "D29",
+   "split": "dev",
+   "expected": "UNSUPPORTED",
+   "category": "modalność",
+   "claim": "Dostawca usunął błędy językowe w interfejsie użytkownika."
+  },
+  {
+   "id": "D30",
+   "split": "dev",
+   "expected": "UNSUPPORTED",
+   "category": "ranga_źródła",
+   "claim": "Zamawiający zażądał od Dostawcy wykazu podwykonawców."
+  },
+  {
+   "id": "D31",
+   "split": "dev",
+   "expected": "CONTRADICTED",
+   "category": "negacja",
+   "claim": "Licencja na oprogramowanie WMS została udzielona na czas określony."
+  },
+  {
+   "id": "D32",
+   "split": "dev",
+   "expected": "GROUNDED",
+   "category": "negacja",
+   "claim": "Wynagrodzenie Dostawcy nie jest waloryzowane."
+  }
+ ]
+}
