@@ -101,6 +101,7 @@ The engine contains **no corpus-specific heuristics or hardcoded trap rules**. G
 * **Single assertion per verify:** Sentences combining facts from distinct documents are not combined into a synthetic composite; agents should split them into separate `verify` calls.
 * **Table column layout:** Numeric values are bound to table rows rather than individual header columns.
 * **Tier extraction:** Currently inferred from filename patterns (`Email`, `CRM`, etc.) rather than metadata frontmatter.
+* **Section/Page indexing in markdown and prose:** In plain markdown and prose documents without physical pagination, the `page` field returned in results refers to logical sections (delimited by headers `#`, `##`, `###`) rather than physical printed page numbers.
 
 ---
 

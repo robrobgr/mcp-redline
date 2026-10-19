@@ -35,6 +35,9 @@ var RedlineBundle = (() => {
     POLARITY_MISMATCH: "POLARITY_MISMATCH",
     NEGATED: "NEGATED",
     PARTY_MISMATCH: "PARTY_MISMATCH",
+    ROLE_MISMATCH: "ROLE_MISMATCH",
+    MODALITY_MISMATCH: "MODALITY_MISMATCH",
+    SUPERSEDED_BY_LATER_DOCUMENT: "SUPERSEDED_BY_LATER_DOCUMENT",
     HIGHER_TIER_OVERRIDE: "HIGHER_TIER_OVERRIDE",
     HIGHER_TIER_CONFLICT: "HIGHER_TIER_CONFLICT",
     LOWER_TIER_CONFLICT: "LOWER_TIER_CONFLICT",
@@ -58,7 +61,10 @@ var RedlineBundle = (() => {
       reason_polarity_mismatch: () => "polarity mismatch",
       reason_compound_claim: (count) => `compound claim: grounded by ${count} fragments of the same section`,
       reason_lower_tier_match: () => "matches source of lower or equal tier",
-      reason_lower_tier_claims_otherwise: (file, tier) => `lower tier source (${file}, Tier ${tier}) claims otherwise`
+      reason_lower_tier_claims_otherwise: (file, tier) => `lower tier source (${file}, Tier ${tier}) claims otherwise`,
+      reason_modality_mismatch: () => "modality mismatch: source expresses right, obligation, deliberation or future intent, but does not confirm factual occurrence",
+      reason_superseded_by_later: (file) => `superseded by later amendment or agreement (${file})`,
+      reason_role_mismatch: () => "role mismatch: parties or roles swapped between claim and source"
     },
     pl: {
       unsupported_no_terms: () => "Brak oparcia: twierdzenie nie zawiera poj\u0119\u0107, kt\xF3re mo\u017Cna sprawdzi\u0107 w korpusie.",
@@ -76,7 +82,10 @@ var RedlineBundle = (() => {
       reason_polarity_mismatch: () => "niezgodna polaryzacja",
       reason_compound_claim: (count) => `twierdzenie z\u0142o\u017Cone: potwierdzone ${count} fragmentami tej samej sekcji`,
       reason_lower_tier_match: () => "zgodne ze \u017Ar\xF3d\u0142em o ni\u017Cszej lub r\xF3wnej randze",
-      reason_lower_tier_claims_otherwise: (file, tier) => `\u017Ar\xF3d\u0142o o ni\u017Cszej randze (${file}, Tier ${tier}) twierdzi inaczej`
+      reason_lower_tier_claims_otherwise: (file, tier) => `\u017Ar\xF3d\u0142o o ni\u017Cszej randze (${file}, Tier ${tier}) twierdzi inaczej`,
+      reason_modality_mismatch: () => "niezgodno\u015B\u0107 modalno\u015Bci: \u017Ar\xF3d\u0142o wyra\u017Ca prawo, zobowi\u0105zanie, zamiar lub rozwa\u017Canie, ale nie potwierdza zaistnienia faktu",
+      reason_superseded_by_later: (file) => `zast\u0105pione przez p\xF3\u017Aniejszy aneks lub dokument (${file})`,
+      reason_role_mismatch: () => "niezgodno\u015B\u0107 r\xF3l stron: role podmiot\xF3w zamienione mi\u0119dzy twierdzeniem a \u017Ar\xF3d\u0142em"
     }
   };
 
@@ -137,12 +146,12 @@ var RedlineBundle = (() => {
     ["odnow", "przed\u0142u\u017C", "renewal", "renew", "renewed", "rollover"],
     ["automat", "automatic", "automatically"],
     ["zwrot", "zwrac", "refund", "refunded", "got\xF3wk", "cash"],
-    ["termin", "due", "deadline"],
+    ["termin", "due", "deadline", "up\u0142yw"],
     ["p\u0142atn", "payable", "payment", "payments", "paid", "zap\u0142ac", "op\u0142acon", "uregulow", "uiszcz"],
     ["zarz\u0105d", "board", "management"],
     ["propozyc", "proposal", "proposed", "wniosek", "wnioskow", "request"],
     ["pe\u0142n", "full", "ca\u0142kowit", "total", "\u0142\u0105czn", "aggregate"],
-    ["okres", "term", "period"],
+    ["okres", "=term", "=period"],
     ["pocz\u0105tkow", "initial"],
     ["=dni", "=dnia", "days", "day"],
     ["warto\u015B", "value"],
@@ -162,7 +171,14 @@ var RedlineBundle = (() => {
     ["zablokow", "blocked", "block"],
     ["ch\u0142odnicz", "refrigerated", "cold"],
     ["bramk", "gateway", "gateways"],
-    ["wypowiedz", "terminate", "terminated", "termination"],
+    ["wypowiedz", "rozwi\u0105za", "=terminate", "=terminated", "=termination"],
+    ["akcept", "zaakcept", "accept", "accepted", "acceptance"],
+    ["wymag", "wym\xF3g", "rygor", "rygorem", "require", "required", "requirement", "obowi\u0105zk", "mandatory"],
+    ["o\u015Bwiadczen", "zawiadomien", "deklaracj", "notice", "statement", "declaration"],
+    ["dor\u0119cz", "dor\u0119czen", "deliver", "delivered", "delivery"],
+    ["odebra", "odebran", "odbior", "accepted", "acceptance", "received"],
+    ["wystawi", "wystawion", "issue", "issued", "issuance"],
+    ["okre\u015Blon", "oznaczon", "definite", "fixed"],
     ["stycz", "january"],
     ["lut", "february"],
     ["=marca", "=marzec", "march"],
@@ -355,6 +371,11 @@ var RedlineBundle = (() => {
     "dostawcy",
     "dostawc\u0119",
     "dostawc\u0105",
+    "zamawiaj\u0105cy",
+    "zamawiaj\u0105cego",
+    "zamawiaj\u0105cemu",
+    "zamawiaj\u0105cym",
+    "zamawiaj\u0105cych",
     "klient",
     "klienta",
     "klientowi",
@@ -363,9 +384,54 @@ var RedlineBundle = (() => {
     "strona",
     "strony"
   ]);
+  var CONTRACT_TERMS = /* @__PURE__ */ new Set([
+    "umowa",
+    "umowy",
+    "umowie",
+    "umow\u0119",
+    "umow\u0105",
+    "aneks",
+    "aneksu",
+    "aneksem",
+    "aneksie",
+    "za\u0142\u0105cznik",
+    "za\u0142\u0105cznika",
+    "za\u0142\u0105czniku",
+    "za\u0142\u0105cznikiem",
+    "protok\xF3\u0142",
+    "protoko\u0142u",
+    "protoko\u0142em",
+    "protokole",
+    "etap",
+    "etapu",
+    "etapem",
+    "etapie",
+    "etapy",
+    "etap\xF3w",
+    "harmonogram",
+    "harmonogramu",
+    "harmonogramem",
+    "art",
+    "artyku\u0142",
+    "artyku\u0142u",
+    "paragraf",
+    "ust\u0119p",
+    "punkt",
+    "sekcja",
+    "agreement",
+    "contract",
+    "annex",
+    "amendment",
+    "schedule",
+    "section",
+    "clause",
+    "stage",
+    "phase",
+    "article"
+  ]);
   var ROLE_GROUPS = [
     ["supplier", "dostawc", "vendor", "provider", "licensor"],
-    ["customer", "klient", "client", "licensee", "buyer"]
+    ["customer", "zamawiaj\u0105c", "klient", "client", "licensee", "buyer"]
   ];
   var LEGAL_FORM = /* @__PURE__ */ new Set(["ltd", "limited", "plc", "inc", "gmbh", "sp", "o.o", "z", "s.a", "b.v", "sas", "llc"]);
   var NEG_EXACT = /* @__PURE__ */ new Set([
@@ -408,8 +474,160 @@ var RedlineBundle = (() => {
     "\u017Cadnego",
     "\u017Cadnej"
   ]);
-  var NEG_PREFIX = ["odrzuc", "wykre\u015Bl", "zakaz", "niewa\u017Cn", "bezpodstawn", "bezskuteczn", "wy\u0142\u0105czy", "wy\u0142\u0105czon", "nieprawdziw", "niedopuszczaln", "wykluczon"];
+  var NEG_PREFIX = ["odrzuc", "wykre\u015Bl", "zakaz", "niewa\u017Cn", "bezpodstawn", "wy\u0142\u0105czy", "wy\u0142\u0105czon", "nieprawdziw", "niedopuszczaln", "wykluczon"];
   var UNPREFIX = { unpaid: "paid", unsigned: "signed" };
+  var ANTONYM_PAIRS = [
+    { pos: "wy\u0142\u0105czn", neg: "niewy\u0142\u0105czn" },
+    { pos: "okre\u015Blon", neg: "nieoznaczon", alts: ["nieokre\u015Blon"] },
+    { pos: "oznaczon", neg: "nieoznaczon" },
+    { pos: "istotn", neg: "nieistotn" },
+    { pos: "odp\u0142atn", neg: "nieodp\u0142atn" },
+    { pos: "zbywaln", neg: "niezbywaln" },
+    { pos: "ograniczon", neg: "nieograniczon" },
+    { pos: "exclusive", neg: "nonexclusive" },
+    { pos: "revocable", neg: "irrevocable" }
+  ];
+  function checkAntonymConflict(claimToks, unitToks) {
+    for (const pair of ANTONYM_PAIRS) {
+      const negs = [pair.neg, ...pair.alts || []];
+      const claimHasPos = claimToks.some((t) => t.startsWith(pair.pos) && !negs.some((n) => t.startsWith(n)));
+      const claimHasNeg = claimToks.some((t) => negs.some((n) => t.startsWith(n)));
+      const unitHasPos = unitToks.some((t) => t.startsWith(pair.pos) && !negs.some((n) => t.startsWith(n)));
+      const unitHasNeg = unitToks.some((t) => negs.some((n) => t.startsWith(n)));
+      if (claimHasPos && unitHasNeg || claimHasNeg && unitHasPos) {
+        return true;
+      }
+    }
+    return false;
+  }
+  var MODAL_CUES = [
+    "mo\u017Ce",
+    "mog\u0105",
+    "ma prawo",
+    "maj\u0105 prawo",
+    "uprawnion",
+    "dopuszcz",
+    "zezwala",
+    "zobowi\u0105z",
+    "powinien",
+    "powinna",
+    "powinni",
+    "musi",
+    "musz\u0105",
+    "b\u0119dzie",
+    "zostanie",
+    "zostan\u0105",
+    "do decyzji",
+    "rozwa\u017Ca",
+    "rozwa\u017Caj\u0105",
+    "may",
+    "can",
+    "could",
+    "might",
+    "shall",
+    "will",
+    "must",
+    "agrees to",
+    "undertakes",
+    "commits",
+    "entitled",
+    "permitted",
+    "allowed",
+    "proposal",
+    "proposed",
+    "deliberat",
+    "consider"
+  ];
+  var FACTUAL_CUES = [
+    "naliczy\u0142",
+    "naliczy\u0142a",
+    "naliczono",
+    "rozwi\u0105za\u0142",
+    "rozwi\u0105za\u0142a",
+    "rozwi\u0105zano",
+    "wypowiedzia\u0142",
+    "wypowiedzia\u0142a",
+    "wypowiedziano",
+    "usun\u0105\u0142",
+    "usun\u0119\u0142a",
+    "usuni\u0119to",
+    "za\u017C\u0105da\u0142",
+    "za\u017C\u0105da\u0142a",
+    "za\u017C\u0105dano",
+    "wprowadzi\u0142",
+    "wprowadzi\u0142a",
+    "wprowadzono",
+    "podpisa\u0142",
+    "podpisa\u0142a",
+    "podpisano",
+    "dor\u0119czy\u0142",
+    "dor\u0119czy\u0142a",
+    "dor\u0119czono",
+    "odebra\u0142",
+    "odebra\u0142a",
+    "odebrano",
+    "odebrany",
+    "odebrana",
+    "odebrane",
+    "zap\u0142aci\u0142",
+    "zap\u0142aci\u0142a",
+    "zap\u0142acono",
+    "na\u0142o\u017Cy\u0142",
+    "na\u0142o\u017Cy\u0142a",
+    "na\u0142o\u017Cono",
+    "przyzna\u0142",
+    "przyzna\u0142a",
+    "przyznano",
+    "zaakceptowa\u0142",
+    "zaakceptowa\u0142a",
+    "zaakceptowano",
+    "wykre\u015Blono",
+    "stwierdzono",
+    "wystawiono",
+    "wystawiona",
+    "wystawiony",
+    "imposed",
+    "terminated",
+    "demanded",
+    "removed",
+    "delivered",
+    "signed",
+    "entered into",
+    "paid",
+    "granted",
+    "accepted",
+    "executed",
+    "countersigned",
+    "issued"
+  ];
+  function isModalText(text) {
+    const lower = text.toLowerCase();
+    return MODAL_CUES.some((c) => lower.includes(c));
+  }
+  function isFactualText(text) {
+    const lower = text.toLowerCase();
+    if (FACTUAL_CUES.some((c) => lower.includes(c))) return true;
+    if (/(?<![\p{L}\p{N}])dochodzi(?![\p{L}\p{N}])/u.test(lower) && !/(?<![\p{L}\p{N}])(?:może|ma\s+prawo)\s+dochodzić(?![\p{L}\p{N}])/u.test(lower)) {
+      return true;
+    }
+    return false;
+  }
+  function extractRoles(text) {
+    const lower = text.toLowerCase();
+    let subject;
+    let recipient;
+    if (/(?<![\p{L}\p{N}])(?:to\s+)?dostawca(?![\p{L}\p{N}])/u.test(lower) || /(?<![\p{L}\p{N}])supplier(?![\p{L}\p{N}])/u.test(lower)) {
+      subject = "supplier";
+    } else if (/(?<![\p{L}\p{N}])(?:to\s+)?zamawiający(?![\p{L}\p{N}])/u.test(lower) || /(?<![\p{L}\p{N}])customer(?![\p{L}\p{N}])/u.test(lower) || /(?<![\p{L}\p{N}])klient(?![\p{L}\p{N}])/u.test(lower)) {
+      subject = "customer";
+    }
+    if (/(?<![\p{L}\p{N}])(?:udziela\s+)?dostawcy(?![\p{L}\p{N}])/u.test(lower) || /(?<![\p{L}\p{N}])to\s+(?:the\s+)?supplier(?![\p{L}\p{N}])/u.test(lower)) {
+      recipient = "supplier";
+    } else if (/(?<![\p{L}\p{N}])(?:udziela\s+)?zamawiającemu(?![\p{L}\p{N}])/u.test(lower) || /(?<![\p{L}\p{N}])to\s+(?:the\s+)?customer(?![\p{L}\p{N}])/u.test(lower) || /(?<![\p{L}\p{N}])klientowi(?![\p{L}\p{N}])/u.test(lower)) {
+      recipient = "customer";
+    }
+    return { subject, recipient };
+  }
   var HEDGE_PREFIX = ["zawnioskow", "wnios", "propozyc", "proponu", "propos", "request", "claimed", "alleg", "twierdz", "rzekom", "purport", "draft", "domag", "\u017C\u0105da", "\u017C\u0105dan"];
   function isHedge(t) {
     return HEDGE_PREFIX.some((p) => t.startsWith(p));
@@ -423,6 +641,8 @@ var RedlineBundle = (() => {
       `${B}not\\s+(?:to\\s+)?exceed\\w*`,
       `${B}nie\\s+(?:mniej|wi\u0119cej|p\xF3\u017Aniej|wcze\u015Bniej)\\s+ni\u017C${E}`,
       `${B}nie\\s+przekracz\\p{L}*`,
+      `${B}pod\\s+rygorem\\s+niewa\u017Cno\\p{L}*`,
+      `${B}(?:po\\s+|oraz\\s+|i\\s+)?bezskuteczn\\p{L}*\\s+up\u0142yw\\p{L}*`,
       `${B}no[.:]`
     ].join("|"),
     "giu"
@@ -432,7 +652,11 @@ var RedlineBundle = (() => {
     const out = [];
     for (const t of text.toLowerCase().match(TOKEN_RE) || []) {
       out.push(t);
-      if (t.includes("-") && !/\d/.test(t)) out.push(...t.split("-"));
+      if (t.includes("-")) {
+        for (const part of t.split("-")) {
+          if (/^[\p{L}]+$/u.test(part)) out.push(part);
+        }
+      }
     }
     return out.filter((t) => t.length >= 2);
   }
@@ -505,12 +729,49 @@ var RedlineBundle = (() => {
     t = t.replace(/^\s*(?:[>*#-]\s*)*\d+(?:\.\d+)+\.?\s/, " ");
     t = t.replace(/^\s*#+\s*\d+\.\s/, " ");
     t = t.replace(/(?<!\d)(\d{1,2})\.(\d{1,2})\.(\d{4})(?!\d)/g, (_m, d, mo, y) => {
-      numbers.push({ value: +d, kind: "plain", raw: d }, { value: +y, kind: "year", raw: y });
       const mi = +mo - 1;
-      if (mi >= 0 && mi < 12) extraTokens.push(MONTHS_EN[mi]);
+      const moEn = mi >= 0 && mi < 12 ? MONTHS_EN[mi] : void 0;
+      numbers.push({ value: +d, kind: "plain", raw: d, word: moEn }, { value: +y, kind: "year", raw: y });
+      if (moEn) extraTokens.push(moEn);
       return " ";
     });
-    const re = /([£€]\s?)?(\d{1,3}(?:[  ]\d{3})+(?:[.,]\d+)?|\d+(?:[.,]\d+)*)(?:st|nd|rd|th)?(?![\p{L}\d])(\s?%)?/gu;
+    const PL_MONTHS_MAP = {
+      stycznia: 0,
+      stycze\u0144: 0,
+      lutego: 1,
+      luty: 1,
+      marca: 2,
+      marzec: 2,
+      kwietnia: 3,
+      kwiecie\u0144: 3,
+      maja: 4,
+      maj: 4,
+      czerwca: 5,
+      czerwiec: 5,
+      lipca: 6,
+      lipiec: 6,
+      sierpnia: 7,
+      sierpie\u0144: 7,
+      wrze\u015Bnia: 8,
+      wrzesie\u0144: 8,
+      pa\u017Adziernika: 9,
+      pa\u017Adziernik: 9,
+      listopada: 10,
+      listopad: 10,
+      grudnia: 11,
+      grudzie\u0144: 11
+    };
+    const dateNamedRe = new RegExp(`(?<!\\d)(\\d{1,2})\\s+(${Object.keys(PL_MONTHS_MAP).join("|")}|${MONTHS_EN.join("|")})\\s+(\\d{4})(?!\\d)(?:\\s*r\\.?)?`, "giu");
+    t = t.replace(dateNamedRe, (_m, d, mo, y) => {
+      const moLower = mo.toLowerCase();
+      let mi = PL_MONTHS_MAP[moLower];
+      if (mi === void 0) mi = MONTHS_EN.indexOf(moLower);
+      const moEn = mi >= 0 && mi < 12 ? MONTHS_EN[mi] : void 0;
+      numbers.push({ value: +d, kind: "plain", raw: d, word: moEn }, { value: +y, kind: "year", raw: y });
+      if (moEn) extraTokens.push(moEn);
+      return " ";
+    });
+    const re = /([£€]\s?)?(\d{1,3}(?:[  ]\d{3})+(?:[.,]\d+)?|\d+(?:[.,]\d+)*)(?:st|nd|rd|th)?(?![\p{L}\d])(\s?%)?(?:-([\p{L}]+))?/gu;
     let m;
     while (m = re.exec(t)) {
       const raw = m[0].trim();
@@ -541,7 +802,8 @@ var RedlineBundle = (() => {
       else if (value >= 1e3 || /[.,]\d{2}$/.test(m[2])) kind = "money";
       else kind = "plain";
       if (kind === "money" && !currency && defaultCurrency) currency = defaultCurrency;
-      const word = (after.match(/^[\s*)]*([\p{L}]+)/u)?.[1] || "").toLowerCase() || void 0;
+      let word = m[4] ? m[4].toLowerCase() : (after.match(/^[\s*)]*([\p{L}]+)/u)?.[1] || "").toLowerCase() || void 0;
+      if (word && word.startsWith("dni")) word = "dni";
       numbers.push({ value, kind, currency, raw, word });
     }
     return { numbers, extraTokens };
@@ -551,6 +813,58 @@ var RedlineBundle = (() => {
   }
   function sameValue(a, b) {
     return Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(a), Math.abs(b));
+  }
+  function extractDocDate(file, raw) {
+    const mFile = file.match(/\b(20\d{2})[-_](\d{2})[-_](\d{2})\b/);
+    if (mFile) return +`${mFile[1]}${mFile[2]}${mFile[3]}`;
+    const head = raw.slice(0, 1e3);
+    const mPl = head.match(/(?:z\s+dnia\s+|dnia\s+)(\d{1,2})\s+([a-ząćęłńóśźż]+)\s+(20\d{2})/iu);
+    if (mPl) {
+      const PL_MONTH_NUMS = {
+        stycznia: 1,
+        stycze\u0144: 1,
+        lutego: 2,
+        luty: 2,
+        marca: 3,
+        marzec: 3,
+        kwietnia: 4,
+        kwiecie\u0144: 4,
+        maja: 5,
+        maj: 5,
+        czerwca: 6,
+        czerwiec: 6,
+        lipca: 7,
+        lipiec: 7,
+        sierpnia: 8,
+        sierpie\u0144: 8,
+        wrze\u015Bnia: 9,
+        wrzesie\u0144: 9,
+        pa\u017Adziernika: 10,
+        pa\u017Adziernik: 10,
+        listopada: 11,
+        listopad: 11,
+        grudnia: 12,
+        grudzie\u0144: 12
+      };
+      const mi = PL_MONTH_NUMS[mPl[2].toLowerCase()];
+      if (mi) {
+        const d = mPl[1].padStart(2, "0");
+        const m = String(mi).padStart(2, "0");
+        return +`${mPl[3]}${m}${d}`;
+      }
+    }
+    const mEn = head.match(/(?:dated\s+|as\s+of\s+)(\d{1,2})\s+([a-z]+)\s+(20\d{2})/iu);
+    if (mEn) {
+      const mi = MONTHS_EN.indexOf(mEn[2].toLowerCase());
+      if (mi >= 0) {
+        const d = mEn[1].padStart(2, "0");
+        const m = String(mi + 1).padStart(2, "0");
+        return +`${mEn[3]}${m}${d}`;
+      }
+    }
+    const mYear = file.match(/\b(20\d{2})\b/);
+    if (mYear) return +`${mYear[1]}0101`;
+    return 20240101;
   }
   function tierOf(file) {
     const f = file.toLowerCase();
@@ -601,6 +915,7 @@ var RedlineBundle = (() => {
       const files = [...docs].sort((a, b) => (a.file || "").localeCompare(b.file || ""));
       for (const { file, content: raw } of files) {
         const tier = tierOf(file);
+        const docDate = extractDocDate(file, raw);
         this.readParties(raw);
         const lines = raw.split("\n");
         const isSinglePage = /invoice|faktura/i.test(file);
@@ -624,12 +939,12 @@ var RedlineBundle = (() => {
           buf.push(line);
         }
         flush();
-        for (const sec of docSections) this.buildUnits(sec, docContext);
+        for (const sec of docSections) this.buildUnits(sec, docContext, docDate);
         this.sources.push({ file, type: "markdown", pages: docSections.length, title: docSections[0]?.title || file, tier });
         this.sections.push(...docSections);
       }
     }
-    buildUnits(sec, docContext) {
+    buildUnits(sec, docContext, docDate) {
       const context = /* @__PURE__ */ new Set([...rawTokens(sec.title), ...docContext]);
       const lines = sec.content.split("\n");
       const units = [];
@@ -652,12 +967,24 @@ var RedlineBundle = (() => {
           // Table rows keep one scope (a status cell negates the whole record); prose is split
           // into clauses so that "under English law (which governs the contract) the letter has
           // NO effect" does not negate "the contract is governed by English law".
-          clauses: (text.startsWith("|") ? [text] : text.split(/[,;:()—–]|\s-\s/)).map((c) => ({ tokens: new Set(rawTokens(c)), cues: negationCues(c) }))
+          clauses: (text.startsWith("|") ? [text] : text.split(/[,;:()—–]|\s-\s/)).map((c) => ({ tokens: new Set(rawTokens(c)), cues: negationCues(c) })),
+          docDate,
+          modal: isModalText(text),
+          factual: isFactualText(text),
+          roles: extractRoles(text)
         });
       };
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
-        if (!line || /^-{3,}$/.test(line) || /^#{1,6}\s/.test(line)) continue;
+        if (!line || /^-{3,}$/.test(line)) continue;
+        if (/^#{1,6}\s/.test(line)) {
+          const cleanHeader = line.replace(/^#{1,6}\s+/, "").trim();
+          if (/(?:z\s+dnia|dated|\b20\d{2}\b)/i.test(cleanHeader) && rawTokens(cleanHeader).length >= 4) {
+            const cur = currenciesIn(cleanHeader);
+            push(cleanHeader, cleanHeader, [], cur.size === 1 ? [...cur][0] : void 0);
+          }
+          continue;
+        }
         if (line.startsWith("|")) {
           const cells = line.split("|").slice(1, -1).map((c) => c.trim());
           if (cells.every((c) => /^:?-{3,}:?$/.test(c))) continue;
@@ -767,9 +1094,23 @@ var RedlineBundle = (() => {
       const claimCur = currenciesIn(claim);
       const { numbers } = extractNumbers(claim, claimCur.size === 1 ? [...claimCur][0] : void 0);
       const cased = claim.match(TOKEN_RE) || [];
-      const proper = [...new Set(cased.slice(1).filter((w) => /^\p{Lu}/u.test(w)).map((w) => w.toLowerCase()))].filter((t) => content.has(t) && !MONTHS_EN.includes(t) && !WEEKDAYS_EN.includes(t));
+      const proper = [...new Set(cased.slice(1).filter((w) => /^\p{Lu}/u.test(w)).map((w) => w.toLowerCase()))].filter((t) => content.has(t) && !MONTHS_EN.includes(t) && !WEEKDAYS_EN.includes(t) && !CONTRACT_TERMS.has(t));
       for (const t of content) if (DECISIVE_GROUPS.some((g) => g.some((m) => memberMatch(m, t))) && !proper.includes(t)) proper.push(t);
-      return { content: [...content], alts, weight, numbers, negative, hedged: toks.some(isHedge), parties: this.partiesIn(toks), proper };
+      const modal = isModalText(claim);
+      const factual = isFactualText(claim);
+      const roles = extractRoles(claim);
+      const negatedTerms = /* @__PURE__ */ new Set();
+      for (let i = 0; i < toks.length; i++) {
+        if (isNegCue(toks[i])) {
+          for (let j = i + 1; j < Math.min(toks.length, i + 3); j++) {
+            if (!STOPWORDS.has(toks[j]) && !isNegCue(toks[j])) {
+              negatedTerms.add(toks[j]);
+              break;
+            }
+          }
+        }
+      }
+      return { content: [...content], alts, weight, numbers, negative, hedged: toks.some(isHedge), parties: this.partiesIn(toks), proper, modal, factual, roles, negatedTerms };
     }
     scoreUnit(f, u) {
       const sectionUnits = this.sectionUnits.get(`${u.file}#${u.page}`) || [];
@@ -812,15 +1153,47 @@ var RedlineBundle = (() => {
       const conflicts = [];
       const conflictCodes = [];
       let numbersOk = true;
+      const isReplacementUnit = /(?:zastępuje(?:\s+się)?|zastąpion|replaces|is\s+replaced\s+(?:by|with)|supersedes)/i.test(u.text);
+      let replacedNum;
+      let replacementNum;
+      if (isReplacementUnit) {
+        for (let i = 0; i < u.numbers.length; i++) {
+          for (let j = i + 1; j < u.numbers.length; j++) {
+            const a = u.numbers[i], b = u.numbers[j];
+            const sameKind = a.kind === b.kind;
+            const sameWord = !a.word && !b.word || !!a.word && !!b.word && (this.sameConcept(a.word, b.word) || a.word === b.word);
+            const sameCur = a.currency === b.currency;
+            if (sameKind && sameWord && sameCur && !sameValue(a.value, b.value)) {
+              replacedNum = a;
+              replacementNum = b;
+              break;
+            }
+          }
+          if (replacedNum) break;
+        }
+      }
       const sectionYears = sectionUnits.flatMap((s) => s.numbers.filter((n2) => n2.kind === "year"));
       for (const n2 of f.numbers) {
+        if (replacedNum && replacementNum && sameValue(n2.value, replacedNum.value)) {
+          numbersOk = false;
+          conflictCodes.push(REASON_CODES.NUMBER_MISMATCH);
+          conflicts.push(MESSAGES[this.lang].reason_value_mismatch(fmt(n2), fmt(replacementNum)));
+          continue;
+        }
         const same = u.numbers.filter((x) => sameValue(x.value, n2.value));
         const curClash = n2.currency && same.length > 0 && same.every((x) => x.currency && x.currency !== n2.currency);
-        const found = same.some((x) => !(n2.currency && x.currency && x.currency !== n2.currency)) || n2.kind === "year" && sectionYears.some((y) => y.value === n2.value);
+        const monthClash = n2.word && MONTHS_EN.includes(n2.word) && same.length > 0 && same.every((x) => x.word && MONTHS_EN.includes(x.word) && x.word !== n2.word);
+        const found = !curClash && !monthClash && same.length > 0 || n2.kind === "year" && sectionYears.some((y) => y.value === n2.value);
         if (curClash) {
           numbersOk = false;
           conflictCodes.push(REASON_CODES.CURRENCY_MISMATCH);
           conflicts.push(MESSAGES[this.lang].reason_currency_mismatch(fmt(n2), fmt(same[0])));
+          continue;
+        }
+        if (monthClash) {
+          numbersOk = false;
+          conflictCodes.push(REASON_CODES.NUMBER_MISMATCH);
+          conflicts.push(MESSAGES[this.lang].reason_value_mismatch(`${n2.raw} ${n2.word}`, `${same[0].raw} ${same[0].word}`));
           continue;
         }
         if (found) continue;
@@ -829,11 +1202,27 @@ var RedlineBundle = (() => {
           if (n2.kind === "money") return x.kind === "money";
           if (n2.kind === "percent") return x.kind === "percent";
           if (n2.kind === "year") return x.kind === "year";
-          return x.kind === "plain" && !f.numbers.some((c) => sameValue(c.value, x.value)) && !!n2.word && !!x.word && this.sameConcept(n2.word, x.word);
+          return x.kind === "plain" && !f.numbers.some((c) => sameValue(c.value, x.value)) && !!n2.word && !!x.word && (this.sameConcept(n2.word, x.word) || MONTHS_EN.includes(n2.word) && MONTHS_EN.includes(x.word));
         });
         if (rivals.length > 0) {
           conflictCodes.push(REASON_CODES.NUMBER_MISMATCH);
           conflicts.push(MESSAGES[this.lang].reason_value_mismatch(fmt(n2), rivals.map(fmt).join(" / ")));
+        }
+      }
+      const antonymConflict = checkAntonymConflict(f.content, [...u.tokens]);
+      if (antonymConflict) {
+        conflictCodes.push(REASON_CODES.POLARITY_MISMATCH);
+        conflicts.push(MESSAGES[this.lang].reason_polarity_source_neg("antonym"));
+      }
+      const modalityMismatch = f.factual && !f.modal && u.modal && !u.factual;
+      let roleMismatch = false;
+      let roleContra = false;
+      if (f.roles.subject && u.roles.subject && f.roles.subject !== u.roles.subject) {
+        roleMismatch = true;
+        if (f.roles.recipient && u.roles.recipient && f.roles.recipient !== u.roles.recipient) {
+          roleContra = true;
+          conflictCodes.push(REASON_CODES.ROLE_MISMATCH);
+          conflicts.push(MESSAGES[this.lang].reason_role_mismatch());
         }
       }
       const hitsIn = (c) => f.content.filter((t) => [...c.tokens].some((x) => f.alts.get(t).has(x))).length;
@@ -847,7 +1236,7 @@ var RedlineBundle = (() => {
       const supportCoverage = (cov + Math.max(0, numFound) * NW) / denom;
       const supportUnitCoverage = (fullW + Math.max(0, numFound) * NW) / denom;
       const score = coverage + (3 - u.tier) * 0.02 + (numbersOk && f.numbers.length ? 0.1 : 0);
-      return { unit: u, unitNegative, coverage, unitCoverage, contraCoverage, supportCoverage, supportUnitCoverage, valueConflict: conflicts.length > 0, full, matched, missing, numbersOk, conflicts, conflictCodes, polarityFlip, score };
+      return { unit: u, unitNegative, coverage, unitCoverage, contraCoverage, supportCoverage, supportUnitCoverage, valueConflict: conflicts.length > 0, full, matched, missing, numbersOk, conflicts, conflictCodes, polarityFlip, score, antonymConflict, roleMismatch, roleContra, modalityMismatch };
     }
     /** Two words denote the same concept (stem match or same lexicon group). */
     sameConcept(a, b) {
@@ -927,23 +1316,42 @@ var RedlineBundle = (() => {
       }
       const minFull = Math.min(2, f.content.length);
       const scored = this.units.map((u) => this.scoreUnit(f, u)).sort((a, b) => b.score - a.score);
-      const supports = scored.filter((s) => s.supportCoverage >= THRESHOLDS.support && s.supportUnitCoverage >= THRESHOLDS.supportUnit && s.full >= minFull && s.numbersOk && s.conflicts.length === 0 && !s.polarityFlip && !this.partyMismatch(f.parties, s.unit) && f.proper.every((t) => s.matched.includes(t) || s.matched.includes(`${t}^`)) && !(s.unit.hedged && s.unit.negCues.length === 0 && !f.hedged));
-      const polarityContra = (s) => s.polarityFlip && (!f.negative || !s.unit.hedged && s.numbersOk && s.contraCoverage >= THRESHOLDS.support);
-      const contras = scored.filter((s) => s.contraCoverage >= THRESHOLDS.contradict && s.full >= minFull && (s.valueConflict || polarityContra(s)));
-      const pick = (arr) => arr.slice().sort((a, b) => a.unit.tier - b.unit.tier || b.score - a.score)[0];
+      const supports = scored.filter((s) => s.supportCoverage >= THRESHOLDS.support && s.supportUnitCoverage >= THRESHOLDS.supportUnit && s.full >= minFull && s.numbersOk && s.conflicts.length === 0 && !s.polarityFlip && !this.partyMismatch(f.parties, s.unit) && !s.antonymConflict && !s.roleMismatch && !s.modalityMismatch && f.proper.every((t) => s.matched.includes(t) || s.matched.includes(`${t}^`)) && !(s.unit.hedged && s.unit.negCues.length === 0 && !f.hedged));
+      const polarityContra = (s) => {
+        if (s.antonymConflict || s.roleContra) return true;
+        if (!s.polarityFlip) return false;
+        if (f.negative) {
+          const matchesNegated = f.negatedTerms.size === 0 || [...f.negatedTerms].some((t) => s.matched.includes(t) || s.matched.includes(`${t}^`));
+          return !s.unit.hedged && s.numbersOk && s.contraCoverage >= THRESHOLDS.support && matchesNegated;
+        } else {
+          const claimPreds = f.content.filter((c) => FACTUAL_CUES.some((cue) => memberMatch(cue, c)));
+          const matchesPred = claimPreds.length === 0 || claimPreds.some((p) => s.matched.includes(p) || s.matched.includes(`${p}^`));
+          return matchesPred && (f.proper.length === 0 || f.proper.every((t) => s.matched.some((m) => m.startsWith(t))));
+        }
+      };
+      const contras = scored.filter((s) => s.contraCoverage >= THRESHOLDS.contradict && s.full >= minFull && (s.valueConflict || polarityContra(s)) && (f.proper.length === 0 || f.proper.every((t) => s.matched.some((m) => m.startsWith(t)))));
+      const pick = (arr) => arr.slice().sort((a, b) => a.unit.tier - b.unit.tier || b.unit.docDate - a.unit.docDate || b.score - a.score)[0];
       const bestS = pick(supports);
-      const overrides = (c) => !bestS || c.unit.tier < bestS.unit.tier && c.contraCoverage >= THRESHOLDS.override * bestS.contraCoverage || c.unit.tier === bestS.unit.tier && polarityContra(c) && c.numbersOk && c.contraCoverage >= bestS.contraCoverage - THRESHOLDS.tieMargin;
+      const overrides = (c) => !bestS || c.unit.tier < bestS.unit.tier && c.contraCoverage >= THRESHOLDS.override * bestS.contraCoverage || c.unit.tier === bestS.unit.tier && c.unit.docDate > bestS.unit.docDate && (c.valueConflict || c.antonymConflict) && c.contraCoverage >= THRESHOLDS.contradict || c.unit.tier === bestS.unit.tier && polarityContra(c) && c.numbersOk && c.contraCoverage >= bestS.contraCoverage - THRESHOLDS.tieMargin;
       const bestC = pick(contras.filter(overrides));
       const contraReasonDetails = (c) => {
         const codes = [];
         const reasons = [];
+        if (bestS && c.unit.tier === bestS.unit.tier && c.unit.docDate > bestS.unit.docDate) {
+          codes.push(REASON_CODES.SUPERSEDED_BY_LATER_DOCUMENT);
+          reasons.push(MESSAGES[this.lang].reason_superseded_by_later(c.unit.file));
+        }
+        if (c.roleContra) {
+          codes.push(REASON_CODES.ROLE_MISMATCH);
+          reasons.push(MESSAGES[this.lang].reason_role_mismatch());
+        }
         if (polarityContra(c)) {
           codes.push(REASON_CODES.POLARITY_MISMATCH, REASON_CODES.NEGATED);
           if (f.negative) {
             reasons.push(MESSAGES[this.lang].reason_polarity_claim_neg());
           } else {
             const cues = c.unit.clauses.flatMap((k) => k.cues).slice(0, 3).join(", ") || c.unit.negCues.slice(0, 3).join(", ");
-            reasons.push(MESSAGES[this.lang].reason_polarity_source_neg(cues));
+            reasons.push(MESSAGES[this.lang].reason_polarity_source_neg(cues || "source denies"));
           }
         }
         codes.push(...c.conflictCodes);
@@ -1053,6 +1461,14 @@ var RedlineBundle = (() => {
       if (near) {
         if (this.partyMismatch(f.parties, near.unit)) {
           reasonCodes.push(REASON_CODES.PARTY_MISMATCH);
+        }
+        if (near.roleMismatch) {
+          reasonCodes.push(REASON_CODES.ROLE_MISMATCH);
+          why.push(MESSAGES[this.lang].reason_role_mismatch());
+        }
+        if (near.modalityMismatch) {
+          reasonCodes.push(REASON_CODES.MODALITY_MISMATCH);
+          why.push(MESSAGES[this.lang].reason_modality_mismatch());
         }
         if (near.coverage < THRESHOLDS.support) {
           reasonCodes.push(REASON_CODES.LOW_COVERAGE);

@@ -19,9 +19,16 @@ const args = process.argv.slice(2);
 const splitArg = args.includes("--split") ? args[args.indexOf("--split") + 1].split(",") : null;
 const strict = args.includes("--strict");
 const verbose = args.includes("--verbose");
+const corpusArg = args.includes("--corpus") ? args[args.indexOf("--corpus") + 1] : "corpus";
+const claimsArg = args.includes("--claims") ? args[args.indexOf("--claims") + 1] : path.join("prompts_eval", "claims.json");
+const langArg = args.includes("--lang") ? args[args.indexOf("--lang") + 1] : "en";
 
-const engine = new RedlineEngine(path.join(root, "corpus"));
-const { claims } = JSON.parse(fs.readFileSync(path.join(root, "prompts_eval", "claims.json"), "utf-8"));
+const corpusDir = path.isAbsolute(corpusArg) ? corpusArg : path.join(root, corpusArg);
+const claimsFile = path.isAbsolute(claimsArg) ? claimsArg : path.join(root, claimsArg);
+const outDir = path.dirname(claimsFile);
+
+const engine = new RedlineEngine(corpusDir, langArg);
+const { claims } = JSON.parse(fs.readFileSync(claimsFile, "utf-8"));
 const selected = splitArg ? claims.filter((c) => splitArg.includes(c.split)) : claims;
 const STATUSES = ["GROUNDED", "CONTRADICTED", "UNSUPPORTED"];
 
@@ -67,7 +74,6 @@ for (const [s, m] of Object.entries({ ...bySplit, ALL: overall })) {
 
 if (!splitArg) {
   const executedAt = new Date().toISOString();
-  const outDir = path.join(root, "prompts_eval");
   fs.writeFileSync(path.join(outDir, "results_raw.json"), JSON.stringify({ executedAt, node: process.version, metrics: { bySplit, overall }, results }, null, 2) + "\n");
 
   const row = (r) => `| ${r.id} | ${r.split} | ${r.claim.replace(/\|/g, "\\|")} | ${r.expected} | **${r.verdict}** | ${r.correct ? "✅" : r.falseGrounded ? "🔴 false GROUNDED" : "🟠"} | ${r.file ? `${r.file} §${r.page} (T${r.tier})` : "—"} |`;
@@ -105,8 +111,8 @@ ${results.map(row).join("\n")}
 
 Raw responses (with verbatim quotes and explanations): [\`results_raw.json\`](results_raw.json).
 ${fs.existsSync(path.join(outDir, "HOLDOUT_LOG.md")) ? "\n" + fs.readFileSync(path.join(outDir, "HOLDOUT_LOG.md"), "utf-8") : ""}`;
-  fs.writeFileSync(path.join(outDir, "EVALUATION_REPORT.md"), md);
-  console.log(`\nSaved prompts_eval/results_raw.json and prompts_eval/EVALUATION_REPORT.md`);
+  const relOut = path.relative(root, outDir);
+  console.log(`\nSaved ${path.join(relOut, "results_raw.json")} and ${path.join(relOut, "EVALUATION_REPORT.md")}`);
 }
 
 const failures = results.filter((r) => r.falseGrounded || (strict && !r.correct));

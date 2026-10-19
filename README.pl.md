@@ -95,6 +95,7 @@ npm run eval -- --strict   # błąd przy jakiejkolwiek rozbieżności
 * **Zero telemetrii i logowania treści dokumentów.**
 * **`verify` bez LLM** — deterministyczne i audytowalne.
 * **Język:** EN domyślnie, PL przez zmienną środowiskową `MCP_REDLINE_LANG=pl`.
+* **Pojęcie „strony” w dokumentach Markdown:** W dokumentach tekstowych i Markdown bez podziału na strony fizyczne pole `page` oznacza logiczną sekcję dokumentu (rozdzielaną nagłówkami `#`, `##`, `###`), a nie fizyczną stronę wydruku.
 
 ---
 

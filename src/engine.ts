@@ -25,6 +25,10 @@ export interface Unit {
   negCues: string[];
   hedged: boolean;
   clauses: Array<{ tokens: Set<string>; cues: string[] }>; // negation scope
+  docDate: number;
+  modal: boolean;
+  factual: boolean;
+  roles: { subject?: "supplier" | "customer"; recipient?: "supplier" | "customer" };
 }
 
 export interface SourceInfo { file: string; type: string; pages: number; title: string; tier: number }
@@ -113,12 +117,12 @@ const GROUPS: string[][] = [
   ["odnow", "przedłuż", "renewal", "renew", "renewed", "rollover"],
   ["automat", "automatic", "automatically"],
   ["zwrot", "zwrac", "refund", "refunded", "gotówk", "cash"],
-  ["termin", "due", "deadline"],
+  ["termin", "due", "deadline", "upływ"],
   ["płatn", "payable", "payment", "payments", "paid", "zapłac", "opłacon", "uregulow", "uiszcz"],
   ["zarząd", "board", "management"],
   ["propozyc", "proposal", "proposed", "wniosek", "wnioskow", "request"],
   ["pełn", "full", "całkowit", "total", "łączn", "aggregate"],
-  ["okres", "term", "period"],
+  ["okres", "=term", "=period"],
   ["początkow", "initial"],
   ["=dni", "=dnia", "days", "day"],
   ["wartoś", "value"],
@@ -138,7 +142,14 @@ const GROUPS: string[][] = [
   ["zablokow", "blocked", "block"],
   ["chłodnicz", "refrigerated", "cold"],
   ["bramk", "gateway", "gateways"],
-  ["wypowiedz", "terminate", "terminated", "termination"],
+  ["wypowiedz", "rozwiąza", "=terminate", "=terminated", "=termination"],
+  ["akcept", "zaakcept", "accept", "accepted", "acceptance"],
+  ["wymag", "wymóg", "rygor", "rygorem", "require", "required", "requirement", "obowiązk", "mandatory"],
+  ["oświadczen", "zawiadomien", "deklaracj", "notice", "statement", "declaration"],
+  ["doręcz", "doręczen", "deliver", "delivered", "delivery"],
+  ["odebra", "odebran", "odbior", "accepted", "acceptance", "received"],
+  ["wystawi", "wystawion", "issue", "issued", "issuance"],
+  ["określon", "oznaczon", "definite", "fixed"],
   ["stycz", "january"], ["lut", "february"], ["=marca", "=marzec", "march"], ["kwiec", "kwietn", "april"],
   ["=maja", "=maj", "may"], ["czerw", "june"], ["lipc", "lipiec", "july"], ["sierp", "august"],
   ["wrześ", "wrzes", "september"], ["paździer", "october"], ["listopad", "november"], ["grud", "december"],
@@ -170,11 +181,22 @@ const STOPWORDS = new Set([
 // here: they are read from the contract's definitions clause at load time (see parties).
 const GENERIC = new Set([
   "ltd", "limited", "plc", "inc", "gmbh", "spółka", "spółki", "supplier", "customer", "party", "parties",
-  "dostawca", "dostawcy", "dostawcę", "dostawcą", "klient", "klienta", "klientowi", "firma", "company", "strona", "strony",
+  "dostawca", "dostawcy", "dostawcę", "dostawcą", "zamawiający", "zamawiającego", "zamawiającemu", "zamawiającym", "zamawiających",
+  "klient", "klienta", "klientowi", "firma", "company", "strona", "strony",
+]);
+const CONTRACT_TERMS = new Set([
+  "umowa", "umowy", "umowie", "umowę", "umową",
+  "aneks", "aneksu", "aneksem", "aneksie",
+  "załącznik", "załącznika", "załączniku", "załącznikiem",
+  "protokół", "protokołu", "protokołem", "protokole",
+  "etap", "etapu", "etapem", "etapie", "etapy", "etapów",
+  "harmonogram", "harmonogramu", "harmonogramem",
+  "art", "artykuł", "artykułu", "paragraf", "ustęp", "punkt", "sekcja",
+  "agreement", "contract", "annex", "amendment", "schedule", "section", "clause", "stage", "phase", "article",
 ]);
 const ROLE_GROUPS: string[][] = [
   ["supplier", "dostawc", "vendor", "provider", "licensor"],
-  ["customer", "klient", "client", "licensee", "buyer"],
+  ["customer", "zamawiając", "klient", "client", "licensee", "buyer"],
 ];
 const LEGAL_FORM = new Set(["ltd", "limited", "plc", "inc", "gmbh", "sp", "o.o", "z", "s.a", "b.v", "sas", "llc"]);
 
@@ -184,8 +206,98 @@ const NEG_EXACT = new Set([
   "abandoned", "stalled", "unpaid", "unsigned", "struck",
   "nie", "nigdy", "brak", "braku", "żaden", "żadna", "żadne", "żadnych", "żadnego", "żadnej",
 ]);
-const NEG_PREFIX = ["odrzuc", "wykreśl", "zakaz", "nieważn", "bezpodstawn", "bezskuteczn", "wyłączy", "wyłączon", "nieprawdziw", "niedopuszczaln", "wykluczon"];
+const NEG_PREFIX = ["odrzuc", "wykreśl", "zakaz", "nieważn", "bezpodstawn", "wyłączy", "wyłączon", "nieprawdziw", "niedopuszczaln", "wykluczon"];
 const UNPREFIX: Record<string, string> = { unpaid: "paid", unsigned: "signed" };
+
+interface AntonymPair {
+  pos: string;
+  neg: string;
+  alts?: string[];
+}
+
+const ANTONYM_PAIRS: AntonymPair[] = [
+  { pos: "wyłączn", neg: "niewyłączn" },
+  { pos: "określon", neg: "nieoznaczon", alts: ["nieokreślon"] },
+  { pos: "oznaczon", neg: "nieoznaczon" },
+  { pos: "istotn", neg: "nieistotn" },
+  { pos: "odpłatn", neg: "nieodpłatn" },
+  { pos: "zbywaln", neg: "niezbywaln" },
+  { pos: "ograniczon", neg: "nieograniczon" },
+  { pos: "exclusive", neg: "nonexclusive" },
+  { pos: "revocable", neg: "irrevocable" },
+];
+
+function checkAntonymConflict(claimToks: string[], unitToks: string[]): boolean {
+  for (const pair of ANTONYM_PAIRS) {
+    const negs = [pair.neg, ...(pair.alts || [])];
+    const claimHasPos = claimToks.some((t) => t.startsWith(pair.pos) && !negs.some((n) => t.startsWith(n)));
+    const claimHasNeg = claimToks.some((t) => negs.some((n) => t.startsWith(n)));
+    const unitHasPos = unitToks.some((t) => t.startsWith(pair.pos) && !negs.some((n) => t.startsWith(n)));
+    const unitHasNeg = unitToks.some((t) => negs.some((n) => t.startsWith(n)));
+
+    if ((claimHasPos && unitHasNeg) || (claimHasNeg && unitHasPos)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+const MODAL_CUES = [
+  "może", "mogą", "ma prawo", "mają prawo", "uprawnion", "dopuszcz", "zezwala",
+  "zobowiąz", "powinien", "powinna", "powinni", "musi", "muszą", "będzie", "zostanie", "zostaną",
+  "do decyzji", "rozważa", "rozważają",
+  "may", "can", "could", "might", "shall", "will", "must", "agrees to", "undertakes", "commits",
+  "entitled", "permitted", "allowed", "proposal", "proposed", "deliberat", "consider",
+];
+
+const FACTUAL_CUES = [
+  "naliczył", "naliczyła", "naliczono", "rozwiązał", "rozwiązała", "rozwiązano",
+  "wypowiedział", "wypowiedziała", "wypowiedziano", "usunął", "usunęła", "usunięto",
+  "zażądał", "zażądała", "zażądano", "wprowadził", "wprowadziła", "wprowadzono",
+  "podpisał", "podpisała", "podpisano", "doręczył", "doręczyła", "doręczono",
+  "odebrał", "odebrała", "odebrano", "odebrany", "odebrana", "odebrane",
+  "zapłacił", "zapłaciła", "zapłacono", "nałożył", "nałożyła", "nałożono",
+  "przyznał", "przyznała", "przyznano", "zaakceptował", "zaakceptowała", "zaakceptowano",
+  "wykreślono", "stwierdzono", "wystawiono", "wystawiona", "wystawiony",
+  "imposed", "terminated", "demanded", "removed", "delivered", "signed", "entered into",
+  "paid", "granted", "accepted", "executed", "countersigned", "issued",
+];
+
+function isModalText(text: string): boolean {
+  const lower = text.toLowerCase();
+  return MODAL_CUES.some((c) => lower.includes(c));
+}
+
+function isFactualText(text: string): boolean {
+  const lower = text.toLowerCase();
+  if (FACTUAL_CUES.some((c) => lower.includes(c))) return true;
+  if (/(?<![\p{L}\p{N}])dochodzi(?![\p{L}\p{N}])/u.test(lower) &&
+      !/(?<![\p{L}\p{N}])(?:może|ma\s+prawo)\s+dochodzić(?![\p{L}\p{N}])/u.test(lower)) {
+    return true;
+  }
+  return false;
+}
+
+function extractRoles(text: string): { subject?: "supplier" | "customer"; recipient?: "supplier" | "customer" } {
+  const lower = text.toLowerCase();
+  let subject: "supplier" | "customer" | undefined;
+  let recipient: "supplier" | "customer" | undefined;
+
+  if (/(?<![\p{L}\p{N}])(?:to\s+)?dostawca(?![\p{L}\p{N}])/u.test(lower) || /(?<![\p{L}\p{N}])supplier(?![\p{L}\p{N}])/u.test(lower)) {
+    subject = "supplier";
+  } else if (/(?<![\p{L}\p{N}])(?:to\s+)?zamawiający(?![\p{L}\p{N}])/u.test(lower) || /(?<![\p{L}\p{N}])customer(?![\p{L}\p{N}])/u.test(lower) || /(?<![\p{L}\p{N}])klient(?![\p{L}\p{N}])/u.test(lower)) {
+    subject = "customer";
+  }
+
+  if (/(?<![\p{L}\p{N}])(?:udziela\s+)?dostawcy(?![\p{L}\p{N}])/u.test(lower) || /(?<![\p{L}\p{N}])to\s+(?:the\s+)?supplier(?![\p{L}\p{N}])/u.test(lower)) {
+    recipient = "supplier";
+  } else if (/(?<![\p{L}\p{N}])(?:udziela\s+)?zamawiającemu(?![\p{L}\p{N}])/u.test(lower) || /(?<![\p{L}\p{N}])to\s+(?:the\s+)?customer(?![\p{L}\p{N}])/u.test(lower) || /(?<![\p{L}\p{N}])klientowi(?![\p{L}\p{N}])/u.test(lower)) {
+    recipient = "customer";
+  }
+
+  return { subject, recipient };
+}
+
 // Reported speech / proposals: a unit that only reports that someone proposed or claimed
 // something cannot establish it as fact (unless the claim itself is about the proposal).
 const HEDGE_PREFIX = ["zawnioskow", "wnios", "propozyc", "proponu", "propos", "request", "claimed", "alleg", "twierdz", "rzekom", "purport", "draft", "domag", "żąda", "żądan"];
@@ -204,6 +316,8 @@ const QUANT_RE = new RegExp(
     `${B}not\\s+(?:to\\s+)?exceed\\w*`,
     `${B}nie\\s+(?:mniej|więcej|później|wcześniej)\\s+niż${E}`,
     `${B}nie\\s+przekracz\\p{L}*`,
+    `${B}pod\\s+rygorem\\s+nieważno\\p{L}*`,
+    `${B}(?:po\\s+|oraz\\s+|i\\s+)?bezskuteczn\\p{L}*\\s+upływ\\p{L}*`,
     `${B}no[.:]`,
   ].join("|"),
   "giu"
@@ -217,7 +331,11 @@ function rawTokens(text: string): string[] {
   const out: string[] = [];
   for (const t of text.toLowerCase().match(TOKEN_RE) || []) {
     out.push(t);
-    if (t.includes("-") && !/\d/.test(t)) out.push(...t.split("-"));
+    if (t.includes("-")) {
+      for (const part of t.split("-")) {
+        if (/^[\p{L}]+$/u.test(part)) out.push(part);
+      }
+    }
   }
   return out.filter((t) => t.length >= 2);
 }
@@ -304,13 +422,39 @@ export function extractNumbers(text: string, defaultCurrency?: Currency): { numb
   t = t.replace(/^\s*(?:[>*#-]\s*)*\d+(?:\.\d+)+\.?\s/, " "); // 3.1 …
   t = t.replace(/^\s*#+\s*\d+\.\s/, " ");
   t = t.replace(/(?<!\d)(\d{1,2})\.(\d{1,2})\.(\d{4})(?!\d)/g, (_m, d, mo, y) => {
-    numbers.push({ value: +d, kind: "plain", raw: d }, { value: +y, kind: "year", raw: y });
     const mi = +mo - 1;
-    if (mi >= 0 && mi < 12) extraTokens.push(MONTHS_EN[mi]);
+    const moEn = mi >= 0 && mi < 12 ? MONTHS_EN[mi] : undefined;
+    numbers.push({ value: +d, kind: "plain", raw: d, word: moEn }, { value: +y, kind: "year", raw: y });
+    if (moEn) extraTokens.push(moEn);
     return " ";
   });
 
-  const re = /([£€]\s?)?(\d{1,3}(?:[  ]\d{3})+(?:[.,]\d+)?|\d+(?:[.,]\d+)*)(?:st|nd|rd|th)?(?![\p{L}\d])(\s?%)?/gu;
+  const PL_MONTHS_MAP: Record<string, number> = {
+    stycznia: 0, styczeń: 0,
+    lutego: 1, luty: 1,
+    marca: 2, marzec: 2,
+    kwietnia: 3, kwiecień: 3,
+    maja: 4, maj: 4,
+    czerwca: 5, czerwiec: 5,
+    lipca: 6, lipiec: 6,
+    sierpnia: 7, sierpień: 7,
+    września: 8, wrzesień: 8,
+    października: 9, październik: 9,
+    listopada: 10, listopad: 10,
+    grudnia: 11, grudzień: 11,
+  };
+  const dateNamedRe = new RegExp(`(?<!\\d)(\\d{1,2})\\s+(${Object.keys(PL_MONTHS_MAP).join("|")}|${MONTHS_EN.join("|")})\\s+(\\d{4})(?!\\d)(?:\\s*r\\.?)?`, "giu");
+  t = t.replace(dateNamedRe, (_m, d, mo, y) => {
+    const moLower = mo.toLowerCase();
+    let mi = PL_MONTHS_MAP[moLower];
+    if (mi === undefined) mi = MONTHS_EN.indexOf(moLower);
+    const moEn = mi >= 0 && mi < 12 ? MONTHS_EN[mi] : undefined;
+    numbers.push({ value: +d, kind: "plain", raw: d, word: moEn }, { value: +y, kind: "year", raw: y });
+    if (moEn) extraTokens.push(moEn);
+    return " ";
+  });
+
+  const re = /([£€]\s?)?(\d{1,3}(?:[  ]\d{3})+(?:[.,]\d+)?|\d+(?:[.,]\d+)*)(?:st|nd|rd|th)?(?![\p{L}\d])(\s?%)?(?:-([\p{L}]+))?/gu;
   let m: RegExpExecArray | null;
   while ((m = re.exec(t))) {
     const raw = m[0].trim();
@@ -338,7 +482,8 @@ export function extractNumbers(text: string, defaultCurrency?: Currency): { numb
     else if (value >= 1000 || /[.,]\d{2}$/.test(m[2])) kind = "money";
     else kind = "plain";
     if (kind === "money" && !currency && defaultCurrency) currency = defaultCurrency;
-    const word = (after.match(/^[\s*)]*([\p{L}]+)/u)?.[1] || "").toLowerCase() || undefined;
+    let word = m[4] ? m[4].toLowerCase() : (after.match(/^[\s*)]*([\p{L}]+)/u)?.[1] || "").toLowerCase() || undefined;
+    if (word && word.startsWith("dni")) word = "dni";
     numbers.push({ value, kind, currency, raw, word });
   }
   return { numbers, extraTokens };
@@ -363,6 +508,10 @@ interface ClaimFeatures {
   hedged: boolean;
   parties: Set<string>;
   proper: string[]; // capitalised names/places in the claim — decisive, must be in the quoted unit
+  modal: boolean;
+  factual: boolean;
+  roles: { subject?: "supplier" | "customer"; recipient?: "supplier" | "customer" };
+  negatedTerms: Set<string>;
 }
 
 interface UnitScore {
@@ -382,6 +531,55 @@ interface UnitScore {
   conflictCodes: string[];
   polarityFlip: boolean;
   score: number;
+  antonymConflict?: boolean;
+  roleMismatch?: boolean;
+  roleContra?: boolean;
+  modalityMismatch?: boolean;
+}
+
+function extractDocDate(file: string, raw: string): number {
+  const mFile = file.match(/\b(20\d{2})[-_](\d{2})[-_](\d{2})\b/);
+  if (mFile) return +`${mFile[1]}${mFile[2]}${mFile[3]}`;
+
+  const head = raw.slice(0, 1000);
+  const mPl = head.match(/(?:z\s+dnia\s+|dnia\s+)(\d{1,2})\s+([a-ząćęłńóśźż]+)\s+(20\d{2})/iu);
+  if (mPl) {
+    const PL_MONTH_NUMS: Record<string, number> = {
+      stycznia: 1, styczeń: 1,
+      lutego: 2, luty: 2,
+      marca: 3, marzec: 3,
+      kwietnia: 4, kwiecień: 4,
+      maja: 5, maj: 5,
+      czerwca: 6, czerwiec: 6,
+      lipca: 7, lipiec: 7,
+      sierpnia: 8, sierpień: 8,
+      września: 9, wrzesień: 9,
+      października: 10, październik: 10,
+      listopada: 11, listopad: 11,
+      grudnia: 12, grudzień: 12,
+    };
+    const mi = PL_MONTH_NUMS[mPl[2].toLowerCase()];
+    if (mi) {
+      const d = mPl[1].padStart(2, "0");
+      const m = String(mi).padStart(2, "0");
+      return +`${mPl[3]}${m}${d}`;
+    }
+  }
+
+  const mEn = head.match(/(?:dated\s+|as\s+of\s+)(\d{1,2})\s+([a-z]+)\s+(20\d{2})/iu);
+  if (mEn) {
+    const mi = MONTHS_EN.indexOf(mEn[2].toLowerCase());
+    if (mi >= 0) {
+      const d = mEn[1].padStart(2, "0");
+      const m = String(mi + 1).padStart(2, "0");
+      return +`${mEn[3]}${m}${d}`;
+    }
+  }
+
+  const mYear = file.match(/\b(20\d{2})\b/);
+  if (mYear) return +`${mYear[1]}0101`;
+
+  return 20240101;
 }
 
 function tierOf(file: string): number {
@@ -442,6 +640,7 @@ export class RedlineEngineCore {
     const files = [...docs].sort((a, b) => (a.file || "").localeCompare(b.file || ""));
     for (const { file, content: raw } of files) {
       const tier = tierOf(file);
+      const docDate = extractDocDate(file, raw);
       this.readParties(raw);
       const lines = raw.split("\n");
       const isSinglePage = /invoice|faktura/i.test(file);
@@ -467,13 +666,13 @@ export class RedlineEngineCore {
       }
       flush();
 
-      for (const sec of docSections) this.buildUnits(sec, docContext);
+      for (const sec of docSections) this.buildUnits(sec, docContext, docDate);
       this.sources.push({ file, type: "markdown", pages: docSections.length, title: docSections[0]?.title || file, tier });
       this.sections.push(...docSections);
     }
   }
 
-  private buildUnits(sec: CorpusSection, docContext: string[]): void {
+  private buildUnits(sec: CorpusSection, docContext: string[], docDate: number): void {
     const context = new Set([...rawTokens(sec.title), ...docContext]);
     const lines = sec.content.split("\n");
     const units: Unit[] = [];
@@ -491,12 +690,24 @@ export class RedlineEngineCore {
         // into clauses so that "under English law (which governs the contract) the letter has
         // NO effect" does not negate "the contract is governed by English law".
         clauses: (text.startsWith("|") ? [text] : text.split(/[,;:()—–]|\s-\s/)).map((c) => ({ tokens: new Set(rawTokens(c)), cues: negationCues(c) })),
+        docDate,
+        modal: isModalText(text),
+        factual: isFactualText(text),
+        roles: extractRoles(text),
       });
     };
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
-      if (!line || /^-{3,}$/.test(line) || /^#{1,6}\s/.test(line)) continue;
+      if (!line || /^-{3,}$/.test(line)) continue;
+      if (/^#{1,6}\s/.test(line)) {
+        const cleanHeader = line.replace(/^#{1,6}\s+/, "").trim();
+        if (/(?:z\s+dnia|dated|\b20\d{2}\b)/i.test(cleanHeader) && rawTokens(cleanHeader).length >= 4) {
+          const cur = currenciesIn(cleanHeader);
+          push(cleanHeader, cleanHeader, [], cur.size === 1 ? [...cur][0] : undefined);
+        }
+        continue;
+      }
       if (line.startsWith("|")) {
         const cells = line.split("|").slice(1, -1).map((c) => c.trim());
         if (cells.every((c) => /^:?-{3,}:?$/.test(c))) continue;
@@ -611,9 +822,23 @@ export class RedlineEngineCore {
     const claimCur = currenciesIn(claim);
     const { numbers } = extractNumbers(claim, claimCur.size === 1 ? [...claimCur][0] : undefined);
     const cased = claim.match(TOKEN_RE) || [];
-    const proper = [...new Set(cased.slice(1).filter((w) => /^\p{Lu}/u.test(w)).map((w) => w.toLowerCase()))].filter((t) => content.has(t) && !MONTHS_EN.includes(t) && !WEEKDAYS_EN.includes(t));
+    const proper = [...new Set(cased.slice(1).filter((w) => /^\p{Lu}/u.test(w)).map((w) => w.toLowerCase()))].filter((t) => content.has(t) && !MONTHS_EN.includes(t) && !WEEKDAYS_EN.includes(t) && !CONTRACT_TERMS.has(t));
     for (const t of content) if (DECISIVE_GROUPS.some((g) => g.some((m) => memberMatch(m, t))) && !proper.includes(t)) proper.push(t);
-    return { content: [...content], alts, weight, numbers, negative, hedged: toks.some(isHedge), parties: this.partiesIn(toks), proper };
+    const modal = isModalText(claim);
+    const factual = isFactualText(claim);
+    const roles = extractRoles(claim);
+    const negatedTerms = new Set<string>();
+    for (let i = 0; i < toks.length; i++) {
+      if (isNegCue(toks[i])) {
+        for (let j = i + 1; j < Math.min(toks.length, i + 3); j++) {
+          if (!STOPWORDS.has(toks[j]) && !isNegCue(toks[j])) {
+            negatedTerms.add(toks[j]);
+            break;
+          }
+        }
+      }
+    }
+    return { content: [...content], alts, weight, numbers, negative, hedged: toks.some(isHedge), parties: this.partiesIn(toks), proper, modal, factual, roles, negatedTerms };
   }
 
   private scoreUnit(f: ClaimFeatures, u: Unit): UnitScore {
@@ -644,16 +869,48 @@ export class RedlineEngineCore {
     const conflicts: string[] = [];
     const conflictCodes: string[] = [];
     let numbersOk = true;
+    const isReplacementUnit = /(?:zastępuje(?:\s+się)?|zastąpion|replaces|is\s+replaced\s+(?:by|with)|supersedes)/i.test(u.text);
+    let replacedNum: NumMention | undefined;
+    let replacementNum: NumMention | undefined;
+    if (isReplacementUnit) {
+      for (let i = 0; i < u.numbers.length; i++) {
+        for (let j = i + 1; j < u.numbers.length; j++) {
+          const a = u.numbers[i], b = u.numbers[j];
+          const sameKind = a.kind === b.kind;
+          const sameWord = (!a.word && !b.word) || (!!a.word && !!b.word && (this.sameConcept(a.word, b.word) || a.word === b.word));
+          const sameCur = a.currency === b.currency;
+          if (sameKind && sameWord && sameCur && !sameValue(a.value, b.value)) {
+            replacedNum = a;
+            replacementNum = b;
+            break;
+          }
+        }
+        if (replacedNum) break;
+      }
+    }
     const sectionYears = sectionUnits.flatMap((s) => s.numbers.filter((n) => n.kind === "year"));
     for (const n of f.numbers) {
+      if (replacedNum && replacementNum && sameValue(n.value, replacedNum.value)) {
+        numbersOk = false;
+        conflictCodes.push(REASON_CODES.NUMBER_MISMATCH);
+        conflicts.push(MESSAGES[this.lang].reason_value_mismatch(fmt(n), fmt(replacementNum)));
+        continue;
+      }
       const same = u.numbers.filter((x) => sameValue(x.value, n.value));
       const curClash = n.currency && same.length > 0 && same.every((x) => x.currency && x.currency !== n.currency);
-      const found = same.some((x) => !(n.currency && x.currency && x.currency !== n.currency)) ||
+      const monthClash = n.word && MONTHS_EN.includes(n.word) && same.length > 0 && same.every((x) => x.word && MONTHS_EN.includes(x.word) && x.word !== n.word);
+      const found = (!curClash && !monthClash && same.length > 0) ||
         (n.kind === "year" && sectionYears.some((y) => y.value === n.value));
       if (curClash) {
         numbersOk = false;
         conflictCodes.push(REASON_CODES.CURRENCY_MISMATCH);
         conflicts.push(MESSAGES[this.lang].reason_currency_mismatch(fmt(n), fmt(same[0])));
+        continue;
+      }
+      if (monthClash) {
+        numbersOk = false;
+        conflictCodes.push(REASON_CODES.NUMBER_MISMATCH);
+        conflicts.push(MESSAGES[this.lang].reason_value_mismatch(`${n.raw} ${n.word}`, `${same[0].raw} ${same[0].word}`));
         continue;
       }
       if (found) continue;
@@ -662,11 +919,32 @@ export class RedlineEngineCore {
         if (n.kind === "money") return x.kind === "money";
         if (n.kind === "percent") return x.kind === "percent";
         if (n.kind === "year") return x.kind === "year";
-        return x.kind === "plain" && !f.numbers.some((c) => sameValue(c.value, x.value)) && !!n.word && !!x.word && this.sameConcept(n.word, x.word);
+        return x.kind === "plain" && !f.numbers.some((c) => sameValue(c.value, x.value)) &&
+          !!n.word && !!x.word &&
+          (this.sameConcept(n.word, x.word) || (MONTHS_EN.includes(n.word) && MONTHS_EN.includes(x.word)));
       });
       if (rivals.length > 0) {
         conflictCodes.push(REASON_CODES.NUMBER_MISMATCH);
         conflicts.push(MESSAGES[this.lang].reason_value_mismatch(fmt(n), rivals.map(fmt).join(" / ")));
+      }
+    }
+
+    const antonymConflict = checkAntonymConflict(f.content, [...u.tokens]);
+    if (antonymConflict) {
+      conflictCodes.push(REASON_CODES.POLARITY_MISMATCH);
+      conflicts.push(MESSAGES[this.lang].reason_polarity_source_neg("antonym"));
+    }
+
+    const modalityMismatch = f.factual && !f.modal && u.modal && !u.factual;
+
+    let roleMismatch = false;
+    let roleContra = false;
+    if (f.roles.subject && u.roles.subject && f.roles.subject !== u.roles.subject) {
+      roleMismatch = true;
+      if (f.roles.recipient && u.roles.recipient && f.roles.recipient !== u.roles.recipient) {
+        roleContra = true;
+        conflictCodes.push(REASON_CODES.ROLE_MISMATCH);
+        conflicts.push(MESSAGES[this.lang].reason_role_mismatch());
       }
     }
 
@@ -683,7 +961,7 @@ export class RedlineEngineCore {
     const supportCoverage = (cov + Math.max(0, numFound) * NW) / denom;
     const supportUnitCoverage = (fullW + Math.max(0, numFound) * NW) / denom;
     const score = coverage + (3 - u.tier) * 0.02 + (numbersOk && f.numbers.length ? 0.1 : 0);
-    return { unit: u, unitNegative, coverage, unitCoverage, contraCoverage, supportCoverage, supportUnitCoverage, valueConflict: conflicts.length > 0, full, matched, missing, numbersOk, conflicts, conflictCodes, polarityFlip, score };
+    return { unit: u, unitNegative, coverage, unitCoverage, contraCoverage, supportCoverage, supportUnitCoverage, valueConflict: conflicts.length > 0, full, matched, missing, numbersOk, conflicts, conflictCodes, polarityFlip, score, antonymConflict, roleMismatch, roleContra, modalityMismatch };
   }
 
   /** Two words denote the same concept (stem match or same lexicon group). */
@@ -770,25 +1048,41 @@ export class RedlineEngineCore {
     const supports = scored.filter((s) =>
       s.supportCoverage >= THRESHOLDS.support && s.supportUnitCoverage >= THRESHOLDS.supportUnit && s.full >= minFull &&
       s.numbersOk && s.conflicts.length === 0 && !s.polarityFlip && !this.partyMismatch(f.parties, s.unit) &&
+      !s.antonymConflict && !s.roleMismatch && !s.modalityMismatch &&
       f.proper.every((t) => s.matched.includes(t) || s.matched.includes(`${t}^`)) &&
       !(s.unit.hedged && s.unit.negCues.length === 0 && !f.hedged));
-    // Positive claim vs. negating source: a denial is enough.
+    // Positive claim vs. negating source: must match the claim's core terms in the unit itself
+    // and match decisive proper entities; a negative sentence about another subject cannot contradict.
     // Negative claim ("X was not signed") vs. affirmative source: only a source that would itself
     // ground "X was signed" (same figures, high coverage, not a mere proposal) contradicts it.
-    const polarityContra = (s: UnitScore) =>
-      s.polarityFlip && (!f.negative || (!s.unit.hedged && s.numbersOk && s.contraCoverage >= THRESHOLDS.support));
+    const polarityContra = (s: UnitScore) => {
+      if (s.antonymConflict || s.roleContra) return true;
+      if (!s.polarityFlip) return false;
+      if (f.negative) {
+        const matchesNegated = f.negatedTerms.size === 0 || [...f.negatedTerms].some((t) => s.matched.includes(t) || s.matched.includes(`${t}^`));
+        return !s.unit.hedged && s.numbersOk && s.contraCoverage >= THRESHOLDS.support && matchesNegated;
+      } else {
+        const claimPreds = f.content.filter((c) => FACTUAL_CUES.some((cue) => memberMatch(cue, c)));
+        const matchesPred = claimPreds.length === 0 || claimPreds.some((p) => s.matched.includes(p) || s.matched.includes(`${p}^`));
+        return matchesPred && (f.proper.length === 0 || f.proper.every((t) => s.matched.some((m) => m.startsWith(t))));
+      }
+    };
     const contras = scored.filter((s) =>
-      s.contraCoverage >= THRESHOLDS.contradict && s.full >= minFull && (s.valueConflict || polarityContra(s)));
+      s.contraCoverage >= THRESHOLDS.contradict && s.full >= minFull && (s.valueConflict || polarityContra(s)) &&
+      (f.proper.length === 0 || f.proper.every((t) => s.matched.some((m) => m.startsWith(t)))));
 
-    const pick = (arr: UnitScore[]) => arr.slice().sort((a, b) => a.unit.tier - b.unit.tier || b.score - a.score)[0];
+    const pick = (arr: UnitScore[]) => arr.slice().sort((a, b) => a.unit.tier - b.unit.tier || b.unit.docDate - a.unit.docDate || b.score - a.score)[0];
     const bestS = pick(supports);
     // A contradiction overrides support only if it comes from a more authoritative source,
     // or — for negation — from an equally authoritative sentence that matches the claim better.
     // A value conflict with an equal-tier source while the exact value is confirmed elsewhere
-    // just means the source mentions another figure (e.g. quarterly vs annual fee).
+    // just means the source mentions another figure (e.g. quarterly vs annual fee), UNLESS
+    // the conflicting source has a later document date (e.g. amendment / annex).
     const overrides = (c: UnitScore) =>
       !bestS ||
       (c.unit.tier < bestS.unit.tier && c.contraCoverage >= THRESHOLDS.override * bestS.contraCoverage) ||
+      (c.unit.tier === bestS.unit.tier && c.unit.docDate > bestS.unit.docDate && (c.valueConflict || c.antonymConflict) &&
+        c.contraCoverage >= THRESHOLDS.contradict) ||
       (c.unit.tier === bestS.unit.tier && polarityContra(c) && c.numbersOk &&
         c.contraCoverage >= bestS.contraCoverage - THRESHOLDS.tieMargin);
     const bestC = pick(contras.filter(overrides));
@@ -796,13 +1090,21 @@ export class RedlineEngineCore {
     const contraReasonDetails = (c: UnitScore) => {
       const codes: string[] = [];
       const reasons: string[] = [];
+      if (bestS && c.unit.tier === bestS.unit.tier && c.unit.docDate > bestS.unit.docDate) {
+        codes.push(REASON_CODES.SUPERSEDED_BY_LATER_DOCUMENT);
+        reasons.push(MESSAGES[this.lang].reason_superseded_by_later(c.unit.file));
+      }
+      if (c.roleContra) {
+        codes.push(REASON_CODES.ROLE_MISMATCH);
+        reasons.push(MESSAGES[this.lang].reason_role_mismatch());
+      }
       if (polarityContra(c)) {
         codes.push(REASON_CODES.POLARITY_MISMATCH, REASON_CODES.NEGATED);
         if (f.negative) {
           reasons.push(MESSAGES[this.lang].reason_polarity_claim_neg());
         } else {
           const cues = (c.unit.clauses.flatMap((k) => k.cues).slice(0, 3).join(", ")) || c.unit.negCues.slice(0, 3).join(", ");
-          reasons.push(MESSAGES[this.lang].reason_polarity_source_neg(cues));
+          reasons.push(MESSAGES[this.lang].reason_polarity_source_neg(cues || "source denies"));
         }
       }
       codes.push(...c.conflictCodes);
@@ -917,6 +1219,14 @@ export class RedlineEngineCore {
     if (near) {
       if (this.partyMismatch(f.parties, near.unit)) {
         reasonCodes.push(REASON_CODES.PARTY_MISMATCH);
+      }
+      if (near.roleMismatch) {
+        reasonCodes.push(REASON_CODES.ROLE_MISMATCH);
+        why.push(MESSAGES[this.lang].reason_role_mismatch());
+      }
+      if (near.modalityMismatch) {
+        reasonCodes.push(REASON_CODES.MODALITY_MISMATCH);
+        why.push(MESSAGES[this.lang].reason_modality_mismatch());
       }
       if (near.coverage < THRESHOLDS.support) {
         reasonCodes.push(REASON_CODES.LOW_COVERAGE);
