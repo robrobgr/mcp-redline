@@ -36,7 +36,7 @@ export interface Unit {
   numbers: NumMention[];
   negCues: string[];
   hedged: boolean;
-  clauses: Array<{ tokens: Set<string>; cues: string[] }>; // negation scope
+  clauses: Array<{ tokens: Set<string>; cues: string[]; numbers: NumMention[] }>; // negation & number scope
   docDate: number;
   modal: boolean;
   factual: boolean;
@@ -208,7 +208,7 @@ export function extractNumbers(
     return " ";
   });
 
-  const re = /([£€]\s?)?(\d{1,3}(?:[ \u00a0]\d{3})+(?:[.,]\d+)?|\d+(?:[.,]\d+)*)(?:st|nd|rd|th)?(?![\p{L}\d])(\s?%)?(?:-([\p{L}]+))?/gu;
+  const re = /(?<![\p{L}\d]|\d[., \u00a0\u202f\u2009])([£€]\s?)?(\d{1,3}(?:[ \u00a0\u202f\u2009]\d{3})+(?:[.,]\d+)?|\d+(?:[.,]\d+)*)(?:st|nd|rd|th)?(?![\p{L}\d]|[., \u00a0\u202f\u2009]\d)(\s?%)?(?:-([\p{L}]+))?/gu;
   let m: RegExpExecArray | null;
   while ((m = re.exec(t))) {
     const raw = m[0].trim();
@@ -455,6 +455,7 @@ export class RedlineEngineCore {
         clauses: (text.startsWith("|") ? [text] : text.split(/[,;:()—–]|\s-\s/)).map((c) => ({
           tokens: new Set(secPack.tokenize(c)),
           cues: extractUnitNegCues(c),
+          numbers: extractNumbers(c, defCur, unitLang).numbers,
         })),
         docDate,
         modal: ALL_PACKS.some((p) => p.isModalText(text)),
@@ -705,13 +706,19 @@ export class RedlineEngineCore {
     const conflicts: string[] = [];
     const conflictCodes: string[] = [];
     let numbersOk = true;
+    const claimQuals = f.proper.filter((t) => /^(?:etap|aneks|zalacznik)_\d+$/.test(t));
+    const qualClauses =
+      claimQuals.length > 0 && u.clauses.length > 1
+        ? u.clauses.filter((c) => claimQuals.every((q) => c.tokens.has(q)) && c.numbers.length > 0)
+        : [];
+    const effectiveUnitNumbers = qualClauses.length > 0 ? qualClauses.flatMap((c) => c.numbers) : u.numbers;
     const isReplacementUnit = ALL_PACKS.some((p) => p.numberFormat.replacementPattern.test(u.text));
     let replacedNum: NumMention | undefined;
     let replacementNum: NumMention | undefined;
     if (isReplacementUnit) {
-      for (let i = 0; i < u.numbers.length; i++) {
-        for (let j = i + 1; j < u.numbers.length; j++) {
-          const a = u.numbers[i], b = u.numbers[j];
+      for (let i = 0; i < effectiveUnitNumbers.length; i++) {
+        for (let j = i + 1; j < effectiveUnitNumbers.length; j++) {
+          const a = effectiveUnitNumbers[i], b = effectiveUnitNumbers[j];
           const sameKind = a.kind === b.kind;
           const sameWord = (!a.word && !b.word) || (!!a.word && !!b.word && (this.sameConcept(a.word, b.word) || a.word === b.word));
           const sameCur = a.currency === b.currency;
@@ -732,7 +739,7 @@ export class RedlineEngineCore {
         conflicts.push(msg.reason_value_mismatch(fmt(n), fmt(replacementNum)));
         continue;
       }
-      const same = u.numbers.filter((x) => sameValue(x.value, n.value));
+      const same = effectiveUnitNumbers.filter((x) => sameValue(x.value, n.value));
       const curClash = n.currency && same.length > 0 && same.every((x) => x.currency && x.currency !== n.currency);
       const monthClash = n.word && CANONICAL_MONTHS.includes(n.word) && same.length > 0 && same.every((x) => x.word && CANONICAL_MONTHS.includes(x.word) && x.word !== n.word);
       const found = (!curClash && !monthClash && same.length > 0) ||
@@ -751,7 +758,7 @@ export class RedlineEngineCore {
       }
       if (found) continue;
       numbersOk = false;
-      const rivals = u.numbers.filter((x) => {
+      const rivals = effectiveUnitNumbers.filter((x) => {
         if (n.kind === "money") return x.kind === "money";
         if (n.kind === "percent") return x.kind === "percent";
         if (n.kind === "year") return x.kind === "year";
@@ -939,10 +946,21 @@ export class RedlineEngineCore {
       );
       return sMatchedNonMonth.every((t) => c.matched.includes(t) || c.matched.includes(`${t}^`));
     };
+    const isSameDocSupersetContradiction = (c: UnitScore, s: UnitScore) => {
+      if (c.unit.file !== s.unit.file || !c.valueConflict) return false;
+      if (c.unitCoverage <= s.unitCoverage + THRESHOLDS.tieMargin) return false;
+      const sDirectNonMonth = f.content.filter((t) => !isMonthToken(t) && s.matched.includes(t));
+      const cDirectNonMonth = f.content.filter((t) => !isMonthToken(t) && c.matched.includes(t));
+      return (
+        cDirectNonMonth.length > sDirectNonMonth.length &&
+        sDirectNonMonth.every((t) => c.matched.includes(t))
+      );
+    };
     const overrides = (c: UnitScore) =>
       !bestS ||
       (c.unit.tier < bestS.unit.tier && c.contraCoverage >= THRESHOLDS.override * bestS.contraCoverage) ||
       isChronologicalSupersession(c, bestS) ||
+      isSameDocSupersetContradiction(c, bestS) ||
       (c.unit.tier === bestS.unit.tier && polarityContra(c) && c.numbersOk &&
         c.contraCoverage >= bestS.contraCoverage - THRESHOLDS.tieMargin);
     const bestC = pick(contras.filter(overrides));
@@ -977,7 +995,7 @@ export class RedlineEngineCore {
       const ev = this.toEvidence(bestC, contraReasons);
       const reasonCodes: string[] = [...new Set(contraCodes)];
       let conflicting: Evidence | undefined;
-      if (bestS) {
+      if (bestS && !isSameDocSupersetContradiction(bestC, bestS)) {
         reasonCodes.push(REASON_CODES.HIGHER_TIER_CONFLICT);
         conflicting = this.toEvidence(bestS, [msg.reason_lower_tier_match()]);
       }

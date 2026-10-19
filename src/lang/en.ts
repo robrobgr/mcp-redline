@@ -173,7 +173,7 @@ const MONTH_NAMES: Record<string, number> = {
 };
 
 function parseNumber(s: string): number {
-  let n = s.replace(/[\s\u00A0]/g, "");
+  let n = s.replace(/[\s\u00A0\u202F\u2009']/g, "");
   const hasDot = n.includes("."), hasComma = n.includes(",");
   if (hasDot && hasComma) {
     n = n.lastIndexOf(",") > n.lastIndexOf(".") ? n.replace(/\./g, "").replace(",", ".") : n.replace(/,/g, "");

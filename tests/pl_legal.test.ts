@@ -171,4 +171,50 @@ describe("mcp-redline — Polish legal semantics (v1.4.0 failure classes)", () =
     assert.strictEqual(rDateClash.status, "CONTRADICTED");
     assert.ok(rDateClash.reasonCodes.includes("NUMBER_MISMATCH"));
   });
+
+  it("Item 3: Whole-token number matching (280 000 vs 1 280 000) and clause-scoped numbers", () => {
+    const numEnginePl = new RedlineEngine(undefined, "pl");
+    numEnginePl.loadDocuments([
+      {
+        file: "01_Umowa_Dostawy.md",
+        content: [
+          "# Umowa dostawy z dnia 12 lutego 2025 r.",
+          "1. Łączne wynagrodzenie Wykonawcy wynosi 1\u00A0280\u00A0000 PLN netto.",
+          "2. Wynagrodzenie za Etap I wynosi 280 000 PLN netto, a wynagrodzenie za Etap II wynosi 1 000 000 PLN netto.",
+        ].join("\n"),
+      },
+    ]);
+
+    // 280 000 PLN for Etap I must stay GROUNDED and not collide with 1 280 000 or 1 000 000
+    const rStage1Ok = numEnginePl.verify("Wynagrodzenie za Etap I wynosi 280 000 PLN netto.");
+    assert.strictEqual(rStage1Ok.status, "GROUNDED");
+
+    // 280 000 PLN claimed as total fee must be CONTRADICTED by 1 280 000 PLN (not matched as suffix)
+    const rTotalWrong = numEnginePl.verify("Łączne wynagrodzenie Wykonawcy wynosi 280 000 PLN netto.");
+    assert.strictEqual(rTotalWrong.status, "CONTRADICTED");
+    assert.ok(rTotalWrong.reasonCodes.includes("NUMBER_MISMATCH"));
+
+    // Wrong Stage I amount in a multi-clause sentence is CONTRADICTED
+    const rStage1Wrong = numEnginePl.verify("Wynagrodzenie za Etap I wynosi 1 000 000 PLN netto.");
+    assert.strictEqual(rStage1Wrong.status, "CONTRADICTED");
+    assert.ok(rStage1Wrong.reasonCodes.includes("NUMBER_MISMATCH"));
+
+    // English comma-separated thousands: 280,000 vs 1,280,000
+    const numEngineEn = new RedlineEngine(undefined, "en");
+    numEngineEn.loadDocuments([
+      {
+        file: "01_Master_Agreement.md",
+        content: [
+          "# Master Services Agreement",
+          "The total contract value is 1,280,000 EUR net.",
+        ].join("\n"),
+      },
+    ]);
+    const rEnTotalOk = numEngineEn.verify("The total contract value is 1,280,000 EUR net.");
+    assert.strictEqual(rEnTotalOk.status, "GROUNDED");
+
+    const rEnSuffixWrong = numEngineEn.verify("The total contract value is 280,000 EUR net.");
+    assert.strictEqual(rEnSuffixWrong.status, "CONTRADICTED");
+    assert.ok(rEnSuffixWrong.reasonCodes.includes("NUMBER_MISMATCH"));
+  });
 });
