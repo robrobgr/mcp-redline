@@ -747,27 +747,80 @@ var RedlineBundle = (() => {
     { pos: "zbywaln", neg: "niezbywaln" },
     { pos: "ograniczon", neg: "nieograniczon" }
   ];
-  var MODALITY_CUES2 = [
-    "mo\u017Ce",
-    "mog\u0105",
-    "ma prawo",
-    "maj\u0105 prawo",
+  var MODALITY_PREFIX_CUES = [
     "uprawnion",
     "dopuszcz",
     "zezwala",
     "zobowi\u0105z",
+    "rozwa\u017Ca"
+  ];
+  var MODALITY_EXACT_OR_PHRASE_CUES = [
+    "mo\u017Ce",
+    "mog\u0105",
+    "ma prawo",
+    "maj\u0105 prawo",
+    "przys\u0142uguje",
     "powinien",
     "powinna",
     "powinni",
     "musi",
     "musz\u0105",
+    "ma obowi\u0105zek",
+    "maj\u0105 obowi\u0105zek",
     "b\u0119dzie",
+    "b\u0119d\u0105",
     "zostanie",
     "zostan\u0105",
+    "jest p\u0142atne",
+    "jest p\u0142atny",
+    "jest p\u0142atna",
+    "s\u0105 p\u0142atne",
+    "p\u0142atne w terminie",
+    "p\u0142atny w terminie",
+    "p\u0142atna w terminie",
+    "termin p\u0142atno\u015Bci",
+    "podlega zap\u0142acie",
+    "usunie",
+    "usun\u0105",
+    "zawiadomi",
+    "zawiadomi\u0105",
+    "powiadomi",
+    "powiadomi\u0105",
+    "dokona",
+    "dokonaj\u0105",
+    "zg\u0142osi",
+    "zg\u0142osz\u0105",
+    "zap\u0142aci",
+    "zap\u0142ac\u0105",
+    "wystawi",
+    "wystawi\u0105",
+    "dor\u0119czy",
+    "dor\u0119cz\u0105",
+    "przeka\u017Ce",
+    "przeka\u017C\u0105",
+    "zrealizuje",
+    "zrealizuj\u0105",
+    "zapewni",
+    "zapewni\u0105",
+    "udost\u0119pni",
+    "udost\u0119pni\u0105",
+    "zwr\xF3ci",
+    "zwr\xF3c\u0105",
+    "wyp\u0142aci",
+    "wyp\u0142ac\u0105",
+    "wyznaczy",
     "do decyzji",
-    "rozwa\u017Ca",
-    "rozwa\u017Caj\u0105"
+    "planuje",
+    "zamierza"
   ];
+  var MODALITY_REGEX = new RegExp(
+    [
+      ...MODALITY_PREFIX_CUES.map((p) => `${B2}${p}\\p{L}*${E2}`),
+      ...MODALITY_EXACT_OR_PHRASE_CUES.map((p) => `${B2}${p.replace(/\s+/g, "\\s+")}${E2}`)
+    ].join("|"),
+    "iu"
+  );
+  var MODALITY_CUES2 = [...MODALITY_PREFIX_CUES, ...MODALITY_EXACT_OR_PHRASE_CUES];
   var COMPLETED_EVENT_CUES2 = [
     "naliczy\u0142",
     "naliczy\u0142a",
@@ -815,15 +868,125 @@ var RedlineBundle = (() => {
     "stwierdzono",
     "wystawiono",
     "wystawiona",
-    "wystawiony"
+    "wystawiony",
+    "zas\u0105dzono",
+    "wys\u0142ano",
+    "zg\u0142osi\u0142",
+    "zg\u0142osi\u0142a",
+    "zg\u0142oszono",
+    "udzieli\u0142",
+    "udzielono"
   ];
+  var IMPERSONAL_NON_VERBS = /* @__PURE__ */ new Set([
+    "jedno",
+    "okno",
+    "sukno",
+    "w\u0142\xF3kno",
+    "pi\u0119kno",
+    "rzekomo",
+    "wolno",
+    "wiadomo",
+    "osobno",
+    "r\xF3wno",
+    "pewno",
+    "dawno",
+    "trudno",
+    "p\xF3\u017Ano",
+    "\u017Cyto",
+    "sito",
+    "myto",
+    "z\u0142oto",
+    "b\u0142oto"
+  ]);
+  var PAST_TENSE_EXCLUSIONS = /* @__PURE__ */ new Set([
+    "by\u0142",
+    "by\u0142a",
+    "by\u0142o",
+    "byli",
+    "by\u0142y",
+    "zosta\u0142",
+    "zosta\u0142a",
+    "zosta\u0142o",
+    "zostali",
+    "zosta\u0142y",
+    "mia\u0142",
+    "mia\u0142a",
+    "mia\u0142o",
+    "mieli",
+    "mia\u0142y",
+    "m\xF3g\u0142",
+    "mog\u0142a",
+    "mog\u0142o",
+    "mogli",
+    "mog\u0142y",
+    "musia\u0142",
+    "musia\u0142a",
+    "musia\u0142o",
+    "musieli",
+    "musia\u0142y",
+    "wyni\xF3s\u0142",
+    "wynios\u0142a",
+    "wynios\u0142o",
+    "wynios\u0142y",
+    "si\u0142a",
+    "skala",
+    "wola",
+    "rola",
+    "kontrola",
+    "szko\u0142a",
+    "regu\u0142a",
+    "formu\u0142a",
+    "klauzula",
+    "uchwa\u0142a",
+    "siedziba",
+    "kwarta\u0142",
+    "protok\xF3\u0142",
+    "artyku\u0142",
+    "tytu\u0142",
+    "kapita\u0142",
+    "udzia\u0142",
+    "oddzia\u0142",
+    "podzia\u0142",
+    "materia\u0142",
+    "orygina\u0142",
+    "zesp\xF3\u0142",
+    "sygna\u0142",
+    "szczeg\xF3\u0142",
+    "og\xF3\u0142",
+    "kana\u0142",
+    "fina\u0142",
+    "idea\u0142",
+    "portal",
+    "lokal",
+    "szpital",
+    "ca\u0142a",
+    "ca\u0142o",
+    "ma\u0142a",
+    "ma\u0142o",
+    "sta\u0142a",
+    "bia\u0142a"
+  ]);
   function isModalText2(text) {
-    const lower = text.toLowerCase();
-    return MODALITY_CUES2.some((c) => lower.includes(c));
+    return MODALITY_REGEX.test(text);
   }
   function isFactualText2(text) {
     const lower = text.toLowerCase();
     if (COMPLETED_EVENT_CUES2.some((c) => lower.includes(c))) return true;
+    if (/(?<![\p{L}\p{N}])(?:został|została|zostało|zostały)\s+(?:[\p{L}]+\s+)?[\p{L}]{3,}(?:n[yiae]|t[yiae])(?![\p{L}\p{N}])/iu.test(lower)) {
+      return true;
+    }
+    if (/(?<![\p{L}\p{N}])[\p{L}]{3,}(?:n[yiae]|t[yiae])\s+(?:został|została|zostało|zostały)(?![\p{L}\p{N}])/iu.test(lower)) {
+      return true;
+    }
+    const words = lower.match(/[\p{L}]+/gu) || [];
+    for (const w of words) {
+      if (w.length >= 5 && /(?:ano|ono|iono|ęto|yto|ito)$/u.test(w) && !IMPERSONAL_NON_VERBS.has(w)) {
+        return true;
+      }
+      if (w.length >= 4 && /(?:ał|ała|ało|ali|ił|iła|iło|ili|ył|yła|yło|yli|ął|ęła|ęło|ęli|edł|zła|zło|zli)$/u.test(w) && !PAST_TENSE_EXCLUSIONS.has(w) && !w.endsWith("by")) {
+        return true;
+      }
+    }
     if (/(?<![\p{L}\p{N}])dochodzi(?![\p{L}\p{N}])/u.test(lower) && !/(?<![\p{L}\p{N}])(?:może|ma\s+prawo)\s+dochodzić(?![\p{L}\p{N}])/u.test(lower)) {
       return true;
     }
@@ -1717,7 +1880,7 @@ var RedlineBundle = (() => {
      */
     combine(f, seed) {
       const isField = (u) => u.text.startsWith("|") || u.text.length <= 160 && /^[\s*>-]*\*{0,2}[\p{L}][\p{L}\s/()&-]{1,40}:\*{0,2}\s/u.test(u.text);
-      const pool = (this.sectionUnits.get(`${seed.unit.file}#${seed.unit.page}`) || []).filter((u) => isField(u) && !this.partyMismatch(f.parties, u) && u.negCues.length > 0 === f.negative && !(u.hedged && u.negCues.length === 0 && !f.hedged));
+      const pool = (this.sectionUnits.get(`${seed.unit.file}#${seed.unit.page}`) || []).filter((u) => isField(u) && !this.partyMismatch(f.parties, u) && u.negCues.length > 0 === f.negative && !(u.hedged && u.negCues.length === 0 && !f.hedged) && !(f.factual && !f.modal && u.modal && !u.factual));
       const hasTok = (u, t) => {
         const hits = f.alts.get(t);
         return [...u.tokens].some((x) => hits.has(x)) || /\d/.test(t) && [...u.context].some((x) => hits.has(x));
@@ -1796,7 +1959,7 @@ var RedlineBundle = (() => {
           return matchesPred && (f.proper.length === 0 || f.proper.every((t) => s.matched.some((m) => m.startsWith(t))));
         }
       };
-      const contras = scored.filter((s) => s.contraCoverage >= THRESHOLDS.contradict && s.full >= minFull && (s.valueConflict || polarityContra(s)) && (f.proper.length === 0 || f.proper.every((t) => s.matched.some((m) => m.startsWith(t)))));
+      const contras = scored.filter((s) => s.contraCoverage >= THRESHOLDS.contradict && s.full >= minFull && (s.valueConflict && !s.modalityMismatch || polarityContra(s)) && (f.proper.length === 0 || f.proper.every((t) => s.matched.some((m) => m.startsWith(t)))));
       const pick = (arr) => arr.slice().sort((a, b) => a.unit.tier - b.unit.tier || b.unit.docDate - a.unit.docDate || b.score - a.score)[0];
       const bestS = pick(supports);
       const overrides = (c) => !bestS || c.unit.tier < bestS.unit.tier && c.contraCoverage >= THRESHOLDS.override * bestS.contraCoverage || c.unit.tier === bestS.unit.tier && c.unit.docDate > bestS.unit.docDate && (c.valueConflict || c.antonymConflict) && c.contraCoverage >= THRESHOLDS.contradict || c.unit.tier === bestS.unit.tier && polarityContra(c) && c.numbersOk && c.contraCoverage >= bestS.contraCoverage - THRESHOLDS.tieMargin;

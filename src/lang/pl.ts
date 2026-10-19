@@ -107,11 +107,34 @@ const ANTONYM_PAIRS: AntonymPair[] = [
   { pos: "ograniczon", neg: "nieograniczon" },
 ];
 
-const MODALITY_CUES = [
-  "może", "mogą", "ma prawo", "mają prawo", "uprawnion", "dopuszcz", "zezwala",
-  "zobowiąz", "powinien", "powinna", "powinni", "musi", "muszą", "będzie", "zostanie", "zostaną",
-  "do decyzji", "rozważa", "rozważają",
+const MODALITY_PREFIX_CUES = [
+  "uprawnion", "dopuszcz", "zezwala", "zobowiąz", "rozważa",
 ];
+
+const MODALITY_EXACT_OR_PHRASE_CUES = [
+  "może", "mogą", "ma prawo", "mają prawo", "przysługuje",
+  "powinien", "powinna", "powinni", "musi", "muszą", "ma obowiązek", "mają obowiązek",
+  "będzie", "będą", "zostanie", "zostaną",
+  "jest płatne", "jest płatny", "jest płatna", "są płatne",
+  "płatne w terminie", "płatny w terminie", "płatna w terminie",
+  "termin płatności", "podlega zapłacie",
+  "usunie", "usuną", "zawiadomi", "zawiadomią", "powiadomi", "powiadomią",
+  "dokona", "dokonają", "zgłosi", "zgłoszą", "zapłaci", "zapłacą",
+  "wystawi", "wystawią", "doręczy", "doręczą", "przekaże", "przekażą",
+  "zrealizuje", "zrealizują", "zapewni", "zapewnią", "udostępni", "udostępnią",
+  "zwróci", "zwrócą", "wypłaci", "wypłacą", "wyznaczy",
+  "do decyzji", "planuje", "zamierza",
+];
+
+const MODALITY_REGEX = new RegExp(
+  [
+    ...MODALITY_PREFIX_CUES.map((p) => `${B}${p}\\p{L}*${E}`),
+    ...MODALITY_EXACT_OR_PHRASE_CUES.map((p) => `${B}${p.replace(/\s+/g, "\\s+")}${E}`),
+  ].join("|"),
+  "iu"
+);
+
+const MODALITY_CUES = [...MODALITY_PREFIX_CUES, ...MODALITY_EXACT_OR_PHRASE_CUES];
 
 const COMPLETED_EVENT_CUES = [
   "naliczył", "naliczyła", "naliczono", "rozwiązał", "rozwiązała", "rozwiązano",
@@ -122,16 +145,57 @@ const COMPLETED_EVENT_CUES = [
   "zapłacił", "zapłaciła", "zapłacono", "nałożył", "nałożyła", "nałożono",
   "przyznał", "przyznała", "przyznano", "zaakceptował", "zaakceptowała", "zaakceptowano",
   "wykreślono", "stwierdzono", "wystawiono", "wystawiona", "wystawiony",
+  "zasądzono", "wysłano", "zgłosił", "zgłosiła", "zgłoszono", "udzielił", "udzielono",
 ];
 
+const IMPERSONAL_NON_VERBS = new Set([
+  "jedno", "okno", "sukno", "włókno", "piękno", "rzekomo", "wolno", "wiadomo",
+  "osobno", "równo", "pewno", "dawno", "trudno", "późno", "żyto", "sito", "myto", "złoto", "błoto",
+]);
+
+const PAST_TENSE_EXCLUSIONS = new Set([
+  "był", "była", "było", "byli", "były",
+  "został", "została", "zostało", "zostali", "zostały",
+  "miał", "miała", "miało", "mieli", "miały",
+  "mógł", "mogła", "mogło", "mogli", "mogły",
+  "musiał", "musiała", "musiało", "musieli", "musiały",
+  "wyniósł", "wyniosła", "wyniosło", "wyniosły",
+  "siła", "skala", "wola", "rola", "kontrola", "szkoła", "reguła", "formuła", "klauzula", "uchwała", "siedziba",
+  "kwartał", "protokół", "artykuł", "tytuł", "kapitał", "udział", "oddział", "podział", "materiał", "oryginał",
+  "zespół", "sygnał", "szczegół", "ogół", "kanał", "finał", "ideał", "portal", "lokal", "szpital",
+  "cała", "cało", "mała", "mało", "stała", "biała",
+]);
+
 function isModalText(text: string): boolean {
-  const lower = text.toLowerCase();
-  return MODALITY_CUES.some((c) => lower.includes(c));
+  return MODALITY_REGEX.test(text);
 }
 
 function isFactualText(text: string): boolean {
   const lower = text.toLowerCase();
   if (COMPLETED_EVENT_CUES.some((c) => lower.includes(c))) return true;
+  // Passive past: został/została/zostało/zostały + passive participle (-ny/-na/-ne/-ni/-ty/-ta/-te/-ci)
+  if (/(?<![\p{L}\p{N}])(?:został|została|zostało|zostały)\s+(?:[\p{L}]+\s+)?[\p{L}]{3,}(?:n[yiae]|t[yiae])(?![\p{L}\p{N}])/iu.test(lower)) {
+    return true;
+  }
+  if (/(?<![\p{L}\p{N}])[\p{L}]{3,}(?:n[yiae]|t[yiae])\s+(?:został|została|zostało|zostały)(?![\p{L}\p{N}])/iu.test(lower)) {
+    return true;
+  }
+  const words = lower.match(/[\p{L}]+/gu) || [];
+  for (const w of words) {
+    // Impersonal past (-ano, -ono, -iono, -ęto, -yto, -ito)
+    if (w.length >= 5 && /(?:ano|ono|iono|ęto|yto|ito)$/u.test(w) && !IMPERSONAL_NON_VERBS.has(w)) {
+      return true;
+    }
+    // Active 3rd-person past (-ł, -ła, -ło, -li)
+    if (
+      w.length >= 4 &&
+      /(?:ał|ała|ało|ali|ił|iła|iło|ili|ył|yła|yło|yli|ął|ęła|ęło|ęli|edł|zła|zło|zli)$/u.test(w) &&
+      !PAST_TENSE_EXCLUSIONS.has(w) &&
+      !w.endsWith("by")
+    ) {
+      return true;
+    }
+  }
   if (/(?<![\p{L}\p{N}])dochodzi(?![\p{L}\p{N}])/u.test(lower) &&
       !/(?<![\p{L}\p{N}])(?:może|ma\s+prawo)\s+dochodzić(?![\p{L}\p{N}])/u.test(lower)) {
     return true;

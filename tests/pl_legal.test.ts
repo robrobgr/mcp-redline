@@ -39,7 +39,7 @@ describe("mcp-redline — Polish legal semantics (v1.4.0 failure classes)", () =
 
   const engine = new RedlineEngine(tmpDir, "pl");
 
-  it("Class 1: Modality vs fact — permission does not ground past fact", () => {
+  it("Class 1: Modality vs fact — permission, future, and payment norms do not ground past/passive/impersonal facts", () => {
     // Contract allows penalty, but does not state it was charged
     const r1 = engine.verify("Zamawiający naliczył karę umowną w wysokości 10 000 PLN.");
     assert.strictEqual(r1.status, "UNSUPPORTED");
@@ -48,6 +48,38 @@ describe("mcp-redline — Polish legal semantics (v1.4.0 failure classes)", () =
     // Modal claim matches modal source
     const r2 = engine.verify("Zamawiający może dochodzić odszkodowania uzupełniającego.");
     assert.strictEqual(r2.status, "GROUNDED");
+
+    // Inline snippet corpus (independent of dev claims)
+    const maintEngine = new RedlineEngine(undefined, "pl");
+    maintEngine.loadDocuments([
+      {
+        file: "01_Umowa_serwisowa_2025-02-01.md",
+        content: [
+          "# Umowa serwisowa z dnia 1 lutego 2025 r.",
+          "1. Opłata abonamentowa jest płatna w terminie 21 dni od doręczenia faktury.",
+          "2. Dostawca przekaże raport bezpieczeństwa w terminie 5 dni roboczych.",
+          "3. Dostawca wdrożył poprawkę krytyczną modułu logowania w dniu 10 lutego 2025 r.",
+        ].join("\n"),
+      },
+    ]);
+
+    // Passive past participle against payment-term norm -> UNSUPPORTED (MODALITY_MISMATCH)
+    const rPassive = maintEngine.verify("Opłata abonamentowa została zapłacona w terminie 21 dni.");
+    assert.strictEqual(rPassive.status, "UNSUPPORTED");
+    assert.ok(rPassive.reasonCodes.includes("MODALITY_MISMATCH"));
+
+    // Impersonal past against future obligation -> UNSUPPORTED (MODALITY_MISMATCH)
+    const rImpersonal = maintEngine.verify("Przekazano raport bezpieczeństwa w terminie 5 dni roboczych.");
+    assert.strictEqual(rImpersonal.status, "UNSUPPORTED");
+    assert.ok(rImpersonal.reasonCodes.includes("MODALITY_MISMATCH"));
+
+    // Normative claim against normative payment term -> stays GROUNDED
+    const rNormGrounded = maintEngine.verify("Opłata abonamentowa jest płatna w terminie 21 dni od doręczenia faktury.");
+    assert.strictEqual(rNormGrounded.status, "GROUNDED");
+
+    // Completed event claim against completed event source -> stays GROUNDED
+    const rFactGrounded = maintEngine.verify("Dostawca wdrożył poprawkę krytyczną modułu logowania 10 lutego 2025 r.");
+    assert.strictEqual(rFactGrounded.status, "GROUNDED");
   });
 
   it("Class 2: Role mismatch — subject/recipient inversion is refused", () => {

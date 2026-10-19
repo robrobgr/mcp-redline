@@ -805,7 +805,9 @@ export class RedlineEngineCore {
   private combine(f: ClaimFeatures, seed: UnitScore): { units: Unit[]; coverage: number; matched: string[]; missing: string[] } | null {
     const isField = (u: Unit) => u.text.startsWith("|") || (u.text.length <= 160 && /^[\s*>-]*\*{0,2}[\p{L}][\p{L}\s/()&-]{1,40}:\*{0,2}\s/u.test(u.text));
     const pool = (this.sectionUnits.get(`${seed.unit.file}#${seed.unit.page}`) || []).filter((u) =>
-      isField(u) && !this.partyMismatch(f.parties, u) && (u.negCues.length > 0) === f.negative && !(u.hedged && u.negCues.length === 0 && !f.hedged));
+      isField(u) && !this.partyMismatch(f.parties, u) && (u.negCues.length > 0) === f.negative &&
+      !(u.hedged && u.negCues.length === 0 && !f.hedged) &&
+      !(f.factual && !f.modal && u.modal && !u.factual));
     const hasTok = (u: Unit, t: string) => {
       const hits = f.alts.get(t)!;
       return [...u.tokens].some((x) => hits.has(x)) || (/\d/.test(t) && [...u.context].some((x) => hits.has(x)));
@@ -895,7 +897,7 @@ export class RedlineEngineCore {
       }
     };
     const contras = scored.filter((s) =>
-      s.contraCoverage >= THRESHOLDS.contradict && s.full >= minFull && (s.valueConflict || polarityContra(s)) &&
+      s.contraCoverage >= THRESHOLDS.contradict && s.full >= minFull && ((s.valueConflict && !s.modalityMismatch) || polarityContra(s)) &&
       (f.proper.length === 0 || f.proper.every((t) => s.matched.some((m) => m.startsWith(t)))));
 
     const pick = (arr: UnitScore[]) => arr.slice().sort((a, b) => a.unit.tier - b.unit.tier || b.unit.docDate - a.unit.docDate || b.score - a.score)[0];
