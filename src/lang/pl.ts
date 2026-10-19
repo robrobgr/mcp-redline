@@ -272,24 +272,55 @@ function isHedge(t: string): boolean {
   return HEDGE_PREFIXES.some((p) => t.startsWith(p));
 }
 
-function extractRoles(text: string): { subject?: "supplier" | "customer"; recipient?: "supplier" | "customer" } {
+const DATIVE_RECIPIENT_PREP_OR_VERB =
+  "(?:udziel\\p{L}*|przysługuj\\p{L}*|przekaz\\p{L}*|przekaż\\p{L}*|doręcz\\p{L}*|wypłac\\p{L}*|zapłac\\p{L}*|zwróc\\p{L}*|zwrac\\p{L}*|zleca\\p{L}*|powierz\\p{L}*|zgłasz\\p{L}*|zgłosi\\p{L}*|wobec|względem|na\\s+rzecz)";
+
+function extractRoles(text: string): {
+  subject?: "supplier" | "customer";
+  recipient?: "supplier" | "customer";
+  genitive?: "supplier" | "customer";
+  isPermissive?: boolean;
+} {
   const lower = text.toLowerCase();
   let subject: "supplier" | "customer" | undefined;
   let recipient: "supplier" | "customer" | undefined;
+  let genitive: "supplier" | "customer" | undefined;
 
-  if (/(?<![\p{L}\p{N}])(?:to\s+)?dostawca(?![\p{L}\p{N}])/u.test(lower)) {
+  if (/(?<![\p{L}\p{N}])(?:to\s+)?(?:dostawca|wykonawca)(?![\p{L}\p{N}])/u.test(lower)) {
     subject = "supplier";
   } else if (/(?<![\p{L}\p{N}])(?:to\s+)?(?:zamawiający|klient)(?![\p{L}\p{N}])/u.test(lower)) {
     subject = "customer";
   }
 
-  if (/(?<![\p{L}\p{N}])(?:udziela\s+)?dostawcy(?![\p{L}\p{N}])/u.test(lower)) {
+  const supRecipRe = new RegExp(
+    `(?<![\\p{L}\\p{N}])${DATIVE_RECIPIENT_PREP_OR_VERB}\\s+(?:[\\p{L}]+\\s+)?(?:dostawcy|wykonawcy)(?![\\p{L}\\p{N}])`,
+    "u"
+  );
+  const custRecipRe = new RegExp(
+    `(?<![\\p{L}\\p{N}])(?:(?:zamawiającemu|klientowi)|${DATIVE_RECIPIENT_PREP_OR_VERB}\\s+(?:[\\p{L}]+\\s+)?(?:zamawiającego|klienta))(?![\\p{L}\\p{N}])`,
+    "u"
+  );
+
+  if (supRecipRe.test(lower)) {
     recipient = "supplier";
-  } else if (/(?<![\p{L}\p{N}])(?:udziela\s+)?(?:zamawiającemu|klientowi)(?![\p{L}\p{N}])/u.test(lower)) {
+  } else if (custRecipRe.test(lower)) {
     recipient = "customer";
   }
 
-  return { subject, recipient };
+  const withoutRecip = lower.replace(supRecipRe, " ").replace(custRecipRe, " ");
+
+  const hasSupGen = /(?<![\p{L}\p{N}])(?:dostawcy|dostawcę|dostawcą|wykonawcy|wykonawcę|wykonawcą)(?![\p{L}\p{N}])/u.test(withoutRecip);
+  const hasCustGen = /(?<![\p{L}\p{N}])(?:zamawiającego|zamawiającym|klienta|klientem)(?![\p{L}\p{N}])/u.test(withoutRecip);
+
+  if (hasSupGen && !hasCustGen) {
+    genitive = "supplier";
+  } else if (hasCustGen && !hasSupGen) {
+    genitive = "customer";
+  }
+
+  const isPermissive = /(?<![\p{L}\p{N}])(?:może|mogą|ma\s+prawo|mają\s+prawo|uprawnion\p{L}*)(?![\p{L}\p{N}])/u.test(lower);
+
+  return { subject, recipient, genitive, isPermissive };
 }
 
 const CANONICAL_MONTHS = [

@@ -82,11 +82,44 @@ describe("mcp-redline — Polish legal semantics (v1.4.0 failure classes)", () =
     assert.strictEqual(rFactGrounded.status, "GROUNDED");
   });
 
-  it("Class 2: Role mismatch — subject/recipient inversion is refused", () => {
+  it("Class 2: Role mismatch — subject/recipient/genitive/prepositional inversion is contradicted", () => {
     // Inverted licensor/licensee roles
     const r = engine.verify("Zamawiający udziela Dostawcy licencji na system ERP.");
     assert.strictEqual(r.status, "CONTRADICTED");
     assert.ok(r.reasonCodes.includes("ROLE_MISMATCH"));
+
+    // Inline snippet corpus for nominative obligation, genitive condition, and prepositional phrase
+    const roleEngine = new RedlineEngine(undefined, "pl");
+    roleEngine.loadDocuments([
+      {
+        file: "01_Umowa_Wdrozeniowa_2025-01-20.md",
+        content: [
+          "# Umowa wdrożeniowa z dnia 20 stycznia 2025 r.",
+          "1. Zamawiający w terminie 7 dni roboczych przeprowadza testy akceptacyjne modułu.",
+          "2. Zmiana architektury bazy danych wymaga pisemnej zgody Zamawiającego.",
+          "3. Sprzęt serwerowy jest przechowywany w magazynie Zamawiającego.",
+        ].join("\n"),
+      },
+    ]);
+
+    // Matching role stays GROUNDED
+    const rGenOk = roleEngine.verify("Zmiana architektury bazy danych wymaga pisemnej zgody Zamawiającego.");
+    assert.strictEqual(rGenOk.status, "GROUNDED");
+
+    // Nominative obligation assigned to the wrong party -> CONTRADICTED (ROLE_MISMATCH)
+    const rSubjSwap = roleEngine.verify("Dostawca w terminie 7 dni roboczych przeprowadza testy akceptacyjne modułu.");
+    assert.strictEqual(rSubjSwap.status, "CONTRADICTED");
+    assert.ok(rSubjSwap.reasonCodes.includes("ROLE_MISMATCH"));
+
+    // Genitive condition ("zgody Dostawcy" vs "zgody Zamawiającego") -> CONTRADICTED (ROLE_MISMATCH)
+    const rGenSwap = roleEngine.verify("Zmiana architektury bazy danych wymaga pisemnej zgody Dostawcy.");
+    assert.strictEqual(rGenSwap.status, "CONTRADICTED");
+    assert.ok(rGenSwap.reasonCodes.includes("ROLE_MISMATCH"));
+
+    // Prepositional phrase ("w magazynie Dostawcy" vs "w magazynie Zamawiającego") -> CONTRADICTED (ROLE_MISMATCH)
+    const rPrepSwap = roleEngine.verify("Sprzęt serwerowy jest przechowywany w magazynie Dostawcy.");
+    assert.strictEqual(rPrepSwap.status, "CONTRADICTED");
+    assert.ok(rPrepSwap.reasonCodes.includes("ROLE_MISMATCH"));
   });
 
   it("Class 3: Polish negation morphology & antonyms", () => {

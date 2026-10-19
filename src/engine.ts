@@ -11,6 +11,7 @@ import {
   detectLanguage,
   Currency,
   AntonymPair,
+  RoleSlots,
 } from "./lang/index.js";
 
 export * from "./messages.js";
@@ -40,7 +41,7 @@ export interface Unit {
   docDate: number;
   modal: boolean;
   factual: boolean;
-  roles: { subject?: "supplier" | "customer"; recipient?: "supplier" | "customer" };
+  roles: RoleSlots;
   prepNegatedTerms: Set<string>;
 }
 
@@ -322,7 +323,7 @@ interface ClaimFeatures {
   proper: string[]; // capitalised names/places in the claim — decisive, must be in the quoted unit
   modal: boolean;
   factual: boolean;
-  roles: { subject?: "supplier" | "customer"; recipient?: "supplier" | "customer" };
+  roles: RoleSlots;
   negatedTerms: Set<string>;
   prepNegatedTerms: Set<string>;
 }
@@ -434,11 +435,11 @@ export class RedlineEngineCore {
 
     const extractUnitRoles = (txt: string) => {
       const primary = secPack.roleLexicon.extractRoles(txt);
-      if (primary.subject || primary.recipient) return primary;
+      if (primary.subject || primary.recipient || primary.genitive) return primary;
       for (const p of ALL_PACKS) {
         if (p.lang === secPack.lang) continue;
         const r = p.roleLexicon.extractRoles(txt);
-        if (r.subject || r.recipient) return r;
+        if (r.subject || r.recipient || r.genitive) return r;
       }
       return primary;
     };
@@ -656,11 +657,11 @@ export class RedlineEngineCore {
     const modal = ALL_PACKS.some((p) => p.isModalText(claim));
     const factual = ALL_PACKS.some((p) => p.isFactualText(claim));
     let roles = claimPack.roleLexicon.extractRoles(claim);
-    if (!roles.subject && !roles.recipient) {
+    if (!roles.subject && !roles.recipient && !roles.genitive) {
       for (const p of ALL_PACKS) {
         if (p.lang === claimPack.lang) continue;
         const r = p.roleLexicon.extractRoles(claim);
-        if (r.subject || r.recipient) { roles = r; break; }
+        if (r.subject || r.recipient || r.genitive) { roles = r; break; }
       }
     }
     const negatedTerms = new Set<string>();
@@ -789,6 +790,7 @@ export class RedlineEngineCore {
         conflicts.push(msg.reason_value_mismatch(fmt(n), rivals.map(fmt).join(" / ")));
       }
     }
+    const valueConflict = conflicts.length > 0;
 
     let prepNegConflict = false;
     for (const t of f.content) {
@@ -828,9 +830,12 @@ export class RedlineEngineCore {
 
     let roleMismatch = false;
     let roleContra = false;
-    if (f.roles.subject && u.roles.subject && f.roles.subject !== u.roles.subject) {
+    const subjectClash = !!(f.roles.subject && u.roles.subject && f.roles.subject !== u.roles.subject);
+    const recipientClash = !!(f.roles.recipient && u.roles.recipient && f.roles.recipient !== u.roles.recipient);
+    const genitiveClash = !!(f.roles.genitive && u.roles.genitive && f.roles.genitive !== u.roles.genitive);
+    if (subjectClash || recipientClash || genitiveClash) {
       roleMismatch = true;
-      if (f.roles.recipient && u.roles.recipient && f.roles.recipient !== u.roles.recipient) {
+      if (!f.roles.isPermissive || (subjectClash && recipientClash)) {
         roleContra = true;
         conflictCodes.push(REASON_CODES.ROLE_MISMATCH);
         conflicts.push(msg.reason_role_mismatch());
@@ -850,7 +855,7 @@ export class RedlineEngineCore {
     const supportCoverage = (cov + Math.max(0, numFound) * NW) / denom;
     const supportUnitCoverage = (fullW + Math.max(0, numFound) * NW) / denom;
     const score = coverage + (3 - u.tier) * 0.02 + (numbersOk && f.numbers.length ? 0.1 : 0);
-    return { unit: u, unitNegative, coverage, unitCoverage, contraCoverage, supportCoverage, supportUnitCoverage, valueConflict: conflicts.length > 0, full: full + contraExtraFull, matched, missing, numbersOk, conflicts, conflictCodes, polarityFlip, score, antonymConflict, roleMismatch, roleContra, modalityMismatch };
+    return { unit: u, unitNegative, coverage, unitCoverage, contraCoverage, supportCoverage, supportUnitCoverage, valueConflict, full: full + contraExtraFull, matched, missing, numbersOk, conflicts, conflictCodes, polarityFlip, score, antonymConflict, roleMismatch, roleContra, modalityMismatch };
   }
 
   /** Two words denote the same concept (stem match or same lexicon group). */
@@ -951,7 +956,7 @@ export class RedlineEngineCore {
     // Negative claim ("X was not signed") vs. affirmative source: only a source that would itself
     // ground "X was signed" (same figures, high coverage, not a mere proposal) contradicts it.
     const polarityContra = (s: UnitScore) => {
-      if (s.antonymConflict || s.roleContra) return true;
+      if ((s.antonymConflict || s.roleContra) && (s.numbersOk || s.valueConflict)) return true;
       if (!s.polarityFlip) return false;
       if (f.negative) {
         const matchesNegated = f.negatedTerms.size === 0 || [...f.negatedTerms].some((t) => s.matched.includes(t) || s.matched.includes(`${t}^`));
@@ -963,10 +968,17 @@ export class RedlineEngineCore {
       }
     };
     const contras = scored.filter((s) =>
-      s.contraCoverage >= THRESHOLDS.contradict && s.full >= minFull && ((s.valueConflict && !s.modalityMismatch) || polarityContra(s)) &&
+      s.contraCoverage >= THRESHOLDS.contradict && s.full >= minFull && !s.modalityMismatch && (s.valueConflict || polarityContra(s)) &&
       (f.proper.length === 0 || f.proper.every((t) => s.matched.some((m) => m.startsWith(t)))));
 
-    const pick = (arr: UnitScore[]) => arr.slice().sort((a, b) => a.unit.tier - b.unit.tier || b.unit.docDate - a.unit.docDate || b.score - a.score)[0];
+    const pick = (arr: UnitScore[]) =>
+      arr.slice().sort((a, b) => {
+        if (a.unit.tier !== b.unit.tier) return a.unit.tier - b.unit.tier;
+        if (Math.abs(a.contraCoverage - b.contraCoverage) <= THRESHOLDS.tieMargin && a.unit.docDate !== b.unit.docDate) {
+          return b.unit.docDate - a.unit.docDate;
+        }
+        return b.score - a.score;
+      })[0];
     const bestS = pick(supports);
     // A contradiction overrides support only if it comes from a more authoritative source,
     // or — for negation — from an equally authoritative sentence that matches the claim better.

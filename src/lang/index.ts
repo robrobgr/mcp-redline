@@ -13,10 +13,17 @@ export interface AntonymPair {
   alts?: string[];
 }
 
+export interface RoleSlots {
+  subject?: "supplier" | "customer";
+  recipient?: "supplier" | "customer";
+  genitive?: "supplier" | "customer";
+  isPermissive?: boolean;
+}
+
 export interface RoleLexicon {
   supplier: string[];
   customer: string[];
-  extractRoles: (text: string) => { subject?: "supplier" | "customer"; recipient?: "supplier" | "customer" };
+  extractRoles: (text: string) => RoleSlots;
 }
 
 export interface NumberFormat {
