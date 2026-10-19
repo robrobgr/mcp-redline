@@ -144,6 +144,7 @@ function checkAntonymConflict(claimToks: string[], unitToks: string[], packs: La
 function memberMatch(member: string, word: string, pack: LanguagePack): boolean {
   if (member.startsWith("=")) return member.slice(1) === word;
   if (member.startsWith("~")) return pack.stemMatch(member.slice(1), word);
+  if (/\d/.test(word) !== /\d/.test(member)) return false;
   return pack.stemMatch(member, word) || word.startsWith(member);
 }
 

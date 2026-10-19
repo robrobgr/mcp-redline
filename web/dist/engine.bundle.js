@@ -1501,6 +1501,7 @@ var RedlineBundle = (() => {
   function memberMatch(member, word, pack) {
     if (member.startsWith("=")) return member.slice(1) === word;
     if (member.startsWith("~")) return pack.stemMatch(member.slice(1), word);
+    if (/\d/.test(word) !== /\d/.test(member)) return false;
     return pack.stemMatch(member, word) || word.startsWith(member);
   }
   function currencyOf(word, packs = ALL_PACKS) {
